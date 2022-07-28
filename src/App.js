@@ -19,11 +19,17 @@ class App extends React.Component {
         this.state = {
             loading: false,
             action: 'AES-Gen',
+            // Keygen
             keyLength: 256,
             curve: 'P-256',
+            // Enc/Dec
+            message: '',
             input: '',
+            output: ''
         }
     }
+
+    // Helper functions
 
     _arrayBufferToBase64 = (buffer) => {
         var binary = '';
@@ -33,6 +39,56 @@ class App extends React.Component {
             binary += String.fromCharCode(bytes[i]);
         }
         return window.btoa(binary);
+    }
+
+    _str2ab = (str) => {
+        const buf = new ArrayBuffer(str.length);
+        const bufView = new Uint8Array(buf);
+        for (let i = 0, strLen = str.length; i < strLen; i++) {
+            bufView[i] = str.charCodeAt(i);
+        }
+        return buf;
+    }
+
+    _parsePem = (headerTag, pem) => {
+        // fetch the part of the PEM string between header and footer
+        const pemHeader = `-----BEGIN ${headerTag} KEY-----`;
+        const pemFooter = `-----END ${headerTag} KEY-----`;
+        const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
+        // base64 decode the string to get the binary data
+        const binaryDerString = window.atob(pemContents);
+        // convert from a binary string to an ArrayBuffer
+        return this._str2ab(binaryDerString);
+    }
+
+    importRsaPub = async (pem) => {
+        const binaryDer = this._parsePem('PUBLIC', pem)
+
+        return await window.crypto.subtle.importKey(
+            "spki",
+            binaryDer,
+            {
+                name: "RSA-OAEP",
+                hash: "SHA-256"
+            },
+            true,
+            ["encrypt"]
+        );
+    }
+
+    importRsaPriv = async (pem) => {
+        const binaryDer = this._parsePem('PRIVATE', pem)
+
+        return window.crypto.subtle.importKey(
+            "pkcs8",
+            binaryDer,
+            {
+                name: "RSA-OAEP",
+                hash: "SHA-256",
+            },
+            true,
+            ["decrypt"]
+        );
     }
 
     generateAES = async () => {
@@ -50,7 +106,7 @@ class App extends React.Component {
             const exported = await window.crypto.subtle.exportKey("raw", key)
             const exportedKeyBuffer = new Uint8Array(exported);
 
-            this.setState({ generatedKey: this._arrayBufferToBase64(exportedKeyBuffer) })
+            this.setState({ output: this._arrayBufferToBase64(exportedKeyBuffer) })
         } catch (err) {
             console.error(err)
         } finally {
@@ -76,7 +132,7 @@ class App extends React.Component {
             const exportedAsBase64 = this._arrayBufferToBase64(new Uint8Array(exported))
             const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
 
-            this.setState({ generatedKey: pemExported })
+            this.setState({ output: pemExported })
         } catch (err) {
             console.error(err)
         } finally {
@@ -100,7 +156,7 @@ class App extends React.Component {
             const exportedAsBase64 = this._arrayBufferToBase64(new Uint8Array(exported))
             const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
 
-            this.setState({ generatedKey: pemExported })
+            this.setState({ output: pemExported })
         } catch (err) {
             console.error(err)
         } finally {
@@ -108,7 +164,53 @@ class App extends React.Component {
         }
     }
 
+    encryptRSA = async () => {
+        try {
+            this.setState({ loading: true })
 
+            const publicKey = await this.importRsaPub(this.state.input)
+            if (publicKey) console.log('Imported Public key')
+            else console.log('Failed to import Public key')
+
+            const cipherText = await window.crypto.subtle.encrypt(
+                {
+                    name: "RSA-OAEP"
+                },
+                publicKey,
+                this._str2ab(this.state.message)
+            );
+
+            this.setState({ output: this._arrayBufferToBase64(cipherText) })
+        } catch (err) {
+            console.error(err)
+        } finally {
+            this.setState({ loading: false })
+        }
+    }
+
+    decryptRSA = async () => {
+        try {
+            this.setState({ loading: true })
+
+            const privateKey = await this.importRsaPriv(this.state.input)
+            if (privateKey) console.log('Imported Private key')
+            else console.log('Failed to import Private key')
+
+            const plainText = await window.crypto.subtle.decrypt(
+                {
+                    name: "RSA-OAEP"
+                },
+                privateKey,
+                this._str2ab(window.atob(this.state.message))
+            );
+
+            this.setState({ output: this._arrayBufferToBase64(plainText) })
+        } catch (err) {
+            console.error(err)
+        } finally {
+            this.setState({ loading: false })
+        }
+    }
 
     render = () => {
         return (
@@ -178,6 +280,17 @@ class App extends React.Component {
                                             <Button onClick={this.generateRSA}>Generate ECDSA Key</Button>
                                         </>
                                     }
+
+                                    {this.state.action === 'RSA-Enc' &&
+                                        <>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>PlainText / CipherText</Form.Label>
+                                                <Form.Control type="text" placeholder="Hi Mom" value={this.state.plainText} onChange={(e) => this.setState({ plainText: e.target.value })} />
+                                            </Form.Group>
+                                            <Button onClick={this.decryptRSA}>Decrypt</Button>
+                                            <Button onClick={this.encryptRSA}>Encrypt</Button>
+                                        </>
+                                    }
                                 </Col>
                             </Row>
                         </Col>
@@ -192,7 +305,7 @@ class App extends React.Component {
                             <Row style={{ height: '50%' }}>
                                 <Form.Group >
                                     <Form.Label>Output</Form.Label>
-                                    <Form.Control as="textarea" rows={12} placeholder="Output" value={this.state.generatedKey} />
+                                    <Form.Control as="textarea" rows={12} placeholder="Output" value={this.state.output} />
                                 </Form.Group>
                             </Row>
                         </Col>
