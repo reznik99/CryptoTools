@@ -2,6 +2,7 @@
 import React from 'react'
 
 import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Nav from 'react-bootstrap/Nav';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -61,6 +62,18 @@ class App extends React.Component {
         return this._str2ab(binaryDerString);
     }
 
+    _keypairToPem = async (keypair) => {
+        const exportedPriv = await window.crypto.subtle.exportKey("pkcs8", keypair.privateKey)
+        const exportedPrivAsBase64 = this._arrayBufferToBase64(new Uint8Array(exportedPriv))
+        const pemPriv = `-----BEGIN PRIVATE KEY-----\n${exportedPrivAsBase64}\n-----END PRIVATE KEY-----`;
+
+        const exportedPub = await window.crypto.subtle.exportKey("spki", keypair.publicKey)
+        const exportedPubAsBase64 = this._arrayBufferToBase64(new Uint8Array(exportedPub))
+        const pemPub = `-----BEGIN PUBLIC KEY-----\n${exportedPubAsBase64}\n-----END PUBLIC KEY-----`;
+
+        return `${pemPriv}\n${pemPub}`
+    }
+
     importRsaPub = async (pem) => {
         const binaryDer = this._parsePem('PUBLIC', pem)
 
@@ -117,7 +130,7 @@ class App extends React.Component {
     generateRSA = async () => {
         try {
             this.setState({ loading: true })
-            const key = await window.crypto.subtle.generateKey(
+            const keypair = await window.crypto.subtle.generateKey(
                 {
                     name: "RSA-OAEP",
                     modulusLength: this.state.keyLength,
@@ -128,11 +141,7 @@ class App extends React.Component {
                 ["encrypt", "decrypt"]
             );
 
-            const exported = await window.crypto.subtle.exportKey("pkcs8", key.privateKey)
-            const exportedAsBase64 = this._arrayBufferToBase64(new Uint8Array(exported))
-            const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
-
-            this.setState({ output: pemExported })
+            this.setState({ output: await this._keypairToPem(keypair) })
         } catch (err) {
             console.error(err)
         } finally {
@@ -143,7 +152,7 @@ class App extends React.Component {
     generateECDSA = async () => {
         try {
             this.setState({ loading: true })
-            const key = await window.crypto.subtle.generateKey(
+            const keypair = await window.crypto.subtle.generateKey(
                 {
                     name: "ECDSA",
                     namedCurve: this.state.curve
@@ -152,11 +161,7 @@ class App extends React.Component {
                 ["sign", "verify"]
             );
 
-            const exported = await window.crypto.subtle.exportKey("pkcs8", key.privateKey)
-            const exportedAsBase64 = this._arrayBufferToBase64(new Uint8Array(exported))
-            const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
-
-            this.setState({ output: pemExported })
+            this.setState({ output: await this._keypairToPem(keypair) })
         } catch (err) {
             console.error(err)
         } finally {
@@ -287,8 +292,11 @@ class App extends React.Component {
                                                 <Form.Label>PlainText / CipherText</Form.Label>
                                                 <Form.Control type="text" placeholder="Hi Mom" value={this.state.plainText} onChange={(e) => this.setState({ plainText: e.target.value })} />
                                             </Form.Group>
-                                            <Button onClick={this.decryptRSA}>Decrypt</Button>
-                                            <Button onClick={this.encryptRSA}>Encrypt</Button>
+                                            <ButtonGroup size="lg" className="mb-2">
+                                                <Button onClick={this.decryptRSA}>Decrypt</Button>
+                                                <Button onClick={this.encryptRSA}>Encrypt</Button>
+                                            </ButtonGroup>
+
                                         </>
                                     }
                                 </Col>
