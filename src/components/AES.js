@@ -132,12 +132,12 @@ export default function AES(props) {
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>IV (required for decryption)</Form.Label>
-                    <Form.Control type="text" placeholder="Base64 IV for decryption" value={iv} onChange={(e) => setIV(e.target.value)} />
-                </Form.Group>
-                <Form.Group className="mb-3">
                     <Form.Label>PlainText / CipherText</Form.Label>
                     <Form.Control type="text" placeholder="ASCII for encryption and base64 for decryption" value={message} onChange={(e) => setMessage(e.target.value)} />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>IV (required for decryption)</Form.Label>
+                    <Form.Control type="text" placeholder="Base64 IV for decryption" value={iv} onChange={(e) => setIV(e.target.value)} />
                 </Form.Group>
                 {!props.loading &&
                     <ButtonGroup size="lg" className="mb-2">
