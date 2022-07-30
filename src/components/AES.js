@@ -44,6 +44,7 @@ const generateAES = async (props) => {
         props.setState({ output: encoding.arrayBufferToBase64(exportedKeyBuffer) })
     } catch (err) {
         console.error(err)
+        props.setState({ errorMsg: err })
     } finally {
         props.setState({ loading: false })
     }
@@ -68,6 +69,7 @@ const encryptAES = async (props) => {
         props.setState({ output: `ciphertext: ${encoding.arrayBufferToBase64(cipherText)}\niv: ${encoding.arrayBufferToBase64(iv)}` })
     } catch (err) {
         console.error(err)
+        props.setState({ errorMsg: err })
     } finally {
         props.setState({ loading: false })
     }
@@ -92,6 +94,7 @@ const decryptAES = async (props) => {
         props.setState({ output: encoding.arrayBufferToString(plainText) })
     } catch (err) {
         console.error(err)
+        props.setState({ errorMsg: err })
     } finally {
         props.setState({ loading: false })
     }
@@ -133,5 +136,7 @@ export default function AES(props) {
                 </ButtonGroup>
 
             </>
+        default:
+            return
     }
 }

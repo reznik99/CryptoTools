@@ -1,8 +1,19 @@
 
 :root {
-    --blurple: #5865F2;
-    --gray-600: #6c757d;
     --background: #282c34;
+    --blurple: #5865F2;
+    --yerrow: #FCA314;
+    --oranger: #FC9014;
+
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --gray-300: #dee2e6;
+    --gray-400: #ced4da;
+    --gray-500: #adb5bd;
+    --gray-600: #6c757d;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
 }
 
 * {
@@ -36,10 +47,21 @@ body {
 }
 
 .nav { 
-    background-color: whitesmoke;
+    background-color: var(--gray-900);
     height: 100vh; 
-    color: black;
+    color: white;
     overflow: 'scroll';
     padding: 7px;
 }
 
+.niceTextArea {
+    height: 90%;
+    background-color: var(--gray-900);
+    color: white;
+}
+
+.niceTextArea:focus {
+    background-color: var(--gray-800);
+    color: white;
+
+}

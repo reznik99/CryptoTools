@@ -77,6 +77,7 @@ const generateRSA = async (props) => {
         props.setState({ output: await encoding.keypairToPem(keypair) })
     } catch (err) {
         console.error(err)
+        props.setState({ errorMsg: err })
     } finally {
         props.setState({ loading: false })
     }
@@ -99,6 +100,7 @@ const encryptRSA = async (props) => {
         props.setState({ output: encoding.arrayBufferToBase64(cipherText) })
     } catch (err) {
         console.error(err)
+        props.setState({ errorMsg: err })
     } finally {
         props.setState({ loading: false })
     }
@@ -121,6 +123,7 @@ const decryptRSA = async (props) => {
         props.setState({ output: encoding.arrayBufferToString(plainText) })
     } catch (err) {
         console.error(err)
+        props.setState({ errorMsg: err })
     } finally {
         props.setState({ loading: false })
     }
@@ -145,6 +148,7 @@ const signRSA = async (props) => {
         props.setState({ output: encoding.arrayBufferToBase64(signature) })
     } catch (err) {
         console.error(err)
+        props.setState({ errorMsg: err })
     } finally {
         props.setState({ loading: false })
     }
@@ -170,6 +174,7 @@ const verifyRSA = async (props) => {
         props.setState({ output: valid ? "Valid" : "Invalid" })
     } catch (err) {
         console.error(err)
+        props.setState({ errorMsg: err })
     } finally {
         props.setState({ loading: false })
     }
@@ -228,5 +233,7 @@ export default function RSA(props) {
                     <Button onClick={() => signRSA(props)}>Sign</Button>
                 </ButtonGroup>
             </>
+        default:
+            return
     }
 }
