@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Buffer } from 'buffer';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
+import Spinner from 'react-bootstrap/Spinner';
 
 import * as encoding from '../lib/encoding';
 
@@ -26,13 +27,13 @@ const importAES = async (key, settings) => {
     );
 }
 
-const generateAES = async (props) => {
+const generateAES = async (props, keyLength) => {
     try {
         props.setState({ loading: true })
         const key = await window.crypto.subtle.generateKey(
             {
                 name: "AES-GCM",
-                length: props.keyLength
+                length: keyLength
             },
             true,
             ["encrypt", "decrypt"]
@@ -41,7 +42,7 @@ const generateAES = async (props) => {
         const exported = await window.crypto.subtle.exportKey("raw", key)
         const exportedKeyBuffer = new Uint8Array(exported);
 
-        props.setState({ output: encoding.arrayBufferToBase64(exportedKeyBuffer) })
+        props.setState({ output: encoding.arrayBufferToBase64(exportedKeyBuffer), successMsg: `(AES-${keyLength}) Generated successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: err })
@@ -50,7 +51,7 @@ const generateAES = async (props) => {
     }
 }
 
-const encryptAES = async (props) => {
+const encryptAES = async (props, message) => {
     try {
         props.setState({ loading: true })
 
@@ -63,10 +64,13 @@ const encryptAES = async (props) => {
                 iv: iv
             },
             key,
-            Buffer.from(props.message, 'ascii')
+            Buffer.from(message, 'ascii')
         );
 
-        props.setState({ output: `ciphertext: ${encoding.arrayBufferToBase64(cipherText)}\niv: ${encoding.arrayBufferToBase64(iv)}` })
+        props.setState({
+            output: `ciphertext: ${encoding.arrayBufferToBase64(cipherText)}\niv: ${encoding.arrayBufferToBase64(iv)}`,
+            successMsg: `(AES-CBC) Encrypted successfully`
+        })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: err })
@@ -75,12 +79,12 @@ const encryptAES = async (props) => {
     }
 }
 
-const decryptAES = async (props) => {
+const decryptAES = async (props, message, ivText) => {
     try {
         props.setState({ loading: true })
 
         const key = await importAES(props.input, encSettings)
-        const iv = Buffer.from(props.iv, 'base64');
+        const iv = Buffer.from(ivText, 'base64');
 
         const plainText = await window.crypto.subtle.decrypt(
             {
@@ -88,10 +92,10 @@ const decryptAES = async (props) => {
                 iv: iv
             },
             key,
-            Buffer.from(props.message, 'base64')
+            Buffer.from(message, 'base64')
         );
 
-        props.setState({ output: encoding.arrayBufferToString(plainText) })
+        props.setState({ output: encoding.arrayBufferToString(plainText), successMsg: `(AES-CBC) Decrypted successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: err })
@@ -102,15 +106,20 @@ const decryptAES = async (props) => {
 
 
 export default function AES(props) {
+    const [keyLength, setKeyLength] = useState(256)
+    const [message, setMessage] = useState('')
+    const [iv, setIV] = useState('')
+
     switch (props.action) {
         case 'AES-Gen':
             return <>
                 <h4> Generate Key </h4>
                 <Form.Group className="mb-3">
                     <Form.Label>Keylength</Form.Label>
-                    <Form.Control type="numeric" placeholder="256" value={props.keyLength} onChange={(e) => props.setState({ keyLength: Number(e.target.value) })} />
+                    <Form.Control type="numeric" placeholder="256" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
                 </Form.Group>
-                <Button onClick={() => generateAES(props)}>Generate AES Key</Button>
+                {!props.loading && <Button onClick={() => generateAES(props, keyLength)}>Generate AES Key</Button>}
+                {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
             </>
         case 'AES-Enc':
             return <>
@@ -124,17 +133,24 @@ export default function AES(props) {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>IV (required for decryption)</Form.Label>
-                    <Form.Control type="text" placeholder="Base64 IV for decryption" value={props.iv} onChange={(e) => props.setState({ iv: e.target.value })} />
+                    <Form.Control type="text" placeholder="Base64 IV for decryption" value={iv} onChange={(e) => setIV(e.target.value)} />
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>PlainText / CipherText</Form.Label>
-                    <Form.Control type="text" placeholder="ASCII for encryption and base64 for decryption" value={props.message} onChange={(e) => props.setState({ message: e.target.value })} />
+                    <Form.Control type="text" placeholder="ASCII for encryption and base64 for decryption" value={message} onChange={(e) => setMessage(e.target.value)} />
                 </Form.Group>
-                <ButtonGroup size="lg" className="mb-2">
-                    <Button onClick={() => decryptAES(props)}>Decrypt</Button>
-                    <Button onClick={() => encryptAES(props)}>Encrypt</Button>
-                </ButtonGroup>
-
+                {!props.loading &&
+                    <ButtonGroup size="lg" className="mb-2">
+                        <Button onClick={() => decryptAES(props, message, iv)}>Decrypt</Button>
+                        <Button onClick={() => encryptAES(props, message)}>Encrypt</Button>
+                    </ButtonGroup>
+                }
+                {props.loading &&
+                    <ButtonGroup size="lg" className="mb-2">
+                        <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
+                        <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
+                    </ButtonGroup>
+                }
             </>
         default:
             return

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Buffer } from 'buffer';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
+import Spinner from 'react-bootstrap/Spinner';
 
 import * as encoding from '../lib/encoding';
 
@@ -60,13 +61,13 @@ const importRSAPriv = async (pem, settings) => {
     );
 }
 
-const generateRSA = async (props) => {
+const generateRSA = async (props, keyLength) => {
     try {
         props.setState({ loading: true })
         const keypair = await window.crypto.subtle.generateKey(
             {
                 name: "RSA-OAEP",
-                modulusLength: props.keyLength,
+                modulusLength: keyLength,
                 publicExponent: new Uint8Array([1, 0, 1]),
                 hash: "SHA-256"
             },
@@ -74,7 +75,7 @@ const generateRSA = async (props) => {
             ["encrypt", "decrypt"]
         );
 
-        props.setState({ output: await encoding.keypairToPem(keypair) })
+        props.setState({ output: await encoding.keypairToPem(keypair), successMsg: `(RSA-${keyLength}) Generated successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: err })
@@ -83,7 +84,7 @@ const generateRSA = async (props) => {
     }
 }
 
-const encryptRSA = async (props) => {
+const encryptRSA = async (props, message) => {
     try {
         props.setState({ loading: true })
 
@@ -94,10 +95,10 @@ const encryptRSA = async (props) => {
                 name: "RSA-OAEP"
             },
             publicKey,
-            Buffer.from(props.message, 'ascii')
+            Buffer.from(message, 'ascii')
         );
 
-        props.setState({ output: encoding.arrayBufferToBase64(cipherText) })
+        props.setState({ output: encoding.arrayBufferToBase64(cipherText), successMsg: `(RSA-OAEP) Encrypted successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: err })
@@ -106,7 +107,7 @@ const encryptRSA = async (props) => {
     }
 }
 
-const decryptRSA = async (props) => {
+const decryptRSA = async (props, message) => {
     try {
         props.setState({ loading: true })
 
@@ -117,10 +118,10 @@ const decryptRSA = async (props) => {
                 name: "RSA-OAEP"
             },
             privateKey,
-            Buffer.from(props.message, 'base64')
+            Buffer.from(message, 'base64')
         );
 
-        props.setState({ output: encoding.arrayBufferToString(plainText) })
+        props.setState({ output: encoding.arrayBufferToString(plainText), successMsg: `(RSA-OAEP) Decrypted successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: err })
@@ -129,7 +130,7 @@ const decryptRSA = async (props) => {
     }
 }
 
-const signRSA = async (props) => {
+const signRSA = async (props, message) => {
     try {
         props.setState({ loading: true })
 
@@ -142,10 +143,10 @@ const signRSA = async (props) => {
                 saltLength: 32,
             },
             privateKey,
-            Buffer.from(props.message, 'ascii')
+            Buffer.from(message, 'ascii')
         );
 
-        props.setState({ output: encoding.arrayBufferToBase64(signature) })
+        props.setState({ output: encoding.arrayBufferToBase64(signature), successMsg: `(RSA-PSS) Signed successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: err })
@@ -154,7 +155,7 @@ const signRSA = async (props) => {
     }
 }
 
-const verifyRSA = async (props) => {
+const verifyRSA = async (props, message, signature) => {
     try {
         props.setState({ loading: true })
 
@@ -167,11 +168,11 @@ const verifyRSA = async (props) => {
                 saltLength: 32,
             },
             publicKey,
-            Buffer.from(props.signature, 'base64'),
-            Buffer.from(props.message, 'ascii')
+            Buffer.from(signature, 'base64'),
+            Buffer.from(message, 'ascii')
         );
-
-        props.setState({ output: valid ? "Valid" : "Invalid" })
+        if (valid) props.setState({ output: "Valid", successMsg: `(RSA-PSS) Verified successfully` })
+        else props.setState({ output: "Invalid", errorMsg: `(RSA-PSS) Verification failed` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: err })
@@ -181,15 +182,20 @@ const verifyRSA = async (props) => {
 }
 
 export default function RSA(props) {
+    const [keyLength, setKeyLength] = useState(2048)
+    const [message, setMessage] = useState('')
+    const [signature, setSignature] = useState('')
+
     switch (props.action) {
         case 'RSA-Gen':
             return <>
                 <h4> Generate Key </h4>
                 <Form.Group className="mb-3">
                     <Form.Label>Keylength</Form.Label>
-                    <Form.Control type="numeric" placeholder="256" value={props.keyLength} onChange={(e) => props.setState({ keyLength: Number(e.target.value) })} />
+                    <Form.Control type="numeric" placeholder="2048" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
                 </Form.Group>
-                <Button onClick={() => generateRSA(props)}>Generate RSA Key</Button>
+                {!props.loading && <Button onClick={() => generateRSA(props, keyLength)}>Generate RSA Key</Button>}
+                {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
             </>
         case 'RSA-Enc':
             return <>
@@ -203,12 +209,20 @@ export default function RSA(props) {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>PlainText / CipherText</Form.Label>
-                    <Form.Control type="text" placeholder="Hi Mom" value={props.message} onChange={(e) => props.setState({ message: e.target.value })} />
+                    <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
                 </Form.Group>
-                <ButtonGroup size="lg" className="mb-2">
-                    <Button onClick={() => decryptRSA(props)}>Decrypt</Button>
-                    <Button onClick={() => encryptRSA(props)}>Encrypt</Button>
-                </ButtonGroup>
+                {!props.loading &&
+                    <ButtonGroup size="lg" className="mb-2">
+                        <Button onClick={() => decryptRSA(props, message)}>Decrypt</Button>
+                        <Button onClick={() => encryptRSA(props, message)}>Encrypt</Button>
+                    </ButtonGroup>
+                }
+                {props.loading &&
+                    <ButtonGroup size="lg" className="mb-2">
+                        <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
+                        <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
+                    </ButtonGroup>
+                }
             </>
         case 'RSA-Sig':
             return <>
@@ -222,16 +236,24 @@ export default function RSA(props) {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Message</Form.Label>
-                    <Form.Control type="text" placeholder="Hi Mom" value={props.message} onChange={(e) => props.setState({ message: e.target.value })} />
+                    <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Signature (required for validation)</Form.Label>
-                    <Form.Control type="text" placeholder="Base64 signature" value={props.signature} onChange={(e) => props.setState({ signature: e.target.value })} />
+                    <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
                 </Form.Group>
-                <ButtonGroup size="lg" className="mb-2">
-                    <Button onClick={() => verifyRSA(props)}>Validate</Button>
-                    <Button onClick={() => signRSA(props)}>Sign</Button>
-                </ButtonGroup>
+                {!props.loading &&
+                    <ButtonGroup size="lg" className="mb-2">
+                        <Button onClick={() => verifyRSA(props, message, signature)}>Validate</Button>
+                        <Button onClick={() => signRSA(props, message)}>Sign</Button>
+                    </ButtonGroup>
+                }
+                {props.loading &&
+                    <ButtonGroup size="lg" className="mb-2">
+                        <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
+                        <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
+                    </ButtonGroup>
+                }
             </>
         default:
             return

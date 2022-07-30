@@ -20,15 +20,10 @@ class App extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+            action: 'AES-Gen',
             loading: false,
             errorMsg: '',
-            action: 'AES-Gen',
-            // Keygen
-            keyLength: 256,
-            curve: 'P-256',
-            // Enc/Dec
-            message: '',
-            iv: '',
+            successMsg: '',
             input: '',
             output: ''
         }
@@ -99,28 +94,23 @@ class App extends React.Component {
                         </Col>
                     </Row>
 
-                    {/* Loader/Spinner for intensive processes */}
-                    <Modal show={this.state.loading}>
-                        <Modal.Header closeButton>
-                            <Modal.Title></Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body style={{ textAlign: 'center' }}>
-                            <Spinner animation="border" role="status" >
-                                <span className="visually-hidden">Loading...</span>
-                            </Spinner>
-                        </Modal.Body>
-                        <Modal.Footer></Modal.Footer>
-                    </Modal>
-
-                    {/* Alert */}
+                    {/* Alerts */}
                     <ToastContainer position="top-end" className="p-3">
-                        <Toast onClose={() => this.setState({ errorMsg: '' })} show={this.state.errorMsg} delay={3000} autohide bg="danger">
+                        {/* Success Toast */}
+                        <Toast onClose={() => this.setState({ successMsg: '' })} show={this.state.successMsg} delay={4000} autohide bg="success">
                             <Toast.Header>
-                                <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
+                                <strong className="me-auto">Success</strong>
+                                <small className="text-muted">just now</small>
+                            </Toast.Header>
+                            <Toast.Body variant="danger">{this.state.successMsg || ""}</Toast.Body>
+                        </Toast>
+                        {/* Error Toast */}
+                        <Toast onClose={() => this.setState({ errorMsg: '' })} show={this.state.errorMsg} delay={5000} autohide bg="danger">
+                            <Toast.Header>
                                 <strong className="me-auto">Error occoured</strong>
                                 <small className="text-muted">just now</small>
                             </Toast.Header>
-                            <Toast.Body variant="danger">{this.state.errorMsg.toString()}</Toast.Body>
+                            <Toast.Body variant="danger">{this.state.errorMsg?.toString() || ""}</Toast.Body>
                         </Toast>
                     </ToastContainer>
                 </Container>
