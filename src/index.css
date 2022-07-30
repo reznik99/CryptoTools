@@ -36,6 +36,7 @@ code {
 .App {
     background-color: var(--background);
     min-height: 100vh;
+    overflow-y: scroll;
     color: white
 }
 
@@ -46,8 +47,23 @@ code {
 
 /* Navigation */
 .nav-container {
+    display: flex;
+    position: relative;
     max-width: 250px;
+    justify-content: flex-end;
+    transform: translate3d(-100%, 0, 0);
+    transition: transform 0.6s cubic-bezier(0, .52, 0, 1);
 }
+.nav-container-open {
+    transform: translate3d(0, 0, 0);
+}
+.nav-slider{
+    position: absolute;
+    display: flex;
+    top: 10px;
+    transform: translateX(100%);
+}
+
 .nav { 
     background-color: var(--gray-900);
     color: white;
@@ -58,14 +74,18 @@ code {
     color: var(--blurple);
     text-align: center;
     padding: 10px
-  }
+}
 
-.niceTextArea {
+.content-container {
+    transition: 0.6s cubic-bezier(0, .52, 0, 1);
+}
+
+.nice-text-area {
     height: 90%;
     background-color: var(--gray-900);
     color: white;
 }
-.niceTextArea:focus {
+.nice-text-area:focus {
     background-color: var(--gray-800);
     color: white;
 }
@@ -87,4 +107,29 @@ code {
 input:disabled {
     cursor: not-allowed;
     pointer-events: all !important;
+}
+
+@media all and (max-width: 600px) {
+    .nav-container {
+        display: flex;
+        position: fixed;
+        top: 0;
+        height: 100vh;
+        justify-content: flex-end;
+        transition: transform 0.6s cubic-bezier(0, .52, 0, 1);
+    }
+
+    .nav { 
+        background-color: var(--gray-900);
+        color: white;
+        overflow-y: scroll;
+        padding: 20px;
+    }
+
+    .content-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 25px;
+    }
 }

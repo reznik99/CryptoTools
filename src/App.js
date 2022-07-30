@@ -4,6 +4,7 @@ import React from 'react';
 import Nav from 'react-bootstrap/Nav';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Toast from 'react-bootstrap/Toast';
@@ -13,6 +14,7 @@ import Alert from 'react-bootstrap/Alert';
 import RSA from './components/RSA';
 import AES from './components/AES';
 import ECDSA from './components/ECDSA';
+import SHA from './components/SHA';
 
 class App extends React.Component {
 
@@ -21,6 +23,7 @@ class App extends React.Component {
         this.state = {
             action: 'AES-Gen',
             loading: false,
+            menuOpen: true,
             errorMsg: '',
             successMsg: '',
             input: '',
@@ -32,8 +35,14 @@ class App extends React.Component {
         return (
             <Container fluid className="App vh-100">
                 <Row className="wrapper">
-                    <Col className="no-pad nav-container">
-                        <Nav activeKey={this.state.action} onSelect={eventKey => this.setState({ action: eventKey })} className="flex-column nav h-100" variant="pills">
+                    <Col xs="auto" className={`no-pad nav-container ${this.state.menuOpen ? 'nav-container-open' : ''}`}>
+                        <Button className="nav-slider" variant="primary" onClick={() => this.setState({ menuOpen: !this.state.menuOpen })}>
+                            {this.state.menuOpen
+                                ? <><i class="bi bi-arrow-left" /> Hide</>
+                                : <><i class="bi bi-arrow-right" /> Show</>
+                            }
+                        </Button>
+                        <Nav className="flex-column nav h-100" variant="pills" activeKey={this.state.action} onSelect={eventKey => this.setState({ action: eventKey })}>
                             <h3 className="title">Crypto Tools</h3>
                             <Nav.Item><i class="bi bi-key" /> Generation</Nav.Item>
                             <Nav.Link eventKey="AES-Gen">AES Key</Nav.Link>
@@ -56,9 +65,9 @@ class App extends React.Component {
                             <Nav.Link eventKey="Binary" disabled>Binary</Nav.Link>
                         </Nav>
                     </Col>
-                    <Col>
+                    <Col lg sm={12}>
                         <Row className="justify-content-md-center align-items-md-center h-100">
-                            <Col lg={8}>
+                            <Col lg={this.state.menuOpen ? 8 : 10} md={10} sm={12} className="content-container">
 
                                 {/* RSA Functions */}
                                 <RSA {...this.state} setState={(data) => this.setState({ ...data })} />
@@ -69,21 +78,24 @@ class App extends React.Component {
                                 {/* ECDSA Functions */}
                                 <ECDSA {...this.state} setState={(data) => this.setState({ ...data })} />
 
+                                {/* SHA Functions */}
+                                <SHA {...this.state} setState={(data) => this.setState({ ...data })} />
+
                             </Col>
                         </Row>
                     </Col>
-                    <Col>
-                        <Row className=" h-50">
+                    <Col lg sm={12}>
+                        <Row className="h-50 mv-1">
                             <Form.Group >
                                 <Form.Label>Input</Form.Label>
-                                <Form.Control as="textarea" className="niceTextArea" placeholder="Input"
+                                <Form.Control as="textarea" className="nice-text-area" placeholder="Input"
                                     value={this.state.input} onChange={e => this.setState({ input: e.target.value })} />
                             </Form.Group>
                         </Row>
-                        <Row className=" h-50">
+                        <Row className="h-50 mv-1">
                             <Form.Group >
                                 <Form.Label>Output</Form.Label>
-                                <Form.Control as="textarea" className="niceTextArea" placeholder="Output"
+                                <Form.Control as="textarea" className="nice-text-area" placeholder="Output"
                                     value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
                             </Form.Group>
                         </Row>
