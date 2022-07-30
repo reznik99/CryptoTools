@@ -15,6 +15,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import * as encoding from './lib/encoding';
 import RSA from './components/RSA';
 import AES from './components/AES';
+import ECDSA from './components/ECDSA';
 
 class App extends React.Component {
 
@@ -31,27 +32,6 @@ class App extends React.Component {
             iv: '',
             input: '',
             output: ''
-        }
-    }
-
-
-    generateECDSA = async () => {
-        try {
-            this.setState({ loading: true })
-            const keypair = await window.crypto.subtle.generateKey(
-                {
-                    name: "ECDSA",
-                    namedCurve: this.state.curve
-                },
-                true,
-                ["sign", "verify"]
-            );
-
-            this.setState({ output: await encoding.keypairToPem(keypair) })
-        } catch (err) {
-            console.error(err)
-        } finally {
-            this.setState({ loading: false })
         }
     }
 
@@ -97,20 +77,8 @@ class App extends React.Component {
                                     <AES {...this.state} setState={(data) => this.setState({ ...data })} />
 
                                     {/* ECDSA Functions */}
-                                    {this.state.action === 'ECDSA-Gen' &&
-                                        <>
-                                            <h4> Generate Key </h4>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Curve</Form.Label>
-                                                <Form.Select value={this.state.curve} onChange={(e) => this.setState({ curve: e.target.value })}>
-                                                    <option value="P-256">P-256</option>
-                                                    <option value="P-384">P-384</option>
-                                                    <option value="P-521">P-521</option>
-                                                </Form.Select>
-                                            </Form.Group>
-                                            <Button onClick={this.generateRSA}>Generate ECDSA Key</Button>
-                                        </>
-                                    }
+                                    <ECDSA {...this.state} setState={(data) => this.setState({ ...data })} />
+
                                 </Col>
                             </Row>
                         </Col>
@@ -118,14 +86,14 @@ class App extends React.Component {
                             <Row style={{ height: '50%' }}>
                                 <Form.Group >
                                     <Form.Label>Input</Form.Label>
-                                    <Form.Control as="textarea" rows={12} placeholder="Input"
+                                    <Form.Control as="textarea" style={{ height: '90%' }} placeholder="Input"
                                         value={this.state.input} onChange={e => this.setState({ input: e.target.value })} />
                                 </Form.Group>
                             </Row>
                             <Row style={{ height: '50%' }}>
                                 <Form.Group >
                                     <Form.Label>Output</Form.Label>
-                                    <Form.Control as="textarea" rows={12} placeholder="Output" value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
+                                    <Form.Control as="textarea" style={{ height: '90%' }} placeholder="Output" value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
                                 </Form.Group>
                             </Row>
                         </Col>
