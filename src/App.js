@@ -1,5 +1,6 @@
 
-import React from 'react'
+import React from 'react';
+import { Buffer } from 'buffer';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -12,6 +13,7 @@ import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 
 import './App.css';
+import * as encoding from './lib/encoding';
 
 class App extends React.Component {
 
@@ -30,52 +32,8 @@ class App extends React.Component {
         }
     }
 
-    // Helper functions
-
-    _arrayBufferToBase64 = (buffer) => {
-        var binary = '';
-        var bytes = new Uint8Array(buffer);
-        var len = bytes.byteLength;
-        for (var i = 0; i < len; i++) {
-            binary += String.fromCharCode(bytes[i]);
-        }
-        return window.btoa(binary);
-    }
-
-    _str2ab = (str) => {
-        const buf = new ArrayBuffer(str.length);
-        const bufView = new Uint8Array(buf);
-        for (let i = 0, strLen = str.length; i < strLen; i++) {
-            bufView[i] = str.charCodeAt(i);
-        }
-        return buf;
-    }
-
-    _parsePem = (headerTag, pem) => {
-        // fetch the part of the PEM string between header and footer
-        const pemHeader = `-----BEGIN ${headerTag} KEY-----`;
-        const pemFooter = `-----END ${headerTag} KEY-----`;
-        const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
-        // base64 decode the string to get the binary data
-        const binaryDerString = window.atob(pemContents);
-        // convert from a binary string to an ArrayBuffer
-        return this._str2ab(binaryDerString);
-    }
-
-    _keypairToPem = async (keypair) => {
-        const exportedPriv = await window.crypto.subtle.exportKey("pkcs8", keypair.privateKey)
-        const exportedPrivAsBase64 = this._arrayBufferToBase64(new Uint8Array(exportedPriv))
-        const pemPriv = `-----BEGIN PRIVATE KEY-----\n${exportedPrivAsBase64}\n-----END PRIVATE KEY-----`;
-
-        const exportedPub = await window.crypto.subtle.exportKey("spki", keypair.publicKey)
-        const exportedPubAsBase64 = this._arrayBufferToBase64(new Uint8Array(exportedPub))
-        const pemPub = `-----BEGIN PUBLIC KEY-----\n${exportedPubAsBase64}\n-----END PUBLIC KEY-----`;
-
-        return `${pemPriv}\n${pemPub}`
-    }
-
     importRsaPub = async (pem) => {
-        const binaryDer = this._parsePem('PUBLIC', pem)
+        const binaryDer = encoding.pemToBuffer('PUBLIC', pem)
 
         return await window.crypto.subtle.importKey(
             "spki",
@@ -90,7 +48,7 @@ class App extends React.Component {
     }
 
     importRsaPriv = async (pem) => {
-        const binaryDer = this._parsePem('PRIVATE', pem)
+        const binaryDer = encoding.pemToBuffer('PRIVATE', pem)
 
         return window.crypto.subtle.importKey(
             "pkcs8",
@@ -101,6 +59,20 @@ class App extends React.Component {
             },
             true,
             ["decrypt"]
+        );
+    }
+
+    importAes = async (key) => {
+        const binaryDer = Buffer.from(key, 'base64')
+
+        return window.crypto.subtle.importKey(
+            "raw",
+            binaryDer,
+            {
+                name: "AES-CBC",
+            },
+            true,
+            ["encrypt", "decrypt"]
         );
     }
 
@@ -119,7 +91,7 @@ class App extends React.Component {
             const exported = await window.crypto.subtle.exportKey("raw", key)
             const exportedKeyBuffer = new Uint8Array(exported);
 
-            this.setState({ output: this._arrayBufferToBase64(exportedKeyBuffer) })
+            this.setState({ output: encoding.arrayBufferToBase64(exportedKeyBuffer) })
         } catch (err) {
             console.error(err)
         } finally {
@@ -141,7 +113,7 @@ class App extends React.Component {
                 ["encrypt", "decrypt"]
             );
 
-            this.setState({ output: await this._keypairToPem(keypair) })
+            this.setState({ output: await encoding.keypairToPem(keypair) })
         } catch (err) {
             console.error(err)
         } finally {
@@ -161,7 +133,7 @@ class App extends React.Component {
                 ["sign", "verify"]
             );
 
-            this.setState({ output: await this._keypairToPem(keypair) })
+            this.setState({ output: await encoding.keypairToPem(keypair) })
         } catch (err) {
             console.error(err)
         } finally {
@@ -182,10 +154,10 @@ class App extends React.Component {
                     name: "RSA-OAEP"
                 },
                 publicKey,
-                this._str2ab(this.state.message)
+                Buffer.from(this.state.message, 'ascii')
             );
 
-            this.setState({ output: this._arrayBufferToBase64(cipherText) })
+            this.setState({ output: encoding.arrayBufferToBase64(cipherText) })
         } catch (err) {
             console.error(err)
         } finally {
@@ -206,10 +178,54 @@ class App extends React.Component {
                     name: "RSA-OAEP"
                 },
                 privateKey,
-                this._str2ab(window.atob(this.state.message))
+                Buffer.from(this.state.message, 'base64')
             );
 
-            this.setState({ output: this._arrayBufferToBase64(plainText) })
+            this.setState({ output: encoding.arrayBufferToString(plainText) })
+        } catch (err) {
+            console.error(err)
+        } finally {
+            this.setState({ loading: false })
+        }
+    }
+
+    encryptAES = async () => {
+        try {
+            this.setState({ loading: true })
+
+            const key = await this.importAes(this.state.input)
+            if (key) console.log('Imported AES key')
+            else console.log('Failed to import AES key')
+
+            const iv = window.crypto.getRandomValues(new Uint8Array(16));
+            const cipherText = await window.crypto.subtle.encrypt(
+                {
+                    name: "AES-CBC",
+                    iv: iv
+                },
+                key,
+                Buffer.from(this.state.message, 'ascii')
+            );
+
+            this.setState({ output: encoding.arrayBufferToBase64(cipherText) })
+        } catch (err) {
+            console.error(err)
+        } finally {
+            this.setState({ loading: false })
+        }
+    }
+
+    decryptAES = async () => {
+        try {
+            this.setState({ loading: true })
+
+            const key = await this.importAes(this.state.input)
+            if (key) console.log('Imported AES key')
+            else console.log('Failed to import AES key')
+
+            // TODO: decrypt 
+
+            this.setState({ output: "" })
         } catch (err) {
             console.error(err)
         } finally {
@@ -224,7 +240,7 @@ class App extends React.Component {
                     <Row>
                         <Col lg={2} style={{ padding: 0 }}>
                             <Nav activeKey={this.state.action} onSelect={eventKey => this.setState({ action: eventKey })} className="flex-column"
-                                style={{ backgroundColor: '#fff', height: '100vh', color: 'black', overflow: 'scroll' }} variant="pills">
+                                style={{ backgroundColor: '#fff', height: '100vh', color: 'black', overflow: 'scroll', padding: 5 }} variant="pills">
                                 <h3 className="title">Crypto Tools</h3>
                                 <Nav.Item>Generation</Nav.Item>
                                 <Nav.Link eventKey="AES-Gen">AES Key</Nav.Link>
@@ -252,10 +268,9 @@ class App extends React.Component {
                         <Col lg={5}>
                             <Row style={{ height: '100vh' }} className="justify-content-md-center align-items-md-center">
                                 <Col lg={8}>
-                                    <h4> Generate Key </h4>
-
                                     {this.state.action === 'AES-Gen' &&
                                         <>
+                                            <h4> Generate Key </h4>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Keylength</Form.Label>
                                                 <Form.Control type="numeric" placeholder="256" value={this.state.keyLength} onChange={(e) => this.setState({ keyLength: Number(e.target.value) })} />
@@ -265,6 +280,7 @@ class App extends React.Component {
                                     }
                                     {this.state.action === 'RSA-Gen' &&
                                         <>
+                                            <h4> Generate Key </h4>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Keylength</Form.Label>
                                                 <Form.Control type="numeric" placeholder="256" value={this.state.keyLength} onChange={(e) => this.setState({ keyLength: Number(e.target.value) })} />
@@ -274,6 +290,7 @@ class App extends React.Component {
                                     }
                                     {this.state.action === 'ECDSA-Gen' &&
                                         <>
+                                            <h4> Generate Key </h4>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Curve</Form.Label>
                                                 <Form.Select value={this.state.curve} onChange={(e) => this.setState({ curve: e.target.value })}>
@@ -288,13 +305,28 @@ class App extends React.Component {
 
                                     {this.state.action === 'RSA-Enc' &&
                                         <>
+                                            <h4> Encrypt/Decrypt </h4>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>PlainText / CipherText</Form.Label>
-                                                <Form.Control type="text" placeholder="Hi Mom" value={this.state.plainText} onChange={(e) => this.setState({ plainText: e.target.value })} />
+                                                <Form.Control type="text" placeholder="Hi Mom" value={this.state.message} onChange={(e) => this.setState({ message: e.target.value })} />
                                             </Form.Group>
                                             <ButtonGroup size="lg" className="mb-2">
                                                 <Button onClick={this.decryptRSA}>Decrypt</Button>
                                                 <Button onClick={this.encryptRSA}>Encrypt</Button>
+                                            </ButtonGroup>
+
+                                        </>
+                                    }
+                                    {this.state.action === 'AES-Enc' &&
+                                        <>
+                                            <h4> Encrypt/Decrypt </h4>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>PlainText / CipherText</Form.Label>
+                                                <Form.Control type="text" placeholder="Hi Mom" value={this.state.message} onChange={(e) => this.setState({ message: e.target.value })} />
+                                            </Form.Group>
+                                            <ButtonGroup size="lg" className="mb-2">
+                                                <Button onClick={this.decryptAES}>Decrypt</Button>
+                                                <Button onClick={this.encryptAES}>Encrypt</Button>
                                             </ButtonGroup>
 
                                         </>
@@ -313,7 +345,7 @@ class App extends React.Component {
                             <Row style={{ height: '50%' }}>
                                 <Form.Group >
                                     <Form.Label>Output</Form.Label>
-                                    <Form.Control as="textarea" rows={12} placeholder="Output" value={this.state.output} />
+                                    <Form.Control as="textarea" rows={12} placeholder="Output" value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
                                 </Form.Group>
                             </Row>
                         </Col>
