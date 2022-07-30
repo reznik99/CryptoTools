@@ -27,6 +27,7 @@ class App extends React.Component {
             curve: 'P-256',
             // Enc/Dec
             message: '',
+            iv: '',
             input: '',
             output: ''
         }
@@ -194,10 +195,8 @@ class App extends React.Component {
             this.setState({ loading: true })
 
             const key = await this.importAes(this.state.input)
-            if (key) console.log('Imported AES key')
-            else console.log('Failed to import AES key')
-
             const iv = window.crypto.getRandomValues(new Uint8Array(16));
+
             const cipherText = await window.crypto.subtle.encrypt(
                 {
                     name: "AES-CBC",
@@ -207,7 +206,7 @@ class App extends React.Component {
                 Buffer.from(this.state.message, 'ascii')
             );
 
-            this.setState({ output: encoding.arrayBufferToBase64(cipherText) })
+            this.setState({ output: `ciphertext: ${encoding.arrayBufferToBase64(cipherText)}\niv: ${encoding.arrayBufferToBase64(iv)}` })
         } catch (err) {
             console.error(err)
         } finally {
@@ -220,12 +219,18 @@ class App extends React.Component {
             this.setState({ loading: true })
 
             const key = await this.importAes(this.state.input)
-            if (key) console.log('Imported AES key')
-            else console.log('Failed to import AES key')
+            const iv = Buffer.from(this.state.iv, 'base64');
 
-            // TODO: decrypt 
+            const plainText = await window.crypto.subtle.decrypt(
+                {
+                    name: "AES-CBC",
+                    iv: iv
+                },
+                key,
+                Buffer.from(this.state.message, 'base64')
+            );
 
-            this.setState({ output: "" })
+            this.setState({ output: encoding.arrayBufferToString(plainText) })
         } catch (err) {
             console.error(err)
         } finally {
@@ -321,8 +326,12 @@ class App extends React.Component {
                                         <>
                                             <h4> Encrypt/Decrypt </h4>
                                             <Form.Group className="mb-3">
+                                                <Form.Label>IV (required for decryption)</Form.Label>
+                                                <Form.Control type="text" placeholder="Base64 IV for decryption" value={this.state.iv} onChange={(e) => this.setState({ iv: e.target.value })} />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3">
                                                 <Form.Label>PlainText / CipherText</Form.Label>
-                                                <Form.Control type="text" placeholder="Hi Mom" value={this.state.message} onChange={(e) => this.setState({ message: e.target.value })} />
+                                                <Form.Control type="text" placeholder="ASCII for encryption and base64 for decryption" value={this.state.message} onChange={(e) => this.setState({ message: e.target.value })} />
                                             </Form.Group>
                                             <ButtonGroup size="lg" className="mb-2">
                                                 <Button onClick={this.decryptAES}>Decrypt</Button>
