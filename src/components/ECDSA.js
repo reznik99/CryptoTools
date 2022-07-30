@@ -71,7 +71,6 @@ const signECDSA = async (props, message) => {
         props.setState({ loading: true })
 
         const privateKey = await importECDSAPriv(props.input, sigSettings)
-        if (privateKey) console.log('Imported Private key')
 
         const signature = await window.crypto.subtle.sign(
             {
@@ -96,7 +95,6 @@ const verifyECDSA = async (props, message, signature) => {
         props.setState({ loading: true })
 
         const publicKey = await importECDSAPub(props.input, verSettings)
-        if (publicKey) console.log('Imported Public key')
 
         const valid = await window.crypto.subtle.verify(
             {

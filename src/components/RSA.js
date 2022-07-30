@@ -135,7 +135,6 @@ const signRSA = async (props, message) => {
         props.setState({ loading: true })
 
         const privateKey = await importRSAPriv(props.input, sigSettings)
-        if (privateKey) console.log('Imported Private key')
 
         const signature = await window.crypto.subtle.sign(
             {
@@ -160,7 +159,6 @@ const verifyRSA = async (props, message, signature) => {
         props.setState({ loading: true })
 
         const publicKey = await importRSAPub(props.input, verSettings)
-        if (publicKey) console.log('Imported Public key')
 
         const valid = await window.crypto.subtle.verify(
             {
