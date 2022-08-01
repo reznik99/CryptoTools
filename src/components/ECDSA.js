@@ -5,6 +5,8 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 
 import * as encoding from '../lib/encoding';
 
@@ -66,7 +68,7 @@ const generateECDSA = async (props, curve) => {
     }
 }
 
-const signECDSA = async (props, message) => {
+const signECDSA = async (props, cipher, message) => {
     try {
         props.setState({ loading: true })
 
@@ -75,7 +77,7 @@ const signECDSA = async (props, message) => {
         const signature = await window.crypto.subtle.sign(
             {
                 name: "ECDSA",
-                hash: { name: "SHA-384" },
+                hash: { name: cipher },
             },
             privateKey,
             Buffer.from(message, 'ascii')
@@ -118,6 +120,7 @@ const verifyECDSA = async (props, message, signature) => {
 
 export default function AES(props) {
     const [curve, setCurve] = useState('P-256')
+    const [cipher, setCipher] = useState('SHA-256')
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
 
@@ -138,13 +141,28 @@ export default function AES(props) {
             </>
         case 'ECDSA-Sig':
             return <>
-                <h4> Generate Key </h4>
-                <Form.Group className="mb-3">
-                    <Form.Label>Algorithm</Form.Label>
-                    <Form.Select disabled>
-                        <option value="ECDSA-SHA384">ECDSA-SHA384</option>
-                    </Form.Select>
-                </Form.Group>
+                <h4> Sign/Validate </h4>
+                <Row>
+                    <Col lg={6}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Algorithm</Form.Label>
+                            <Form.Select disabled>
+                                <option value="ECDSA">ECDSA</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+                    <Col lg={6}>
+                        <Form.Group className="mb-3" value={cipher} onChange={e => setCipher(e.target.value)}>
+                            <Form.Label>Hash Algorithm</Form.Label>
+                            <Form.Select>
+                                <option value="SHA-1">SHA-1</option>
+                                <option value="SHA-256">SHA-256</option>
+                                <option value="SHA-384">SHA-384</option>
+                                <option value="SHA-512">SHA-512</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+                </Row>
                 <Form.Group className="mb-3">
                     <Form.Label>Message</Form.Label>
                     <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
@@ -156,7 +174,7 @@ export default function AES(props) {
                 {!props.loading &&
                     <ButtonGroup size="lg" className="mb-2">
                         <Button onClick={() => verifyECDSA(props, message, signature)} > Validate</Button>
-                        <Button onClick={() => signECDSA(props, message)}>Sign</Button>
+                        <Button onClick={() => signECDSA(props, cipher, message)}>Sign</Button>
                     </ButtonGroup>
                 }
                 {props.loading &&
