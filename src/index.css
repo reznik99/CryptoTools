@@ -42,7 +42,8 @@ code {
 
 
 .wrapper {
-    height: calc(100% - 70px) !important;
+    min-height: calc(100% - 80px) !important;
+    margin-bottom: 80px;
 }
 
 /* Navigation */
@@ -68,7 +69,12 @@ code {
     background-color: var(--gray-900);
     color: white;
     overflow-y: scroll;
-    padding: 7px;
+    padding: 10px;
+}
+.nav > a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .title {
     color: var(--blurple);

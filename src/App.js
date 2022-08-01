@@ -10,11 +10,13 @@ import Form from 'react-bootstrap/Form';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 
 import RSA from './components/RSA';
 import AES from './components/AES';
 import ECDSA from './components/ECDSA';
 import SHA from './components/SHA';
+import CSR from './components/CSR.tsx';
 
 class App extends React.Component {
 
@@ -28,7 +30,7 @@ class App extends React.Component {
             successMsg: '',
             input: '',
             output: ''
-        }
+        };
     }
 
     render = () => {
@@ -48,16 +50,16 @@ class App extends React.Component {
                             <Nav.Link eventKey="AES-Gen">AES Key</Nav.Link>
                             <Nav.Link eventKey="RSA-Gen">RSA Keys</Nav.Link>
                             <Nav.Link eventKey="ECDSA-Gen">ECDSA Keys</Nav.Link>
-                            <Nav.Link eventKey="CSR-Gen" disabled>CSR</Nav.Link>
+                            <Nav.Link eventKey="CSR-Gen">CSR <Badge bg="success">New</Badge></Nav.Link>
                             <Nav.Link eventKey="Certificate-Gen" disabled>Certificate</Nav.Link>
                             <Nav.Item><i class="bi bi-lock" /> Encryption/Decryption</Nav.Item>
                             <Nav.Link eventKey="AES-Enc">AES</Nav.Link>
                             <Nav.Link eventKey="RSA-Enc">RSA</Nav.Link>
                             <Nav.Item><i class="bi bi-pen" /> Signing/Validation</Nav.Item>
                             <Nav.Link eventKey="RSA-Sig">RSA</Nav.Link>
-                            <Nav.Link eventKey="ECDSA-Sig">ECDSA</Nav.Link>
+                            <Nav.Link eventKey="ECDSA-Sig">ECDSA <Badge bg="success">New</Badge></Nav.Link>
                             <Nav.Item><i class="bi bi-hash" /> Hashing</Nav.Item>
-                            <Nav.Link eventKey="SHA">SHA</Nav.Link>
+                            <Nav.Link eventKey="SHA">SHA <Badge bg="success">New</Badge></Nav.Link>
                             <Nav.Link eventKey="MD5" disabled>MD5</Nav.Link>
                             <Nav.Item><i class="bi bi-wrench" /> Encoding</Nav.Item>
                             <Nav.Link eventKey="Base64" disabled>Base64</Nav.Link>
@@ -80,6 +82,9 @@ class App extends React.Component {
 
                                 {/* SHA Functions */}
                                 <SHA {...this.state} setState={(data) => this.setState({ ...data })} />
+
+                                {/* CSR Functions */}
+                                <CSR {...this.state} setState={(data) => this.setState({ ...data })} />
 
                             </Col>
                         </Row>

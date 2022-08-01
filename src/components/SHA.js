@@ -7,13 +7,6 @@ import Spinner from 'react-bootstrap/Spinner';
 
 import * as encoding from '../lib/encoding';
 
-const encSettings = {
-    algorithm: {
-        name: "AES-CBC",
-    },
-    keyUsages: ["encrypt", "decrypt"]
-}
-
 const digest = async (props, message, algorithm) => {
     try {
         props.setState({ loading: true })
