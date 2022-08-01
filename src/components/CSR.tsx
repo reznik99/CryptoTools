@@ -12,7 +12,7 @@ import Row from 'react-bootstrap/Row';
 import * as encoding from '../lib/encoding';
 
 
-const generateCSR = async (props: any, algorithm: string, curve: string, cipher: string, CN: string, O: string, OU: string, L: string, C: string) => {
+const generateCSR = async (props: any, algorithm: string, curve: string, hash: string, CN: string, O: string, OU: string, L: string, C: string) => {
     try {
         props.setState({ loading: true })
 
@@ -20,7 +20,7 @@ const generateCSR = async (props: any, algorithm: string, curve: string, cipher:
 
         // Get Algorithm parameters and Generate appropriate keypair
         const algoParams = pkijs.getAlgorithmParameters(algorithm, 'generateKey')
-        if ((algoParams.algorithm as any)?.hash) (algoParams.algorithm as any).hash = cipher
+        if ((algoParams.algorithm as any)?.hash) (algoParams.algorithm as any).hash = hash
         if ((algoParams.algorithm as any)?.namedCurve) (algoParams.algorithm as any).namedCurve = curve
         const keypair = await window.crypto.subtle.generateKey(algoParams.algorithm as AlgorithmIdentifier, true, algoParams.usages) as CryptoKeyPair
 
@@ -60,13 +60,13 @@ const generateCSR = async (props: any, algorithm: string, curve: string, cipher:
         }
 
         // Sign the CSR with the appropriate Private Key
-        await csr.sign(keypair.privateKey, cipher);
+        await csr.sign(keypair.privateKey, hash);
 
         // Export as PEM
         const csrBER = csr.toSchema().toBER(false);
         const csrPEM = encoding.arrayBufferToBase64(csrBER);
 
-        props.setState({ output: csrPEM, successMsg: `(${algorithm}-${cipher}) CSR Generated successfully` });
+        props.setState({ output: csrPEM, successMsg: `(${algorithm}-${hash}) CSR Generated successfully` });
     } catch (err) {
         console.error(err);
         props.setState({ errorMsg: err });
@@ -78,8 +78,9 @@ const generateCSR = async (props: any, algorithm: string, curve: string, cipher:
 
 export default function CSR(props) {
     const [algorithm, setAlgorithm] = useState('ECDSA')
+    const [hash, setHash] = useState('SHA-256')
+    const [keyLength, setKeyLength] = useState(2048)
     const [curve, setCurve] = useState('P-256')
-    const [cipher, setCipher] = useState('SHA-256')
     const [commonName, setCommonName] = useState('')
     const [organisation, setOrganisation] = useState('')
     const [organisationalUnit, setOrganisationalUnit] = useState('')
@@ -89,7 +90,7 @@ export default function CSR(props) {
     switch (props.action) {
         case 'CSR-Gen':
             return <>
-                <h4> Hash </h4>
+                <h4> Key Details </h4>
                 <Row>
                     <Col lg={6}>
                         <Form.Group className="mb-3">
@@ -104,7 +105,7 @@ export default function CSR(props) {
                     <Col lg={6}>
                         <Form.Group className="mb-3">
                             <Form.Label>Cipher</Form.Label>
-                            <Form.Select value={cipher} onChange={e => setCipher(e.target.value)}>
+                            <Form.Select value={hash} onChange={e => setHash(e.target.value)}>
                                 <option value="SHA-1">SHA-1</option>
                                 <option value="SHA-256">SHA-256</option>
                                 <option value="SHA-384">SHA-384</option>
@@ -113,14 +114,26 @@ export default function CSR(props) {
                         </Form.Group>
                     </Col>
                 </Row>
-                <Form.Group className="mb-3">
-                    <Form.Label>Curve</Form.Label>
-                    <Form.Select value={curve} onChange={e => setCurve(e.target.value)} disabled={algorithm !== 'ECDSA'}>
-                        <option value="P-256">P-256</option>
-                        <option value="P-384">P-384</option>
-                        <option value="P-521">P-521</option>
-                    </Form.Select>
-                </Form.Group>
+                <Row>
+                    <Col lg={6}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Curve (ECDSA Only)</Form.Label>
+                            <Form.Select value={curve} onChange={e => setCurve(e.target.value)} disabled={algorithm !== 'ECDSA'}>
+                                <option value="P-256">P-256</option>
+                                <option value="P-384">P-384</option>
+                                <option value="P-521">P-521</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+                    <Col lg={6}><Form.Group className="mb-3">
+                        <Form.Group className="mb-3">
+                            <Form.Label>Key Length (RSA Only)</Form.Label>
+                            <Form.Control type="number" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
+                        </Form.Group>
+                    </Form.Group></Col>
+                </Row>
+
+                <h4> CSR Details </h4>
                 <Form.Group className="mb-3">
                     <Form.Label>Common Name</Form.Label>
                     <Form.Control type="text" placeholder="My New Certificate" value={commonName} onChange={(e) => setCommonName(e.target.value)} />
@@ -149,8 +162,8 @@ export default function CSR(props) {
                 </Row>
 
                 <div className="mt-2 text-center">
-                    {!props.loading && <Button size='lg' onClick={() => generateCSR(props, algorithm, curve, cipher, commonName, organisation, organisationalUnit, locality, country)}>Digest</Button>}
-                    {props.loading && <Button size='lg'><Spinner animation="border" size="sm" /> Hashing</Button>}
+                    {!props.loading && <Button size='lg' onClick={() => generateCSR(props, algorithm, curve, hash, commonName, organisation, organisationalUnit, locality, country)}>Generate CSR</Button>}
+                    {props.loading && <Button size='lg'><Spinner animation="border" size="sm" /> Generating...</Button>}
                 </div>
             </>
         default:
