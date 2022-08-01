@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Buffer } from 'buffer';
 import * as pkijs from 'pkijs';
 import * as asn1js from 'asn1js';
 
