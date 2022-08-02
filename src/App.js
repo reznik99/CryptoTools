@@ -35,76 +35,78 @@ class App extends React.Component {
 
     render = () => {
         return (
-            <Container fluid className="App vh-100">
+            <Container fluid className="App">
                 <Row className="wrapper">
-                    <Col xs="auto" className={`no-pad nav-container ${this.state.menuOpen ? 'nav-container-open' : ''}`}>
-                        <Button className="nav-slider" variant="primary" onClick={() => this.setState({ menuOpen: !this.state.menuOpen })}>
-                            {this.state.menuOpen
-                                ? <><i class="bi bi-arrow-left" /> Hide</>
-                                : <><i class="bi bi-arrow-right" /> Show</>
-                            }
-                        </Button>
-                        <Nav className="flex-column nav h-100" variant="pills" activeKey={this.state.action} onSelect={eventKey => this.setState({ action: eventKey })}>
-                            <h3 className="title">Crypto Tools</h3>
-                            <Nav.Item><i class="bi bi-key" /> Generation</Nav.Item>
-                            <Nav.Link eventKey="AES-Gen">AES Key</Nav.Link>
-                            <Nav.Link eventKey="RSA-Gen">RSA Keys</Nav.Link>
-                            <Nav.Link eventKey="ECDSA-Gen">ECDSA Keys</Nav.Link>
-                            <Nav.Link eventKey="CSR-Gen">CSR <Badge bg="success">New</Badge></Nav.Link>
-                            <Nav.Link eventKey="Certificate-Gen" disabled>Certificate</Nav.Link>
-                            <Nav.Item><i class="bi bi-lock" /> Encryption/Decryption</Nav.Item>
-                            <Nav.Link eventKey="AES-Enc">AES</Nav.Link>
-                            <Nav.Link eventKey="RSA-Enc">RSA</Nav.Link>
-                            <Nav.Item><i class="bi bi-pen" /> Signing/Validation</Nav.Item>
-                            <Nav.Link eventKey="RSA-Sig">RSA</Nav.Link>
-                            <Nav.Link eventKey="ECDSA-Sig">ECDSA <Badge bg="success">New</Badge></Nav.Link>
-                            <Nav.Item><i class="bi bi-hash" /> Hashing</Nav.Item>
-                            <Nav.Link eventKey="SHA">SHA <Badge bg="success">New</Badge></Nav.Link>
-                            <Nav.Link eventKey="MD5" disabled>MD5</Nav.Link>
-                            <Nav.Item><i class="bi bi-wrench" /> Encoding</Nav.Item>
-                            <Nav.Link eventKey="Base64" disabled>Base64</Nav.Link>
-                            <Nav.Link eventKey="Hex" disabled>Hex</Nav.Link>
-                            <Nav.Link eventKey="Binary" disabled>Binary</Nav.Link>
-                        </Nav>
-                    </Col>
-                    <Col lg sm={12}>
-                        <Row className="justify-content-md-center align-items-md-center h-100">
-                            <Col lg={this.state.menuOpen ? 8 : 10} md={10} sm={12} className="content-container">
+                    <Row>
+                        <Col xs="auto" className={`no-pad nav-container ${this.state.menuOpen ? 'nav-container-open' : ''}`}>
+                            <Button className="nav-slider" variant="primary" onClick={() => this.setState({ menuOpen: !this.state.menuOpen })}>
+                                {this.state.menuOpen
+                                    ? <><i class="bi bi-arrow-left" /> Hide</>
+                                    : <><i class="bi bi-arrow-right" /> Show</>
+                                }
+                            </Button>
+                            <Nav className="flex-column nav" variant="pills" activeKey={this.state.action} onSelect={eventKey => this.setState({ action: eventKey })}>
+                                <h3 className="title">Crypto Tools</h3>
+                                <Nav.Item><i class="bi bi-key" /> Generation</Nav.Item>
+                                <Nav.Link eventKey="AES-Gen">AES Key</Nav.Link>
+                                <Nav.Link eventKey="RSA-Gen">RSA Keys</Nav.Link>
+                                <Nav.Link eventKey="ECDSA-Gen">ECDSA Keys</Nav.Link>
+                                <Nav.Link eventKey="CSR-Gen">CSR <Badge bg="success">New</Badge></Nav.Link>
+                                <Nav.Link eventKey="Certificate-Gen" disabled>Certificate</Nav.Link>
+                                <Nav.Item><i class="bi bi-lock" /> Encryption/Decryption</Nav.Item>
+                                <Nav.Link eventKey="AES-Enc">AES</Nav.Link>
+                                <Nav.Link eventKey="RSA-Enc">RSA</Nav.Link>
+                                <Nav.Item><i class="bi bi-pen" /> Signing/Validation</Nav.Item>
+                                <Nav.Link eventKey="RSA-Sig">RSA</Nav.Link>
+                                <Nav.Link eventKey="ECDSA-Sig">ECDSA <Badge bg="success">New</Badge></Nav.Link>
+                                <Nav.Item><i class="bi bi-hash" /> Hashing</Nav.Item>
+                                <Nav.Link eventKey="SHA">SHA <Badge bg="success">New</Badge></Nav.Link>
+                                <Nav.Link eventKey="MD5" disabled>MD5</Nav.Link>
+                                <Nav.Item><i class="bi bi-wrench" /> Encoding</Nav.Item>
+                                <Nav.Link eventKey="Base64" disabled>Base64</Nav.Link>
+                                <Nav.Link eventKey="Hex" disabled>Hex</Nav.Link>
+                                <Nav.Link eventKey="Binary" disabled>Binary</Nav.Link>
+                            </Nav>
+                        </Col>
+                        <Col lg sm={12}>
+                            <Row className="justify-content-md-center align-items-md-center h-100">
+                                <Col lg={this.state.menuOpen ? 8 : 10} md={10} sm={12} className="content-container">
 
-                                {/* RSA Functions */}
-                                <RSA {...this.state} setState={(data) => this.setState({ ...data })} />
+                                    {/* RSA Functions */}
+                                    <RSA {...this.state} setState={(data) => this.setState({ ...data })} />
 
-                                {/* AES Functions */}
-                                <AES {...this.state} setState={(data) => this.setState({ ...data })} />
+                                    {/* AES Functions */}
+                                    <AES {...this.state} setState={(data) => this.setState({ ...data })} />
 
-                                {/* ECDSA Functions */}
-                                <ECDSA {...this.state} setState={(data) => this.setState({ ...data })} />
+                                    {/* ECDSA Functions */}
+                                    <ECDSA {...this.state} setState={(data) => this.setState({ ...data })} />
 
-                                {/* SHA Functions */}
-                                <SHA {...this.state} setState={(data) => this.setState({ ...data })} />
+                                    {/* SHA Functions */}
+                                    <SHA {...this.state} setState={(data) => this.setState({ ...data })} />
 
-                                {/* CSR Functions */}
-                                <CSR {...this.state} setState={(data) => this.setState({ ...data })} />
+                                    {/* CSR Functions */}
+                                    <CSR {...this.state} setState={(data) => this.setState({ ...data })} />
 
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col lg sm={12}>
-                        <Row className="h-50 mv-1">
-                            <Form.Group >
-                                <Form.Label>Input {this.state.input?.length ? `(${this.state.input?.length} characters)` : null}</Form.Label>
-                                <Form.Control as="textarea" className="nice-text-area" placeholder="Input"
-                                    value={this.state.input} onChange={e => this.setState({ input: e.target.value })} />
-                            </Form.Group>
-                        </Row>
-                        <Row className="h-50 mv-1">
-                            <Form.Group >
-                                <Form.Label>Output {this.state.output?.length ? `(${this.state.output?.length} characters)` : null}</Form.Label>
-                                <Form.Control as="textarea" className="nice-text-area" placeholder="Output"
-                                    value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
-                            </Form.Group>
-                        </Row>
-                    </Col>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col lg sm={12}>
+                            <Row className="h-50 mv-1">
+                                <Form.Group >
+                                    <Form.Label>Input {this.state.input?.length ? `(${this.state.input?.length} characters)` : null}</Form.Label>
+                                    <Form.Control as="textarea" className="nice-text-area" placeholder="Input"
+                                        value={this.state.input} onChange={e => this.setState({ input: e.target.value })} />
+                                </Form.Group>
+                            </Row>
+                            <Row className="h-50 mv-1">
+                                <Form.Group >
+                                    <Form.Label>Output {this.state.output?.length ? `(${this.state.output?.length} characters)` : null}</Form.Label>
+                                    <Form.Control as="textarea" className="nice-text-area" placeholder="Output"
+                                        value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
+                                </Form.Group>
+                            </Row>
+                        </Col>
+                    </Row>
                     <Alert variant='info' className="footer">
                         Made with <i class="bi bi-heart-fill" style={{ color: "#ff0000" }} /> and <i class="bi bi-cup-hot-fill" />. <br />
                         Open source on <Alert.Link href="https://github.com/reznik99/CryptoTools" target="_blank">github.com</Alert.Link>

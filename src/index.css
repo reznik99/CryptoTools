@@ -42,8 +42,7 @@ code {
 
 
 .wrapper {
-    min-height: calc(100% - 80px) !important;
-    margin-bottom: 80px;
+    min-height: 100vh;
 }
 
 /* Navigation */
@@ -51,6 +50,7 @@ code {
     display: flex;
     position: relative;
     max-width: 250px;
+    min-height: calc(100vh - 80px);
     justify-content: flex-end;
     transform: translate3d(-100%, 0, 0);
     transition: transform 0.6s cubic-bezier(0, .52, 0, 1);
@@ -97,9 +97,7 @@ code {
 }
 
 .footer {
-    position: absolute;
-    bottom: 0px;
-    margin: 0px;
+    margin: auto 0 0 0;
     padding: 10px 0px;
     max-height: 70px;
     text-align: center;
