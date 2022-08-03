@@ -41,8 +41,8 @@ class App extends React.Component {
                         <Col xs="auto" className={`no-pad nav-container ${this.state.menuOpen ? 'nav-container-open' : ''}`}>
                             <Button className="nav-slider" variant="primary" onClick={() => this.setState({ menuOpen: !this.state.menuOpen })}>
                                 {this.state.menuOpen
-                                    ? <><i class="bi bi-arrow-left" /> Hide</>
-                                    : <><i class="bi bi-arrow-right" /> Show</>
+                                    ? <><i className="bi bi-arrow-left" /> Menu</>
+                                    : <>Menu <i className="bi bi-arrow-right" /></>
                                 }
                             </Button>
                             <Nav className="flex-column nav" variant="pills" activeKey={this.state.action} onSelect={eventKey => this.setState({ action: eventKey })}>
@@ -68,9 +68,9 @@ class App extends React.Component {
                                 <Nav.Link eventKey="Binary" disabled>Binary</Nav.Link>
                             </Nav>
                         </Col>
-                        <Col lg sm={12}>
-                            <Row className="justify-content-md-center align-items-md-center h-100">
-                                <Col lg={this.state.menuOpen ? 8 : 10} md={10} sm={12} className="content-container">
+                        <Col lg={8} md xs={12}>
+                            <Row className="justify-content-center align-items-center h-100">
+                                <Col lg={10} sm={12} className="content-container">
 
                                     {/* RSA Functions */}
                                     <RSA {...this.state} setState={(data) => this.setState({ ...data })} />
@@ -90,7 +90,7 @@ class App extends React.Component {
                                 </Col>
                             </Row>
                         </Col>
-                        <Col lg sm={12}>
+                        <Col lg md xs={12} className="output-container">
                             <Row className="h-50 mv-1">
                                 <Form.Group >
                                     <Form.Label>Input {this.state.input?.length ? `(${this.state.input?.length} characters)` : null}</Form.Label>
