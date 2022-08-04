@@ -120,7 +120,7 @@ input:disabled {
     pointer-events: all !important;
 }
 
-@media all and (max-width: 600px) {
+@media all and (max-width: 800px) {
 
     .nav-container {
         min-height: 100vh;

@@ -5,6 +5,8 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 import * as encoding from '../lib/encoding';
 
@@ -130,129 +132,160 @@ const decryptRSA = async (props, message) => {
     }
 }
 
-const signRSA = async (props, message) => {
+const signRSA = async (props, rsaMode, hashAlgo, message) => {
     try {
         props.setState({ loading: true })
 
-        const privateKey = await importRSAPriv(props.input, sigSettings)
+        const settings = { ...sigSettings };
+        settings.algorithm.name = rsaMode;
+        settings.algorithm.hash = hashAlgo;
+
+        const privateKey = await importRSAPriv(props.input, settings);
 
         const signature = await window.crypto.subtle.sign(
             {
-                name: "RSA-PSS",
+                name: rsaMode,
                 saltLength: 32,
             },
             privateKey,
             Buffer.from(message, 'ascii')
         );
 
-        props.setState({ output: encoding.arrayBufferToBase64(signature), successMsg: `(RSA-PSS) Signed successfully` })
+        props.setState({ output: encoding.arrayBufferToBase64(signature), successMsg: `(${rsaMode}) Signed successfully` });
     } catch (err) {
-        console.error(err)
-        props.setState({ errorMsg: err })
+        console.error(err);
+        props.setState({ errorMsg: err });
     } finally {
-        props.setState({ loading: false })
+        props.setState({ loading: false });
     }
 }
 
-const verifyRSA = async (props, message, signature) => {
+const verifyRSA = async (props, rsaMode, hashAlgo, message, signature) => {
     try {
         props.setState({ loading: true })
 
-        const publicKey = await importRSAPub(props.input, verSettings)
+        const settings = { ...verSettings };
+        settings.algorithm.name = rsaMode;
+        settings.algorithm.hash = hashAlgo;
+
+        const publicKey = await importRSAPub(props.input, settings);
 
         const valid = await window.crypto.subtle.verify(
             {
-                name: "RSA-PSS",
+                name: rsaMode,
                 saltLength: 32,
             },
             publicKey,
             Buffer.from(signature, 'base64'),
             Buffer.from(message, 'ascii')
         );
-        if (valid) props.setState({ output: "Valid", successMsg: `(RSA-PSS) Verified successfully` })
-        else props.setState({ output: "Invalid", errorMsg: `(RSA-PSS) Verification failed` })
+        if (valid) props.setState({ output: "Valid", successMsg: `${rsaMode}) Verified successfully` });
+        else props.setState({ output: "Invalid", errorMsg: `${rsaMode}) Verification failed` });
     } catch (err) {
         console.error(err)
-        props.setState({ errorMsg: err })
+        props.setState({ errorMsg: err });
     } finally {
-        props.setState({ loading: false })
+        props.setState({ loading: false });
     }
 }
 
 export default function RSA(props) {
+    const [rsaMode, setRSAMode] = useState('RSA-PSS')
     const [keyLength, setKeyLength] = useState(2048)
+    const [hashAlgo, setHashAlgo] = useState('SHA-256')
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
 
     switch (props.action) {
         case 'RSA-Gen':
-            return <>
-                <h4> Generate Key </h4>
-                <Form.Group className="mb-3">
-                    <Form.Label>Keylength</Form.Label>
-                    <Form.Control type="numeric" placeholder="2048" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
-                </Form.Group>
-                {!props.loading && <Button onClick={() => generateRSA(props, keyLength)}>Generate RSA Key</Button>}
-                {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
-            </>
+            return <Row className="justify-content-center align-items-center">
+                <Col lg={8} >
+                    <h4> Generate Key </h4>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Keylength</Form.Label>
+                        <Form.Control type="numeric" placeholder="2048" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
+                    </Form.Group>
+                    {!props.loading && <Button onClick={() => generateRSA(props, keyLength)}>Generate RSA Key</Button>}
+                    {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
+                </Col>
+            </Row>
         case 'RSA-Enc':
-            return <>
-                <h4> Encrypt/Decrypt </h4>
-                <Form.Group className="mb-3">
-                    <Form.Label>Algorithm</Form.Label>
-                    <Form.Select disabled>
-                        <option value="RSA-OAEP">RSA-OAEP</option>
-                        <option value="AES-GCM">AES-GCM</option>
-                    </Form.Select>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>PlainText / CipherText</Form.Label>
-                    <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
-                </Form.Group>
-                {!props.loading &&
-                    <ButtonGroup size="lg" className="mb-2">
-                        <Button onClick={() => decryptRSA(props, message)}>Decrypt</Button>
-                        <Button onClick={() => encryptRSA(props, message)}>Encrypt</Button>
-                    </ButtonGroup>
-                }
-                {props.loading &&
-                    <ButtonGroup size="lg" className="mb-2">
-                        <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
-                        <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
-                    </ButtonGroup>
-                }
-            </>
+            return <Row className="justify-content-center align-items-center">
+                <Col lg={8} >
+                    <h4> Encrypt/Decrypt </h4>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Algorithm</Form.Label>
+                        <Form.Select disabled>
+                            <option value="RSA-OAEP">RSA-OAEP</option>
+                            <option value="AES-GCM">RSAES-PKCS1-v1_5</option>
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>PlainText / CipherText</Form.Label>
+                        <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
+                    </Form.Group>
+                    {!props.loading &&
+                        <ButtonGroup size="lg" className="mb-2">
+                            <Button onClick={() => decryptRSA(props, message)}>Decrypt</Button>
+                            <Button onClick={() => encryptRSA(props, message)}>Encrypt</Button>
+                        </ButtonGroup>
+                    }
+                    {props.loading &&
+                        <ButtonGroup size="lg" className="mb-2">
+                            <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
+                            <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
+                        </ButtonGroup>
+                    }
+                </Col>
+            </Row>
         case 'RSA-Sig':
-            return <>
-                <h4> Sign/Validate </h4>
-                <Form.Group className="mb-3">
-                    <Form.Label>Algorithm</Form.Label>
-                    <Form.Select disabled>
-                        <option value="RSA-PSS">RSA-PSS</option>
-                        <option value="RSA-PKCS1v15">RSA-PKCS1v15</option>
-                    </Form.Select>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Message</Form.Label>
-                    <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Signature (required for validation)</Form.Label>
-                    <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
-                </Form.Group>
-                {!props.loading &&
-                    <ButtonGroup size="lg" className="mb-2">
-                        <Button onClick={() => verifyRSA(props, message, signature)}>Validate</Button>
-                        <Button onClick={() => signRSA(props, message)}>Sign</Button>
-                    </ButtonGroup>
-                }
-                {props.loading &&
-                    <ButtonGroup size="lg" className="mb-2">
-                        <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
-                        <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
-                    </ButtonGroup>
-                }
-            </>
+            return <Row className="justify-content-center align-items-center">
+                <Col lg={8} >
+                    <h4> Sign/Validate </h4>
+                    <Row>
+                        <Col lg={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Algorithm</Form.Label>
+                                <Form.Select value={rsaMode} onChange={e => setRSAMode(e.target.value)}>
+                                    <option value="RSASSA-PKCS1-v1_5">RSASSA-PKCS1-v1_5</option>
+                                    <option value="RSA-PSS">RSA-PSS</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        <Col lg={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Hash Algorithm</Form.Label>
+                                <Form.Select value={hashAlgo} onChange={e => setHashAlgo(e.target.value)}>
+                                    <option value="SHA-1">SHA-1</option>
+                                    <option value="SHA-256">SHA-256</option>
+                                    <option value="SHA-384">SHA-384</option>
+                                    <option value="SHA-512">SHA-512</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Message</Form.Label>
+                        <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Signature (required for validation)</Form.Label>
+                        <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
+                    </Form.Group>
+                    {!props.loading &&
+                        <ButtonGroup size="lg" className="mb-2">
+                            <Button onClick={() => verifyRSA(props, rsaMode, hashAlgo, message, signature)}>Validate</Button>
+                            <Button onClick={() => signRSA(props, rsaMode, hashAlgo, message)}>Sign</Button>
+                        </ButtonGroup>
+                    }
+                    {props.loading &&
+                        <ButtonGroup size="lg" className="mb-2">
+                            <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
+                            <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
+                        </ButtonGroup>
+                    }
+                </Col>
+            </Row>
         default:
             return
     }
