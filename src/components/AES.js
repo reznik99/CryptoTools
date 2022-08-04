@@ -10,12 +10,7 @@ import Col from 'react-bootstrap/Col';
 
 import * as encoding from '../lib/encoding';
 
-const encSettings = {
-    algorithm: {
-        name: "AES-CBC",
-    },
-    keyUsages: ["encrypt", "decrypt"]
-}
+const keyUsages = ["encrypt", "decrypt"];
 
 const importAES = async (key, settings) => {
     const binaryDer = Buffer.from(key, 'base64')
@@ -53,16 +48,20 @@ const generateAES = async (props, keyLength) => {
     }
 }
 
-const encryptAES = async (props, message) => {
+const encryptAES = async (props, aesMode, message) => {
     try {
         props.setState({ loading: true })
 
-        const key = await importAES(props.input, encSettings)
+        const settings = {
+            algorithm: { name: aesMode },
+            keyUsages
+        }
+        const key = await importAES(props.input, settings)
         const iv = window.crypto.getRandomValues(new Uint8Array(16));
 
         const cipherText = await window.crypto.subtle.encrypt(
             {
-                name: "AES-CBC",
+                name: aesMode,
                 iv: iv
             },
             key,
@@ -81,16 +80,20 @@ const encryptAES = async (props, message) => {
     }
 }
 
-const decryptAES = async (props, message, ivText) => {
+const decryptAES = async (props, aesMode, message, ivText) => {
     try {
         props.setState({ loading: true })
 
-        const key = await importAES(props.input, encSettings)
+        const settings = {
+            algorithm: { name: aesMode },
+            keyUsages
+        }
+        const key = await importAES(props.input, settings)
         const iv = Buffer.from(ivText, 'base64');
 
         const plainText = await window.crypto.subtle.decrypt(
             {
-                name: "AES-CBC",
+                name: aesMode,
                 iv: iv
             },
             key,
@@ -108,6 +111,7 @@ const decryptAES = async (props, message, ivText) => {
 
 
 export default function AES(props) {
+    const [aesMode, setAESMode] = useState('AES-GCM')
     const [keyLength, setKeyLength] = useState(256)
     const [message, setMessage] = useState('')
     const [iv, setIV] = useState('')
@@ -131,7 +135,7 @@ export default function AES(props) {
                     <h4> Encrypt/Decrypt </h4>
                     <Form.Group className="mb-3">
                         <Form.Label>Algorithm</Form.Label>
-                        <Form.Select disabled>
+                        <Form.Select value={aesMode} onChange={e => setAESMode(e.target.value)}>
                             <option value="AES-CBC">AES-CBC</option>
                             <option value="AES-GCM">AES-GCM</option>
                         </Form.Select>
@@ -146,8 +150,8 @@ export default function AES(props) {
                     </Form.Group>
                     {!props.loading &&
                         <ButtonGroup size="lg" className="mb-2">
-                            <Button onClick={() => decryptAES(props, message, iv)}>Decrypt</Button>
-                            <Button onClick={() => encryptAES(props, message)}>Encrypt</Button>
+                            <Button onClick={() => decryptAES(props, aesMode, message, iv)}>Decrypt</Button>
+                            <Button onClick={() => encryptAES(props, aesMode, message)}>Encrypt</Button>
                         </ButtonGroup>
                     }
                     {props.loading &&
