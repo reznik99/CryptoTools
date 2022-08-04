@@ -126,64 +126,68 @@ export default function AES(props) {
 
     switch (props.action) {
         case 'ECDSA-Gen':
-            return <>
-                <h4> Generate Key </h4>
-                <Form.Group className="mb-3">
-                    <Form.Label>Curve</Form.Label>
-                    <Form.Select value={curve} onChange={(e) => setCurve(e.target.value)}>
-                        <option value="P-256">P-256</option>
-                        <option value="P-384">P-384</option>
-                        <option value="P-521">P-521</option>
-                    </Form.Select>
-                </Form.Group>
-                {!props.loading && <Button onClick={() => generateECDSA(props, curve)}>Generate ECDSA Key</Button>}
-                {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
-            </>
+            return <Row className="justify-content-center align-items-center">
+                <Col lg={8} >
+                    <h4> Generate Key </h4>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Curve</Form.Label>
+                        <Form.Select value={curve} onChange={(e) => setCurve(e.target.value)}>
+                            <option value="P-256">P-256</option>
+                            <option value="P-384">P-384</option>
+                            <option value="P-521">P-521</option>
+                        </Form.Select>
+                    </Form.Group>
+                    {!props.loading && <Button onClick={() => generateECDSA(props, curve)}>Generate ECDSA Key</Button>}
+                    {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
+                </Col>
+            </Row>
         case 'ECDSA-Sig':
-            return <>
-                <h4> Sign/Validate </h4>
-                <Row>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Algorithm</Form.Label>
-                            <Form.Select disabled>
-                                <option value="ECDSA">ECDSA</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3" value={cipher} onChange={e => setCipher(e.target.value)}>
-                            <Form.Label>Hash Algorithm</Form.Label>
-                            <Form.Select>
-                                <option value="SHA-1">SHA-1</option>
-                                <option value="SHA-256">SHA-256</option>
-                                <option value="SHA-384">SHA-384</option>
-                                <option value="SHA-512">SHA-512</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Form.Group className="mb-3">
-                    <Form.Label>Message</Form.Label>
-                    <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Signature (required for validation)</Form.Label>
-                    <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
-                </Form.Group>
-                {!props.loading &&
-                    <ButtonGroup size="lg" className="mb-2">
-                        <Button onClick={() => verifyECDSA(props, message, signature)} > Validate</Button>
-                        <Button onClick={() => signECDSA(props, cipher, message)}>Sign</Button>
-                    </ButtonGroup>
-                }
-                {props.loading &&
-                    <ButtonGroup size="lg" className="mb-2">
-                        <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
-                        <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
-                    </ButtonGroup>
-                }
-            </>
+            return <Row className="justify-content-center align-items-center">
+                <Col lg={8} >
+                    <h4> Sign/Validate </h4>
+                    <Row>
+                        <Col lg={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Algorithm</Form.Label>
+                                <Form.Select disabled>
+                                    <option value="ECDSA">ECDSA</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        <Col lg={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Hash Algorithm</Form.Label>
+                                <Form.Select value={cipher} onChange={e => setCipher(e.target.value)}>
+                                    <option value="SHA-1">SHA-1</option>
+                                    <option value="SHA-256">SHA-256</option>
+                                    <option value="SHA-384">SHA-384</option>
+                                    <option value="SHA-512">SHA-512</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Message</Form.Label>
+                        <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Signature (required for validation)</Form.Label>
+                        <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
+                    </Form.Group>
+                    {!props.loading &&
+                        <ButtonGroup size="lg" className="mb-2">
+                            <Button onClick={() => verifyECDSA(props, message, signature)} > Validate</Button>
+                            <Button onClick={() => signECDSA(props, cipher, message)}>Sign</Button>
+                        </ButtonGroup>
+                    }
+                    {props.loading &&
+                        <ButtonGroup size="lg" className="mb-2">
+                            <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
+                            <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
+                        </ButtonGroup>
+                    }
+                </Col>
+            </Row>
         default:
             return
     }
