@@ -137,14 +137,20 @@ export default function CSR(props) {
                     <Form.Label>Common Name</Form.Label>
                     <Form.Control type="text" placeholder="My New Certificate" value={commonName} onChange={(e) => setCommonName(e.target.value)} />
                 </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Organisation</Form.Label>
-                    <Form.Control type="text" placeholder="Evil Corp" value={organisation} onChange={(e) => setOrganisation(e.target.value)} />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Organisational Unit</Form.Label>
-                    <Form.Control type="text" placeholder="EC Finance Dept" value={organisationalUnit} onChange={(e) => setOrganisationalUnit(e.target.value)} />
-                </Form.Group>
+                <Row>
+                    <Col lg={6}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Organisation</Form.Label>
+                            <Form.Control type="text" placeholder="Evil Corp" value={organisation} onChange={(e) => setOrganisation(e.target.value)} />
+                        </Form.Group>
+                    </Col>
+                    <Col lg={6}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Organisational Unit</Form.Label>
+                            <Form.Control type="text" placeholder="EC Finance Dept" value={organisationalUnit} onChange={(e) => setOrganisationalUnit(e.target.value)} />
+                        </Form.Group>
+                    </Col>
+                </Row>
                 <Row>
                     <Col lg={6}>
                         <Form.Group className="mb-3">
