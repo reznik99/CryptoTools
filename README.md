@@ -15,31 +15,35 @@
 This website provides Cryptographic functions in your browser.
 
 ### This project uses:
-- React
-- Typescript
-- React-Bootstrap
-- PKI.js
-- ASN1.js
+- [React](https://github.com/facebook/react)
+- [Typescript](https://github.com/microsoft/TypeScript)
+- [React-Bootstrap](https://github.com/react-bootstrap/react-bootstrap)
+- [PKI.js](https://github.com/PeculiarVentures/PKI.js)
+- [ASN1.js](https://github.com/PeculiarVentures/ASN1.js)
 
 <!-- ROADMAP -->
 ## Roadmap
 
+### Generation
 - [x] __AES__ Key Generation.
-- [x] __AES-CBC__ and __AES-GCM__ Encrypt/Decrypt.
 - [x] __RSA__ Key Generation.
-- [x] __RSA-OAEP__ Encrypt/Decrypt.
-- [x] __RSA-PSS__ and __RSASSA-PKCS1-v1_5__ Sign/Validate.
 - [x] __ECDSA__ Key Generation with NIST __P-256__ __P-384__ and __P-521__ curve support.
-- [x] __ECDSA__ Sign/Verify with NIST __P-256__ __P-384__ and __P-521__ curve support.
-- [x] __SHA-1__, __SHA-256__, __SHA-384__ and __SHA-512__ support.
 - [x] __PKCS10/CSR__ Generation with custom __Subjects__ and with __ECDSA__, __RSA-PSS__ and __RSASSA-PKCS1-v1_5__ signatures.
 - [ ] __PKCS10/CSR__ Generation with custom __Subject Alternative Names__.
 - [ ] __x509 Certificate__ Generation.
+### Encrypt/Decrypt
+- [x] __AES-CBC__ and __AES-GCM__ Encrypt/Decrypt.
+- [x] __RSA-OAEP__ Encrypt/Decrypt.
 - [ ] __AES-GCM__ with additional authenticated data __AEAD__.
+### Sign/Verify
+- [x] __RSA-PSS__ and __RSASSA-PKCS1-v1_5__ Sign/Validate.
+- [x] __ECDSA__ Sign/Verify with NIST __P-256__ __P-384__ and __P-521__ curve support.
+- [ ] __HMAC__ support.
+### Hashing
+- [x] __SHA-1__, __SHA-256__, __SHA-384__ and __SHA-512__ support.
 - [ ] __MD5__ support.
-- [ ] __HEX__ encoding support.
 
-See the [open issues](https://github.com/reznik99/go-dcc/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/reznik99/CryptoTools/issues) for a full list of proposed features (and known issues).
 <br>
 <br>
 
@@ -54,8 +58,8 @@ Project Link: [https://github.com/reznik99/CryptoTools](https://github.com/rezni
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/reznik99/go-dcc.svg?style=for-the-badge
-[contributors-url]: https://github.com/reznik99/go-dcc/graphs/contributors
+[contributors-shield]: https://img.shields.io/github/contributors/reznik99/cryptotools.svg?style=for-the-badge
+[contributors-url]: https://github.com/reznik99/cryptotools/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/reznik99/cryptotools.svg?style=for-the-badge
 [forks-url]: https://github.com/reznik99/cryptotools/network/members
 [stars-shield]: https://img.shields.io/github/stars/reznik99/cryptotools.svg?style=for-the-badge
