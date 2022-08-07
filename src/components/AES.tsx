@@ -9,10 +9,11 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import * as encoding from '../lib/encoding';
+import { Props, CryptoSettings } from '../types/SharedTypes';
 
-const keyUsages = ["encrypt", "decrypt"];
+const keyUsages: Array<KeyUsage> = ["encrypt", "decrypt"];
 
-const importAES = async (key, settings) => {
+const importAES = async (key: string, settings: CryptoSettings) => {
     const binaryDer = Buffer.from(key, 'base64')
 
     return window.crypto.subtle.importKey(
@@ -24,7 +25,7 @@ const importAES = async (key, settings) => {
     );
 }
 
-const generateAES = async (props, keyLength) => {
+const generateAES = async (props: Props, keyLength: number) => {
     try {
         props.setState({ loading: true })
         const key = await window.crypto.subtle.generateKey(
@@ -48,11 +49,11 @@ const generateAES = async (props, keyLength) => {
     }
 }
 
-const encryptAES = async (props, aesMode, message) => {
+const encryptAES = async (props: Props, aesMode: string, message: string) => {
     try {
         props.setState({ loading: true })
 
-        const settings = {
+        const settings: CryptoSettings = {
             algorithm: { name: aesMode },
             keyUsages
         }
@@ -80,7 +81,7 @@ const encryptAES = async (props, aesMode, message) => {
     }
 }
 
-const decryptAES = async (props, aesMode, message, ivText) => {
+const decryptAES = async (props: Props, aesMode: string, message: string, ivText: string) => {
     try {
         props.setState({ loading: true })
 
@@ -110,7 +111,7 @@ const decryptAES = async (props, aesMode, message, ivText) => {
 }
 
 
-export default function AES(props) {
+export default function AES(props: Props) {
     const [aesMode, setAESMode] = useState('AES-GCM')
     const [keyLength, setKeyLength] = useState(256)
     const [message, setMessage] = useState('')

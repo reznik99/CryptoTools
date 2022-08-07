@@ -9,21 +9,23 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
 import * as encoding from '../lib/encoding';
+import { Props, CryptoSettings } from '../types/SharedTypes';
 
-const sigSettings = {
+
+const sigSettings: CryptoSettings = {
     algorithm: {
         name: "ECDSA",
     },
     keyUsages: ["sign"]
 }
-const verSettings = {
+const verSettings: CryptoSettings = {
     algorithm: {
         name: "ECDSA",
     },
     keyUsages: ["verify"]
 }
 
-const importECDSAPub = async (pem, settings) => {
+const importECDSAPub = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.pemToBuffer('PUBLIC', pem)
 
     return await window.crypto.subtle.importKey(
@@ -35,7 +37,7 @@ const importECDSAPub = async (pem, settings) => {
     );
 }
 
-const importECDSAPriv = async (pem, settings) => {
+const importECDSAPriv = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.pemToBuffer('PRIVATE', pem)
 
     return window.crypto.subtle.importKey(
@@ -47,7 +49,7 @@ const importECDSAPriv = async (pem, settings) => {
     );
 }
 
-const generateECDSA = async (props, curve) => {
+const generateECDSA = async (props: Props, curve: string) => {
     try {
         props.setState({ loading: true })
         const keypair = await window.crypto.subtle.generateKey(
@@ -68,7 +70,7 @@ const generateECDSA = async (props, curve) => {
     }
 }
 
-const signECDSA = async (props, cipher, message) => {
+const signECDSA = async (props: Props, hashAlgo: string, message: string) => {
     try {
         props.setState({ loading: true })
 
@@ -77,7 +79,7 @@ const signECDSA = async (props, cipher, message) => {
         const signature = await window.crypto.subtle.sign(
             {
                 name: "ECDSA",
-                hash: { name: cipher },
+                hash: { name: hashAlgo },
             },
             privateKey,
             Buffer.from(message, 'ascii')
@@ -92,7 +94,7 @@ const signECDSA = async (props, cipher, message) => {
     }
 }
 
-const verifyECDSA = async (props, message, signature) => {
+const verifyECDSA = async (props: Props, hashAlgo: string, message: string, signature: string) => {
     try {
         props.setState({ loading: true })
 
@@ -101,7 +103,7 @@ const verifyECDSA = async (props, message, signature) => {
         const valid = await window.crypto.subtle.verify(
             {
                 name: "ECDSA",
-                hash: { name: "SHA-384" },
+                hash: { name: hashAlgo },
             },
             publicKey,
             Buffer.from(signature, 'base64'),
@@ -118,9 +120,9 @@ const verifyECDSA = async (props, message, signature) => {
     }
 }
 
-export default function AES(props) {
+export default function AES(props: Props) {
     const [curve, setCurve] = useState('P-256')
-    const [cipher, setCipher] = useState('SHA-256')
+    const [hashAlgo, setHashAlgo] = useState('SHA-256')
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
 
@@ -157,7 +159,7 @@ export default function AES(props) {
                         <Col lg={6}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Hash Algorithm</Form.Label>
-                                <Form.Select value={cipher} onChange={e => setCipher(e.target.value)}>
+                                <Form.Select value={hashAlgo} onChange={e => setHashAlgo(e.target.value)}>
                                     <option value="SHA-1">SHA-1</option>
                                     <option value="SHA-256">SHA-256</option>
                                     <option value="SHA-384">SHA-384</option>
@@ -176,8 +178,8 @@ export default function AES(props) {
                     </Form.Group>
                     {!props.loading &&
                         <ButtonGroup size="lg" className="mb-2">
-                            <Button onClick={() => verifyECDSA(props, message, signature)} > Validate</Button>
-                            <Button onClick={() => signECDSA(props, cipher, message)}>Sign</Button>
+                            <Button onClick={() => verifyECDSA(props, hashAlgo, message, signature)} > Validate</Button>
+                            <Button onClick={() => signECDSA(props, hashAlgo, message)}>Sign</Button>
                         </ButtonGroup>
                     }
                     {props.loading &&

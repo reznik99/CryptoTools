@@ -9,37 +9,24 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import * as encoding from '../lib/encoding';
+import { Props, CryptoSettings } from '../types/SharedTypes';
 
-const encSettings = {
+const encSettings: CryptoSettings = {
     algorithm: {
         name: "RSA-OAEP",
         hash: "SHA-256",
     },
     keyUsages: ["encrypt"]
 }
-const decSettings = {
+const decSettings: CryptoSettings = {
     algorithm: {
         name: "RSA-OAEP",
         hash: "SHA-256",
     },
     keyUsages: ["decrypt"]
 }
-const sigSettings = {
-    algorithm: {
-        name: "RSA-PSS",
-        hash: "SHA-256",
-    },
-    keyUsages: ["sign"]
-}
-const verSettings = {
-    algorithm: {
-        name: "RSA-PSS",
-        hash: "SHA-256",
-    },
-    keyUsages: ["verify"]
-}
 
-const importRSAPub = async (pem, settings) => {
+const importRSAPub = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.pemToBuffer('PUBLIC', pem)
 
     return await window.crypto.subtle.importKey(
@@ -51,7 +38,7 @@ const importRSAPub = async (pem, settings) => {
     );
 }
 
-const importRSAPriv = async (pem, settings) => {
+const importRSAPriv = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.pemToBuffer('PRIVATE', pem)
 
     return window.crypto.subtle.importKey(
@@ -63,7 +50,7 @@ const importRSAPriv = async (pem, settings) => {
     );
 }
 
-const generateRSA = async (props, keyLength) => {
+const generateRSA = async (props: Props, keyLength: number) => {
     try {
         props.setState({ loading: true })
         const keypair = await window.crypto.subtle.generateKey(
@@ -86,7 +73,7 @@ const generateRSA = async (props, keyLength) => {
     }
 }
 
-const encryptRSA = async (props, message) => {
+const encryptRSA = async (props: Props, message: string) => {
     try {
         props.setState({ loading: true })
 
@@ -109,7 +96,7 @@ const encryptRSA = async (props, message) => {
     }
 }
 
-const decryptRSA = async (props, message) => {
+const decryptRSA = async (props: Props, message: string) => {
     try {
         props.setState({ loading: true })
 
@@ -132,13 +119,17 @@ const decryptRSA = async (props, message) => {
     }
 }
 
-const signRSA = async (props, rsaMode, hashAlgo, message) => {
+const signRSA = async (props: Props, rsaMode: string, hashAlgo: string, message: string) => {
     try {
         props.setState({ loading: true })
 
-        const settings = { ...sigSettings };
-        settings.algorithm.name = rsaMode;
-        settings.algorithm.hash = hashAlgo;
+        const settings: CryptoSettings = {
+            algorithm: {
+                name: rsaMode,
+                hash: hashAlgo,
+            },
+            keyUsages: ["sign"] as Array<KeyUsage>
+        };
 
         const privateKey = await importRSAPriv(props.input, settings);
 
@@ -160,13 +151,17 @@ const signRSA = async (props, rsaMode, hashAlgo, message) => {
     }
 }
 
-const verifyRSA = async (props, rsaMode, hashAlgo, message, signature) => {
+const verifyRSA = async (props: Props, rsaMode: string, hashAlgo: string, message: string, signature: string) => {
     try {
         props.setState({ loading: true })
 
-        const settings = { ...verSettings };
-        settings.algorithm.name = rsaMode;
-        settings.algorithm.hash = hashAlgo;
+        const settings: CryptoSettings = {
+            algorithm: {
+                name: rsaMode,
+                hash: hashAlgo,
+            },
+            keyUsages: ["verify"] as Array<KeyUsage>
+        };
 
         const publicKey = await importRSAPub(props.input, settings);
 
@@ -189,7 +184,7 @@ const verifyRSA = async (props, rsaMode, hashAlgo, message, signature) => {
     }
 }
 
-export default function RSA(props) {
+export default function RSA(props: Props) {
     const [rsaMode, setRSAMode] = useState('RSA-PSS')
     const [keyLength, setKeyLength] = useState(2048)
     const [hashAlgo, setHashAlgo] = useState('SHA-256')

@@ -12,11 +12,11 @@ import ToastContainer from 'react-bootstrap/ToastContainer';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 
-import RSA from './components/RSA';
-import AES from './components/AES';
-import ECDSA from './components/ECDSA';
-import SHA from './components/SHA.tsx';
+import AES from './components/AES.tsx';
+import RSA from './components/RSA.tsx';
+import ECDSA from './components/ECDSA.tsx';
 import CSR from './components/CSR.tsx';
+import SHA from './components/SHA.tsx';
 
 class App extends React.Component {
 

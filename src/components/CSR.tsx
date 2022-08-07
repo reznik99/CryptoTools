@@ -9,9 +9,9 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
 import * as encoding from '../lib/encoding';
+import { Props } from '../types/SharedTypes';
 
-
-const generateCSR = async (props: any, algorithm: string, curve: string, hash: string, CN: string, O: string, OU: string, L: string, C: string) => {
+const generateCSR = async (props: Props, algorithm: string, curve: string, hash: string, CN: string, O: string, OU: string, L: string, C: string) => {
     try {
         props.setState({ loading: true })
 
@@ -75,7 +75,7 @@ const generateCSR = async (props: any, algorithm: string, curve: string, hash: s
 }
 
 
-export default function CSR(props) {
+export default function CSR(props: Props) {
     const [algorithm, setAlgorithm] = useState('ECDSA')
     const [hash, setHash] = useState('SHA-256')
     const [keyLength, setKeyLength] = useState(2048)
