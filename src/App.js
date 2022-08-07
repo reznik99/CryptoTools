@@ -15,7 +15,7 @@ import Badge from 'react-bootstrap/Badge';
 import RSA from './components/RSA';
 import AES from './components/AES';
 import ECDSA from './components/ECDSA';
-import SHA from './components/SHA';
+import SHA from './components/SHA.tsx';
 import CSR from './components/CSR.tsx';
 
 class App extends React.Component {

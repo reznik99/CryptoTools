@@ -9,7 +9,13 @@ import Row from 'react-bootstrap/Row';
 
 import * as encoding from '../lib/encoding';
 
-const digest = async (props, message, algorithm) => {
+interface Props {
+    action: string,
+    loading: boolean,
+    setState: Function
+}
+
+const digest = async (props: Props, message: string, algorithm: string) => {
     try {
         props.setState({ loading: true })
 
@@ -24,8 +30,7 @@ const digest = async (props, message, algorithm) => {
     }
 }
 
-
-export default function AES(props) {
+export default function AES(props: Props) {
     const [algorithm, setAlgorithm] = useState('SHA-256')
     const [message, setMessage] = useState('')
 
