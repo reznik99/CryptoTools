@@ -4,7 +4,7 @@ import { Buffer } from 'buffer';
 // Encoding/Decoding helper functions
 
 // Convert ArrayBuffer to base64 string 
-export function arrayBufferToBase64(buffer) {
+export function arrayBufferToBase64(buffer: ArrayBuffer) {
     var binary = '';
     var bytes = new Uint8Array(buffer);
     var len = bytes.byteLength;
@@ -15,12 +15,12 @@ export function arrayBufferToBase64(buffer) {
 }
 
 // Convert ArrayBuffer to string 
-export const arrayBufferToString = (buffer) => {
+export const arrayBufferToString = (buffer: ArrayBuffer) => {
     return new TextDecoder().decode(buffer)
 };
 
 // Convert PEM data to Buffer for using with SubtleCrypto
-export const pemToBuffer = (headerTag, pem) => {
+export const pemToBuffer = (headerTag: string, pem: string) => {
     // fetch the part of the PEM string between header and footer
     const pemHeader = `-----BEGIN ${headerTag} KEY-----`;
     const pemFooter = `-----END ${headerTag} KEY-----`;
@@ -30,7 +30,7 @@ export const pemToBuffer = (headerTag, pem) => {
 }
 
 // Convert SubtleCrypto Keypair to PEM
-export const keypairToPem = async (keypair) => {
+export const keypairToPem = async (keypair: CryptoKeyPair) => {
     const exportedPriv = await window.crypto.subtle.exportKey("pkcs8", keypair.privateKey)
     const exportedPrivAsBase64 = arrayBufferToBase64(new Uint8Array(exportedPriv))
     const pemPriv = `-----BEGIN PRIVATE KEY-----\n${exportedPrivAsBase64}\n-----END PRIVATE KEY-----`;
