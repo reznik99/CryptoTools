@@ -282,6 +282,6 @@ export default function RSA(props: Props) {
                 </Col>
             </Row>
         default:
-            return
+            return <></>
     }
 }

@@ -172,6 +172,6 @@ export default function CSR(props: Props) {
                 </div>
             </>
         default:
-            return
+            return <></>
     }
 }

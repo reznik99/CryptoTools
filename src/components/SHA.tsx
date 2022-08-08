@@ -52,6 +52,6 @@ export default function AES(props: Props) {
                 </Col>
             </Row>
         default:
-            return
+            return <></>
     }
 }
