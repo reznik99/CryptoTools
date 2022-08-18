@@ -86,8 +86,8 @@ export default function CSR(props: Props) {
     const [locality, setLocality] = useState('')
     const [country, setCountry] = useState('')
 
-    switch (props.action) {
-        case 'CSR-Gen':
+    switch (props.path) {
+        case '/CSR-Gen':
             return <>
                 <h4> Key Details </h4>
                 <Row>

@@ -191,8 +191,8 @@ export default function RSA(props: Props) {
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
 
-    switch (props.action) {
-        case 'RSA-Gen':
+    switch (props.path) {
+        case '/RSA-Gen':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Generate Key </h4>
@@ -204,7 +204,7 @@ export default function RSA(props: Props) {
                     {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
                 </Col>
             </Row>
-        case 'RSA-Enc':
+        case '/RSA-Enc':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Encrypt/Decrypt </h4>
@@ -233,7 +233,7 @@ export default function RSA(props: Props) {
                     }
                 </Col>
             </Row>
-        case 'RSA-Sig':
+        case '/RSA-Sig':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Sign/Validate </h4>

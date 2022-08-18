@@ -126,8 +126,8 @@ export default function AES(props: Props) {
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
 
-    switch (props.action) {
-        case 'ECDSA-Gen':
+    switch (props.path) {
+        case '/ECDSA-Gen':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Generate Key </h4>
@@ -143,7 +143,7 @@ export default function AES(props: Props) {
                     {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
                 </Col>
             </Row>
-        case 'ECDSA-Sig':
+        case '/ECDSA-Sig':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Sign/Validate </h4>

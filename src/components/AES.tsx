@@ -117,8 +117,8 @@ export default function AES(props: Props) {
     const [message, setMessage] = useState('')
     const [iv, setIV] = useState('')
 
-    switch (props.action) {
-        case 'AES-Gen':
+    switch (props.path) {
+        case '/AES-Gen':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Generate Key </h4>
@@ -130,7 +130,7 @@ export default function AES(props: Props) {
                     {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
                 </Col>
             </Row>
-        case 'AES-Enc':
+        case '/AES-Enc':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Encrypt/Decrypt </h4>

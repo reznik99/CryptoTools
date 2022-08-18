@@ -29,8 +29,8 @@ export default function AES(props: Props) {
     const [algorithm, setAlgorithm] = useState('SHA-256')
     const [message, setMessage] = useState('')
 
-    switch (props.action) {
-        case 'SHA':
+    switch (props.path) {
+        case '/SHA':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Hash </h4>
