@@ -1,8 +1,8 @@
 export interface Props {
     input: string,
-    action: string,
     loading: boolean,
-    setState: Function
+    setState: Function,
+    path: string,
 };
 
 export interface CryptoSettings {
