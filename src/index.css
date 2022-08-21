@@ -69,7 +69,9 @@ code {
     text-overflow: 'ellipsis';
     white-space: 'nowrap';
 }
-
+.pro-menu-item.active{
+    color: var(--blurple) !important;
+}
 .content-container {
     display: flex;
     flex-direction: column;
