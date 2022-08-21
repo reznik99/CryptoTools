@@ -49,12 +49,15 @@ class App extends React.Component<IProps, IState> {
                 <Row className="wrapper">
                     <Row>
                         <Col xs="auto" className="p-0">
-                            <i className="bi bi-list px-3 py-2 open-menu-btn" onClick={() => this.setState({ menuOpen: !this.state.menuOpen })}/>
-                            <Sidebar collapsed={!this.state.menuOpen} toggled={true} handleToggleSidebar={() => console.log("test")}/>
+                            <Sidebar collapsed={!this.state.menuOpen} toggled={true} path={this.props.location.pathname}/>
                         </Col>
                         <Col xs>
-                            <Row className="justify-content-center align-items-center h-100">
-                                <Col sm={12} className="content-container">
+                            <Row style={{position: 'relative'}}>
+                                { this.state.menuOpen
+                                    ? <i className="bi bi-x px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: false })}/>
+                                    : <i className="bi bi-list px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: true })}/>
+                                }
+                                <Col sm={12} className="content-container px-5">
 
                                     {/* RSA Functions */}
                                     <RSA {...this.state} path={this.props.location.pathname} setState={(data: any) => this.setState({ ...data })} />

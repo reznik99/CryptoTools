@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 interface IProps { 
     collapsed: boolean, 
     toggled: boolean, 
-    handleToggleSidebar(value: boolean): void
+    path: string,
 }
 
 const Sidebar = (props: IProps) => {
@@ -16,12 +16,11 @@ const Sidebar = (props: IProps) => {
             collapsed={props.collapsed}
             toggled={props.toggled}
             breakPoint="xs"
-            onToggle={props.handleToggleSidebar} 
             className='p-0'>
             <SidebarHeader>
-                <div className='title'>
-                    CryptoTools
-                </div>
+                <p className='title py-3 m-0'>
+                    Crypto Tools
+                </p>
             </SidebarHeader>
 
             <SidebarContent>

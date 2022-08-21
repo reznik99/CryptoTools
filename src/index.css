@@ -44,29 +44,23 @@ code {
     min-height: 100vh;
 }
 
-.open-menu-btn{
+.toggle-menu-btn{
     position: absolute;
     top: 0;
-    left: 270px;
+    left: 0;
+    display: block;
+    width: auto;
     cursor: pointer;
     transition: all 0.8s cubic-bezier(0, .52, 0, 1);
     font-size: 1.7rem;
 }
-.open-menu-btn:hover{
-    background-color: var(--blurple);
-}
-.close-menu-btn{
-    cursor: pointer;
-    transition: all 0.8s cubic-bezier(0, .52, 0, 1);
-}
-.close-menu-btn:hover{
+.toggle-menu-btn:hover{
     background-color: var(--blurple);
 }
 
 .title {
     color: var(--blurple);
     text-align: center;
-    padding: 24px;
     font-size: 1.4rem;
     text-transform: 'uppercase';
     font-weight: 'bold';
@@ -81,7 +75,6 @@ code {
     flex-direction: column;
     justify-content: center;
     min-height: calc(100vh - 80px);
-    padding: 0 50px;
 }
 
 .nice-text-area {
