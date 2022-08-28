@@ -77,18 +77,18 @@ class App extends React.Component<IProps, IState> {
                                 </Col>
                             </Row>
                         </Col>
-                        <Col xs={5} className="output-container">
+                        <Col lg={4} xs={5} className="output-container">
                             <Row className="h-50 mv-1">
                                 <Form.Group >
                                     <Form.Label>Input {this.state.input?.length ? `(${this.state.input?.length} characters)` : null}</Form.Label>
-                                    <Form.Control as="textarea" className="nice-text-area" placeholder="Input"
+                                    <Form.Control as="textarea" className="nice-text-area" placeholder="Input for action i.e Public/Private Key"
                                         value={this.state.input} onChange={e => this.setState({ input: e.target.value })} />
                                 </Form.Group>
                             </Row>
                             <Row className="h-50 mv-1">
                                 <Form.Group >
                                     <Form.Label>Output {this.state.output?.length ? `(${this.state.output?.length} characters)` : null}</Form.Label>
-                                    <Form.Control as="textarea" className="nice-text-area" placeholder="Output"
+                                    <Form.Control as="textarea" className="nice-text-area" placeholder="Output of action i.e CSR or Key"
                                         value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
                                 </Form.Group>
                             </Row>

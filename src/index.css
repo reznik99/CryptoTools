@@ -53,6 +53,8 @@ code {
     cursor: pointer;
     transition: all 0.8s cubic-bezier(0, .52, 0, 1);
     font-size: 1.7rem;
+    background-color: #415364;
+    border-radius: 0 0 5px 0;
 }
 .toggle-menu-btn:hover{
     background-color: var(--blurple);

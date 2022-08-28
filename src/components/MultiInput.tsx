@@ -38,10 +38,10 @@ function MultiInput(props: IProps) {
 
                     <Col lg="auto" className="my-1 pe-0">
                         <Button className="me-1" variant="danger" onClick={() => props.DeleteRow(idx)} disabled={props.Rows.length <= 1}>
-                            <i className="bi bi-x"/>
+                            <i className="bi bi-x-lg"/>
                         </Button>
                         <Button variant="success" onClick={() => props.AddRow()}>
-                            <i className="bi bi-plus"/>
+                            <i className="bi bi-plus-lg"/>
                         </Button>
                     </Col>
                 </Row>
