@@ -10,12 +10,12 @@ import ToastContainer from 'react-bootstrap/ToastContainer';
 import Alert from 'react-bootstrap/Alert';
 import { Location, useLocation } from "react-router-dom";
 
-import Sidebar from './components/Sidebar'
-import AES from './components/AES';
-import RSA from './components/RSA';
-import ECDSA from './components/ECDSA';
-import CSR from './components/CSR';
-import SHA from './components/SHA';
+import Sidebar from 'components/Sidebar'
+import AES from 'components/Crypto/AES';
+import RSA from 'components/Crypto/RSA';
+import ECDSA from 'components/Crypto/ECDSA';
+import CSR from 'components/Crypto/CSR';
+import SHA from 'components/Crypto/SHA';
 
 interface IState {
     loading: boolean,

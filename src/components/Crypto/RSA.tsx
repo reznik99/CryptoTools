@@ -8,8 +8,8 @@ import Spinner from 'react-bootstrap/Spinner';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import * as encoding from '../lib/encoding';
-import { Props, CryptoSettings } from '../types/SharedTypes';
+import * as encoding from 'lib/encoding';
+import { Props, CryptoSettings } from 'types/SharedTypes';
 
 const encSettings: CryptoSettings = {
     algorithm: {

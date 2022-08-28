@@ -8,8 +8,12 @@ import Spinner from 'react-bootstrap/Spinner';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
-import * as encoding from '../lib/encoding';
-import { Props } from '../types/SharedTypes';
+import * as encoding from 'lib/encoding';
+import { Props } from 'types/SharedTypes';
+
+import {MultiInput, RowContent} from 'components/MultiInput'
+
+const DefaultSAN: RowContent = {type: 'DNSName', value:''}
 
 const generateCSR = async (props: Props, algorithm: string, curve: string, hash: string, CN: string, O: string, OU: string, L: string, C: string) => {
     try {
@@ -74,7 +78,6 @@ const generateCSR = async (props: Props, algorithm: string, curve: string, hash:
     }
 }
 
-
 export default function CSR(props: Props) {
     const [algorithm, setAlgorithm] = useState('ECDSA')
     const [hash, setHash] = useState('SHA-256')
@@ -85,6 +88,7 @@ export default function CSR(props: Props) {
     const [organisationalUnit, setOrganisationalUnit] = useState('')
     const [locality, setLocality] = useState('')
     const [country, setCountry] = useState('')
+    const [extensions, setExtensions] = useState([DefaultSAN])
 
     switch (props.path) {
         case '/CSR-Gen':
@@ -132,7 +136,7 @@ export default function CSR(props: Props) {
                     </Form.Group></Col>
                 </Row>
 
-                <h4> CSR Details </h4>
+                <h4> Subject Details </h4>
                 <Form.Group className="mb-3">
                     <Form.Label>Common Name</Form.Label>
                     <Form.Control type="text" placeholder="My New Certificate" value={commonName} onChange={(e) => setCommonName(e.target.value)} />
@@ -165,6 +169,13 @@ export default function CSR(props: Props) {
                         </Form.Group>
                     </Col>
                 </Row>
+
+                <h4> Extensions </h4>
+                <MultiInput Rows={extensions} 
+                    AddRow={() => setExtensions( old => [...old, DefaultSAN])} 
+                    DeleteRow={(idx: number) => setExtensions(old => old.filter((_, i) => i !== idx))}
+                    onChange={(idx: number, newValue: RowContent) => setExtensions( old => old.map((existingVal: RowContent, i: number) => i === idx ? newValue : existingVal))}
+                />
 
                 <div className="mt-2 text-center">
                     {!props.loading && <Button size='lg' onClick={() => generateCSR(props, algorithm, curve, hash, commonName, organisation, organisationalUnit, locality, country)}>Generate CSR</Button>}

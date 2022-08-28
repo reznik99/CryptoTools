@@ -7,8 +7,8 @@ import Spinner from 'react-bootstrap/Spinner';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
-import * as encoding from '../lib/encoding';
-import { Props } from '../types/SharedTypes';
+import * as encoding from 'lib/encoding';
+import { Props } from 'types/SharedTypes';
 
 const digest = async (props: Props, message: string, algorithm: string) => {
     try {
