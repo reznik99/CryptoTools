@@ -1,6 +1,6 @@
 
 import React from 'react';
-
+import { Location, useLocation } from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -8,7 +8,6 @@ import Form from 'react-bootstrap/Form';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import Alert from 'react-bootstrap/Alert';
-import { Location, useLocation } from "react-router-dom";
 
 import Sidebar from 'components/Sidebar'
 import AES from 'components/Crypto/AES';
@@ -16,6 +15,7 @@ import RSA from 'components/Crypto/RSA';
 import ECDSA from 'components/Crypto/ECDSA';
 import CSR from 'components/Crypto/CSR';
 import SHA from 'components/Crypto/SHA';
+import Encoding from 'components/Crypto/Encoding';
 
 interface IState {
     loading: boolean,
@@ -73,6 +73,9 @@ class App extends React.Component<IProps, IState> {
 
                                     {/* CSR Functions */}
                                     <CSR {...this.state} path={this.props.location?.pathname} setState={(data: any) => this.setState({ ...data })} />
+
+                                    {/* Encoding Functions */}
+                                    <Encoding {...this.state} path={this.props.location?.pathname} setState={(data: any) => this.setState({ ...data })} />
 
                                 </Col>
                             </Row>

@@ -3,9 +3,9 @@ import Badge from 'react-bootstrap/Badge';
 import { ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarFooter, SidebarContent } from 'react-pro-sidebar';
 import { Link } from 'react-router-dom';
 
-interface IProps { 
-    collapsed: boolean, 
-    toggled: boolean, 
+interface IProps {
+    collapsed: boolean,
+    toggled: boolean,
     path: string,
 }
 
@@ -26,49 +26,41 @@ const Sidebar = (props: IProps) => {
             <SidebarContent>
                 <Menu iconShape="circle">
                     <SubMenu defaultOpen
+                        popperarrow={true}
                         suffix={<Badge bg="dark">4</Badge>}
                         title="Generation"
                         icon={<i className="bi bi-key" />} >
-                        <MenuItem active={props.path === "/AES-Gen"}>AES Key<Link to="/AES-Gen"/></MenuItem>
-                        <MenuItem active={props.path === "/RSA-Gen"}>RSA Keys<Link to="/RSA-Gen"/></MenuItem>
-                        <MenuItem active={props.path === "/ECDSA-Gen"}>ECDSA Keys<Link to="/ECDSA-Gen"/></MenuItem>
-                        <MenuItem active={props.path === "/CSR-Gen"}
-                            suffix={<Badge bg="success">New</Badge>}>CSR<Link to="/CSR-Gen"/></MenuItem>
+                        <MenuItem active={props.path === "/AES-Gen"}>AES Key<Link to="/AES-Gen" /></MenuItem>
+                        <MenuItem active={props.path === "/RSA-Gen"}>RSA Keys<Link to="/RSA-Gen" /></MenuItem>
+                        <MenuItem active={props.path === "/ECDSA-Gen"}>ECDSA Keys<Link to="/ECDSA-Gen" /></MenuItem>
+                        <MenuItem active={props.path === "/CSR-Gen"} suffix={<Badge bg="success">New</Badge>}>CSR<Link to="/CSR-Gen" /></MenuItem>
                     </SubMenu>
 
-                    <SubMenu
-                        suffix={<Badge bg="dark">2</Badge>}
+                    <SubMenu suffix={<Badge bg="dark">2</Badge>}
                         title="Encryption/Decryption"
                         icon={<i className="bi bi-lock" />} >
-                        <MenuItem active={props.path === "/AES-Enc"}>AES<Link to="/AES-Enc"/></MenuItem>
-                        <MenuItem active={props.path === "/RSA-Enc"}>RSA<Link to="/RSA-Enc"/></MenuItem>
+                        <MenuItem active={props.path === "/AES-Enc"}>AES<Link to="/AES-Enc" /></MenuItem>
+                        <MenuItem active={props.path === "/RSA-Enc"}>RSA<Link to="/RSA-Enc" /></MenuItem>
                     </SubMenu>
 
-                    <SubMenu
-                        suffix={<Badge bg="dark">2</Badge>}
+                    <SubMenu suffix={<Badge bg="dark">2</Badge>}
                         title="Signing/Validation"
                         icon={<i className="bi bi-pen" />} >
-                        <MenuItem active={props.path === "/RSA-Sig"}>RSA<Link to="/RSA-Sig"/></MenuItem>
-                        <MenuItem active={props.path === "/ECDSA-Sig"}
-                            suffix={<Badge bg="success">New</Badge>}>ECDSA<Link to="/ECDSA-Sig"/></MenuItem>
+                        <MenuItem active={props.path === "/RSA-Sig"}>RSA<Link to="/RSA-Sig" /></MenuItem>
+                        <MenuItem active={props.path === "/ECDSA-Sig"} suffix={<Badge bg="success">New</Badge>}>ECDSA<Link to="/ECDSA-Sig" /></MenuItem>
                     </SubMenu>
 
-                    <SubMenu
-                        suffix={<Badge bg="dark">2</Badge>}
+                    <SubMenu suffix={<Badge bg="dark">2</Badge>}
                         title="Hashing"
                         icon={<i className="bi bi-hash" />} >
-                        <MenuItem active={props.path === "/SHA"}
-                            suffix={<Badge bg="success">New</Badge>}>SHA<Link to="/SHA"/></MenuItem>
+                        <MenuItem active={props.path === "/SHA"} suffix={<Badge bg="success">New</Badge>}>SHA<Link to="/SHA" /></MenuItem>
                         <MenuItem>MD5</MenuItem>
                     </SubMenu>
 
-                    <SubMenu
-                        suffix={<Badge bg="dark">3</Badge>}
+                    <SubMenu suffix={<Badge bg="dark">1</Badge>}
                         title="Encoding"
                         icon={<i className="bi bi-wrench" />} >
-                        <MenuItem>Base64</MenuItem>
-                        <MenuItem>Hex</MenuItem>
-                        <MenuItem>Binary</MenuItem>
+                        <MenuItem active={props.path === "/encoding"} suffix={<Badge bg="success">New</Badge>}>Converter<Link to="/encoding" /></MenuItem>
                     </SubMenu>
                 </Menu>
             </SidebarContent>
@@ -80,7 +72,7 @@ const Sidebar = (props: IProps) => {
                         target="_blank"
                         className="sidebar-btn"
                         rel="noopener noreferrer" >
-                        <i className="bi bi-key"/>
+                        <i className="bi bi-key" />
                     </a>
                 </div>
             </SidebarFooter>
