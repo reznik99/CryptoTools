@@ -3,6 +3,7 @@
     "version": "0.2.1",
     "license": "GPL-3.0-or-later",
     "private": true,
+    "homepage": ".",
     "dependencies": {
         "@types/node": "^18.16.0",
         "@types/react": "^18.0.38",

@@ -31,4 +31,4 @@ function Output(props: Props) {
     )
 }
 
-export { Output }
+export default Output

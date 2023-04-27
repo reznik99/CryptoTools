@@ -121,6 +121,7 @@ export default function AES(props: Props) {
     const { action } = useParams();
 
     switch (action) {
+        case '':
         case 'Gen':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >

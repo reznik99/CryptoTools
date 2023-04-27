@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Location, useLocation, Routes, Route } from 'react-router-dom';
+import { Location, useLocation, Routes, Route, Navigate } from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -8,14 +8,14 @@ import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import Alert from 'react-bootstrap/Alert';
 
-import Sidebar from 'components/Sidebar'
+import Sidebar from 'components/Sidebar';
+import Output from 'components/Output';
 import AES from 'components/Crypto/AES';
 import RSA from 'components/Crypto/RSA';
 import ECDSA from 'components/Crypto/ECDSA';
 import CSR from 'components/Crypto/CSR';
 import SHA from 'components/Crypto/SHA';
 import Encoding from 'components/Crypto/Encoding';
-import { Output } from 'components/Output';
 
 interface IState {
     loading: boolean,
@@ -89,10 +89,11 @@ class App extends React.Component<IProps, IState> {
                                 <this.MenuBtn />
                                 <Col sm={12} className="content-container px-5">
                                     <Routes>
+                                        <Route index element={<Navigate to="/AES/Gen" />} />
+                                        <Route path="/AES/:action" index={true}
+                                            element={<AES {...this.state} setState={this.updateState} />} />
                                         <Route path="/RSA/:action"
                                             element={<RSA {...this.state} setState={this.updateState} />} />
-                                        <Route path="/AES/:action"
-                                            element={<AES {...this.state} setState={this.updateState} />} />
                                         <Route path="/ECDSA/:action"
                                             element={<ECDSA {...this.state} setState={this.updateState} />} />
                                         <Route path="/CSR"
