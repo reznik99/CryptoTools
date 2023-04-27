@@ -16,6 +16,7 @@ import ECDSA from 'components/Crypto/ECDSA';
 import CSR from 'components/Crypto/CSR';
 import SHA from 'components/Crypto/SHA';
 import Encoding from 'components/Crypto/Encoding';
+import { Output } from 'components/Output';
 
 interface IState {
     loading: boolean,
@@ -43,29 +44,35 @@ class App extends React.Component<IProps, IState> {
         };
     }
 
+    updateState = (newState: any) => {
+        this.setState(newState)
+    }
+
     MenuBtn = () => {
         return this.state.menuOpen
             ? <i className="bi bi-x px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: false })} />
             : <i className="bi bi-list px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: true })} />
     }
 
-    OutputContainer = () => {
-        return <Col lg={4} xs={5} className="output-container">
-            <Row className="h-50 mv-1">
-                <Form.Group >
-                    <Form.Label>Input {this.state.input?.length ? `(${this.state.input?.length} characters)` : null}</Form.Label>
-                    <Form.Control as="textarea" className="nice-text-area" placeholder="Input for action i.e Public/Private Key"
-                        value={this.state.input} onChange={e => this.setState({ input: e.target.value })} />
-                </Form.Group>
-            </Row>
-            <Row className="h-50 mv-1">
-                <Form.Group >
-                    <Form.Label>Output {this.state.output?.length ? `(${this.state.output?.length} characters)` : null}</Form.Label>
-                    <Form.Control as="textarea" className="nice-text-area" placeholder="Output of action i.e CSR or Key"
-                        value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
-                </Form.Group>
-            </Row>
-        </Col>
+    Toaster = () => {
+        return <ToastContainer position="top-end" className="p-3">
+            {/* Success Toast */}
+            <Toast onClose={() => this.setState({ successMsg: '' })} show={Boolean(this.state.successMsg)} delay={4000} autohide bg="success">
+                <Toast.Header>
+                    <strong className="me-auto">Success</strong>
+                    <small className="text-muted">just now</small>
+                </Toast.Header>
+                <Toast.Body>{this.state.successMsg || ""}</Toast.Body>
+            </Toast>
+            {/* Error Toast */}
+            <Toast onClose={() => this.setState({ errorMsg: '' })} show={Boolean(this.state.errorMsg)} delay={5000} autohide bg="danger">
+                <Toast.Header>
+                    <strong className="me-auto">Error occoured</strong>
+                    <small className="text-muted">just now</small>
+                </Toast.Header>
+                <Toast.Body>{this.state.errorMsg?.toString() || ""}</Toast.Body>
+            </Toast>
+        </ToastContainer>
     }
 
     render = () => {
@@ -79,28 +86,28 @@ class App extends React.Component<IProps, IState> {
 
                         <Col xs>
                             <Row style={{ position: 'relative' }}>
+                                {/* Menu Button */}
                                 <this.MenuBtn />
                                 <Col sm={12} className="content-container px-5">
                                     <Routes>
-                                        {/* RSA Functions */}
-                                        <Route path="/RSA/:action" element={<RSA {...this.state} setState={this.setState.bind(this)} />} />
-                                        {/* AES Functions */}
-                                        <Route path="/AES/:action" element={<AES {...this.state} setState={this.setState.bind(this)} />} />
-                                        {/* ECDSA Functions */}
-                                        <Route path="/ECDSA/:action" element={<ECDSA {...this.state} setState={this.setState.bind(this)} />} />
-                                        {/* CSR Functions */}
-                                        <Route path="/CSR" element={<CSR {...this.state} setState={this.setState.bind(this)} />} />
-                                        {/* SHA Functions */}
-                                        <Route path="/SHA" element={<SHA {...this.state} setState={this.setState.bind(this)} />} />
-                                        {/* Encoding Functions */}
-                                        <Route path="/Encoding" element={<Encoding {...this.state} setState={this.setState.bind(this)} />} />
+                                        <Route path="/RSA/:action"
+                                            element={<RSA {...this.state} setState={this.updateState} />} />
+                                        <Route path="/AES/:action"
+                                            element={<AES {...this.state} setState={this.updateState} />} />
+                                        <Route path="/ECDSA/:action"
+                                            element={<ECDSA {...this.state} setState={this.updateState} />} />
+                                        <Route path="/CSR"
+                                            element={<CSR {...this.state} setState={this.updateState} />} />
+                                        <Route path="/SHA"
+                                            element={<SHA {...this.state} setState={this.updateState} />} />
+                                        <Route path="/Encoding"
+                                            element={<Encoding {...this.state} setState={this.updateState} />} />
                                     </Routes>
                                 </Col>
                             </Row>
                         </Col>
-
-                        <this.OutputContainer />
-
+                        {/* Input/Output boxes */}
+                        <Output {...this.state} setState={this.updateState} />
                     </Row>
 
                     <Alert variant='info' className="footer">
@@ -110,24 +117,7 @@ class App extends React.Component<IProps, IState> {
                 </Row>
 
                 {/* Alerts */}
-                <ToastContainer position="top-end" className="p-3">
-                    {/* Success Toast */}
-                    <Toast onClose={() => this.setState({ successMsg: '' })} show={Boolean(this.state.successMsg)} delay={4000} autohide bg="success">
-                        <Toast.Header>
-                            <strong className="me-auto">Success</strong>
-                            <small className="text-muted">just now</small>
-                        </Toast.Header>
-                        <Toast.Body>{this.state.successMsg || ""}</Toast.Body>
-                    </Toast>
-                    {/* Error Toast */}
-                    <Toast onClose={() => this.setState({ errorMsg: '' })} show={Boolean(this.state.errorMsg)} delay={5000} autohide bg="danger">
-                        <Toast.Header>
-                            <strong className="me-auto">Error occoured</strong>
-                            <small className="text-muted">just now</small>
-                        </Toast.Header>
-                        <Toast.Body>{this.state.errorMsg?.toString() || ""}</Toast.Body>
-                    </Toast>
-                </ToastContainer>
+                <this.Toaster />
             </Container>
         );
     }

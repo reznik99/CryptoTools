@@ -1,5 +1,6 @@
 export interface Props {
     input: string;
+    output?: string;
     loading: boolean;
     setState: Function;
 };
