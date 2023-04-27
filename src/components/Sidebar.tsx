@@ -30,24 +30,24 @@ const Sidebar = (props: IProps) => {
                         suffix={<Badge bg="dark">4</Badge>}
                         title="Generation"
                         icon={<i className="bi bi-key" />} >
-                        <MenuItem active={props.path === "/AES-Gen"}>AES Key<Link to="/AES-Gen" /></MenuItem>
-                        <MenuItem active={props.path === "/RSA-Gen"}>RSA Keys<Link to="/RSA-Gen" /></MenuItem>
-                        <MenuItem active={props.path === "/ECDSA-Gen"}>ECDSA Keys<Link to="/ECDSA-Gen" /></MenuItem>
-                        <MenuItem active={props.path === "/CSR-Gen"} suffix={<Badge bg="success">New</Badge>}>CSR<Link to="/CSR-Gen" /></MenuItem>
+                        <MenuItem active={props.path === "/AES/Gen"}>AES Key<Link to="/AES/Gen" /></MenuItem>
+                        <MenuItem active={props.path === "/RSA/Gen"}>RSA Keys<Link to="/RSA/Gen" /></MenuItem>
+                        <MenuItem active={props.path === "/ECDSA/Gen"}>ECDSA Keys<Link to="/ECDSA/Gen" /></MenuItem>
+                        <MenuItem active={props.path === "/CSR"} suffix={<Badge bg="success">New</Badge>}>CSR<Link to="/CSR" /></MenuItem>
                     </SubMenu>
 
                     <SubMenu suffix={<Badge bg="dark">2</Badge>}
                         title="Encryption/Decryption"
                         icon={<i className="bi bi-lock" />} >
-                        <MenuItem active={props.path === "/AES-Enc"}>AES<Link to="/AES-Enc" /></MenuItem>
-                        <MenuItem active={props.path === "/RSA-Enc"}>RSA<Link to="/RSA-Enc" /></MenuItem>
+                        <MenuItem active={props.path === "/AES/Enc"}>AES<Link to="/AES/Enc" /></MenuItem>
+                        <MenuItem active={props.path === "/RSA/Enc"}>RSA<Link to="/RSA/Enc" /></MenuItem>
                     </SubMenu>
 
                     <SubMenu suffix={<Badge bg="dark">2</Badge>}
                         title="Signing/Validation"
                         icon={<i className="bi bi-pen" />} >
-                        <MenuItem active={props.path === "/RSA-Sig"}>RSA<Link to="/RSA-Sig" /></MenuItem>
-                        <MenuItem active={props.path === "/ECDSA-Sig"} suffix={<Badge bg="success">New</Badge>}>ECDSA<Link to="/ECDSA-Sig" /></MenuItem>
+                        <MenuItem active={props.path === "/RSA/Sig"}>RSA<Link to="/RSA/Sig" /></MenuItem>
+                        <MenuItem active={props.path === "/ECDSA/Sig"} suffix={<Badge bg="success">New</Badge>}>ECDSA<Link to="/ECDSA/Sig" /></MenuItem>
                     </SubMenu>
 
                     <SubMenu suffix={<Badge bg="dark">2</Badge>}
@@ -60,7 +60,7 @@ const Sidebar = (props: IProps) => {
                     <SubMenu suffix={<Badge bg="dark">1</Badge>}
                         title="Encoding"
                         icon={<i className="bi bi-wrench" />} >
-                        <MenuItem active={props.path === "/encoding"} suffix={<Badge bg="success">New</Badge>}>Converter<Link to="/encoding" /></MenuItem>
+                        <MenuItem active={props.path === "/Encoding"} suffix={<Badge bg="success">New</Badge>}>Converter<Link to="/Encoding" /></MenuItem>
                     </SubMenu>
                 </Menu>
             </SidebarContent>

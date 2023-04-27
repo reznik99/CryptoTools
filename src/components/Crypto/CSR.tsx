@@ -11,9 +11,9 @@ import Row from 'react-bootstrap/Row';
 import * as encoding from 'lib/encoding';
 import { Props } from 'types/SharedTypes';
 
-import {MultiInput, RowContent} from 'components/MultiInput'
+import { MultiInput, RowContent } from 'components/MultiInput'
 
-const DefaultSAN: RowContent = {type: 'DNSName', value:''}
+const DefaultSAN: RowContent = { type: 'DNSName', value: '' }
 
 const generateCSR = async (props: Props, algorithm: string, curve: string, hash: string, CN: string, O: string, OU: string, L: string, C: string) => {
     try {
@@ -90,99 +90,94 @@ export default function CSR(props: Props) {
     const [country, setCountry] = useState('')
     const [extensions, setExtensions] = useState([DefaultSAN])
 
-    switch (props.path) {
-        case '/CSR-Gen':
-            return <>
-                <h4> Key Details </h4>
-                <Row>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Algorithm</Form.Label>
-                            <Form.Select value={algorithm} onChange={e => setAlgorithm(e.target.value)}>
-                                <option value="RSASSA-PKCS1-V1_5">RSASSA-PKCS1-V1_5</option>
-                                <option value="RSA-PSS">RSA-PSS</option>
-                                <option value="ECDSA">ECDSA</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Cipher</Form.Label>
-                            <Form.Select value={hash} onChange={e => setHash(e.target.value)}>
-                                <option value="SHA-1">SHA-1</option>
-                                <option value="SHA-256">SHA-256</option>
-                                <option value="SHA-384">SHA-384</option>
-                                <option value="SHA-512">SHA-512</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Curve (ECDSA Only)</Form.Label>
-                            <Form.Select value={curve} onChange={e => setCurve(e.target.value)} disabled={algorithm !== 'ECDSA'}>
-                                <option value="P-256">P-256</option>
-                                <option value="P-384">P-384</option>
-                                <option value="P-521">P-521</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Col>
-                    <Col lg={6}><Form.Group className="mb-3">
-                        <Form.Group className="mb-3">
-                            <Form.Label>Key Length (RSA Only)</Form.Label>
-                            <Form.Control type="number" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
-                        </Form.Group>
-                    </Form.Group></Col>
-                </Row>
-
-                <h4> Subject Details </h4>
+    return <>
+        <h4> Key Details </h4>
+        <Row>
+            <Col lg={6}>
                 <Form.Group className="mb-3">
-                    <Form.Label>Common Name</Form.Label>
-                    <Form.Control type="text" placeholder="My New Certificate" value={commonName} onChange={(e) => setCommonName(e.target.value)} />
+                    <Form.Label>Algorithm</Form.Label>
+                    <Form.Select value={algorithm} onChange={e => setAlgorithm(e.target.value)}>
+                        <option value="RSASSA-PKCS1-V1_5">RSASSA-PKCS1-V1_5</option>
+                        <option value="RSA-PSS">RSA-PSS</option>
+                        <option value="ECDSA">ECDSA</option>
+                    </Form.Select>
                 </Form.Group>
-                <Row>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Organisation</Form.Label>
-                            <Form.Control type="text" placeholder="Evil Corp" value={organisation} onChange={(e) => setOrganisation(e.target.value)} />
-                        </Form.Group>
-                    </Col>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Organisational Unit</Form.Label>
-                            <Form.Control type="text" placeholder="EC Finance Dept" value={organisationalUnit} onChange={(e) => setOrganisationalUnit(e.target.value)} />
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Locality</Form.Label>
-                            <Form.Control type="text" placeholder="Chicago" value={locality} onChange={(e) => setLocality(e.target.value)} />
-                        </Form.Group>
-                    </Col>
-                    <Col lg={6}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Country</Form.Label>
-                            <Form.Control type="text" placeholder="USA" value={country} onChange={(e) => setCountry(e.target.value)} />
-                        </Form.Group>
-                    </Col>
-                </Row>
+            </Col>
+            <Col lg={6}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Cipher</Form.Label>
+                    <Form.Select value={hash} onChange={e => setHash(e.target.value)}>
+                        <option value="SHA-1">SHA-1</option>
+                        <option value="SHA-256">SHA-256</option>
+                        <option value="SHA-384">SHA-384</option>
+                        <option value="SHA-512">SHA-512</option>
+                    </Form.Select>
+                </Form.Group>
+            </Col>
+        </Row>
+        <Row>
+            <Col lg={6}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Curve (ECDSA Only)</Form.Label>
+                    <Form.Select value={curve} onChange={e => setCurve(e.target.value)} disabled={algorithm !== 'ECDSA'}>
+                        <option value="P-256">P-256</option>
+                        <option value="P-384">P-384</option>
+                        <option value="P-521">P-521</option>
+                    </Form.Select>
+                </Form.Group>
+            </Col>
+            <Col lg={6}><Form.Group className="mb-3">
+                <Form.Group className="mb-3">
+                    <Form.Label>Key Length (RSA Only)</Form.Label>
+                    <Form.Control type="number" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
+                </Form.Group>
+            </Form.Group></Col>
+        </Row>
 
-                <h4> Extensions </h4>
-                <MultiInput Rows={extensions} 
-                    AddRow={() => setExtensions( old => [...old, DefaultSAN])} 
-                    DeleteRow={(idx: number) => setExtensions(old => old.filter((_, i) => i !== idx))}
-                    onChange={(idx: number, newValue: RowContent) => setExtensions( old => old.map((existingVal: RowContent, i: number) => i === idx ? newValue : existingVal))}
-                />
+        <h4> Subject Details </h4>
+        <Form.Group className="mb-3">
+            <Form.Label>Common Name</Form.Label>
+            <Form.Control type="text" placeholder="My New Certificate" value={commonName} onChange={(e) => setCommonName(e.target.value)} />
+        </Form.Group>
+        <Row>
+            <Col lg={6}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Organisation</Form.Label>
+                    <Form.Control type="text" placeholder="Evil Corp" value={organisation} onChange={(e) => setOrganisation(e.target.value)} />
+                </Form.Group>
+            </Col>
+            <Col lg={6}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Organisational Unit</Form.Label>
+                    <Form.Control type="text" placeholder="EC Finance Dept" value={organisationalUnit} onChange={(e) => setOrganisationalUnit(e.target.value)} />
+                </Form.Group>
+            </Col>
+        </Row>
+        <Row>
+            <Col lg={6}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Locality</Form.Label>
+                    <Form.Control type="text" placeholder="Chicago" value={locality} onChange={(e) => setLocality(e.target.value)} />
+                </Form.Group>
+            </Col>
+            <Col lg={6}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Country</Form.Label>
+                    <Form.Control type="text" placeholder="USA" value={country} onChange={(e) => setCountry(e.target.value)} />
+                </Form.Group>
+            </Col>
+        </Row>
 
-                <div className="mt-2 text-center">
-                    {!props.loading && <Button size='lg' onClick={() => generateCSR(props, algorithm, curve, hash, commonName, organisation, organisationalUnit, locality, country)}>Generate CSR</Button>}
-                    {props.loading && <Button size='lg'><Spinner animation="border" size="sm" /> Generating...</Button>}
-                </div>
-            </>
-        default:
-            return <></>
-    }
+        <h4> Extensions </h4>
+        <MultiInput Rows={extensions}
+            AddRow={() => setExtensions(old => [...old, DefaultSAN])}
+            DeleteRow={(idx: number) => setExtensions(old => old.filter((_, i) => i !== idx))}
+            onChange={(idx: number, newValue: RowContent) => setExtensions(old => old.map((existingVal: RowContent, i: number) => i === idx ? newValue : existingVal))}
+        />
+
+        <div className="mt-2 text-center">
+            {!props.loading && <Button size='lg' onClick={() => generateCSR(props, algorithm, curve, hash, commonName, organisation, organisationalUnit, locality, country)}>Generate CSR</Button>}
+            {props.loading && <Button size='lg'><Spinner animation="border" size="sm" /> Generating...</Button>}
+        </div>
+    </>
 }

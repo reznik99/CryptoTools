@@ -10,6 +10,7 @@ import Col from 'react-bootstrap/Col';
 
 import * as encoding from 'lib/encoding';
 import { Props, CryptoSettings } from 'types/SharedTypes';
+import { useParams } from 'react-router-dom';
 
 const keyUsages: Array<KeyUsage> = ["encrypt", "decrypt"];
 
@@ -117,8 +118,10 @@ export default function AES(props: Props) {
     const [message, setMessage] = useState('')
     const [iv, setIV] = useState('')
 
-    switch (props.path) {
-        case '/AES-Gen':
+    const { action } = useParams();
+
+    switch (action) {
+        case 'Gen':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Generate Key </h4>
@@ -130,7 +133,7 @@ export default function AES(props: Props) {
                     {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
                 </Col>
             </Row>
-        case '/AES-Enc':
+        case 'Enc':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Encrypt/Decrypt </h4>

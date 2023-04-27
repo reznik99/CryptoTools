@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Location, useLocation } from 'react-router-dom';
+import { Location, useLocation, Routes, Route } from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -25,7 +25,7 @@ interface IState {
     input: string,
     output: string
 }
-interface IProps { 
+interface IProps {
     location: Location
 }
 
@@ -43,60 +43,66 @@ class App extends React.Component<IProps, IState> {
         };
     }
 
+    MenuBtn = () => {
+        return this.state.menuOpen
+            ? <i className="bi bi-x px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: false })} />
+            : <i className="bi bi-list px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: true })} />
+    }
+
+    OutputContainer = () => {
+        return <Col lg={4} xs={5} className="output-container">
+            <Row className="h-50 mv-1">
+                <Form.Group >
+                    <Form.Label>Input {this.state.input?.length ? `(${this.state.input?.length} characters)` : null}</Form.Label>
+                    <Form.Control as="textarea" className="nice-text-area" placeholder="Input for action i.e Public/Private Key"
+                        value={this.state.input} onChange={e => this.setState({ input: e.target.value })} />
+                </Form.Group>
+            </Row>
+            <Row className="h-50 mv-1">
+                <Form.Group >
+                    <Form.Label>Output {this.state.output?.length ? `(${this.state.output?.length} characters)` : null}</Form.Label>
+                    <Form.Control as="textarea" className="nice-text-area" placeholder="Output of action i.e CSR or Key"
+                        value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
+                </Form.Group>
+            </Row>
+        </Col>
+    }
+
     render = () => {
         return (
             <Container fluid className="App">
                 <Row className="wrapper">
                     <Row>
                         <Col xs="auto" className="p-0">
-                            <Sidebar collapsed={!this.state.menuOpen} toggled={true} path={this.props.location.pathname}/>
+                            <Sidebar collapsed={!this.state.menuOpen} toggled={true} path={this.props.location?.pathname} />
                         </Col>
+
                         <Col xs>
-                            <Row style={{position: 'relative'}}>
-                                { this.state.menuOpen
-                                    ? <i className="bi bi-x px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: false })}/>
-                                    : <i className="bi bi-list px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: true })}/>
-                                }
+                            <Row style={{ position: 'relative' }}>
+                                <this.MenuBtn />
                                 <Col sm={12} className="content-container px-5">
-
-                                    {/* RSA Functions */}
-                                    <RSA {...this.state} path={this.props.location.pathname} setState={(data: any) => this.setState({ ...data })} />
-
-                                    {/* AES Functions */}
-                                    <AES {...this.state} path={this.props.location?.pathname} setState={(data: any) => this.setState({ ...data })} />
-
-                                    {/* ECDSA Functions */}
-                                    <ECDSA {...this.state} path={this.props.location?.pathname} setState={(data: any) => this.setState({ ...data })} />
-
-                                    {/* SHA Functions */}
-                                    <SHA {...this.state} path={this.props.location?.pathname} setState={(data: any) => this.setState({ ...data })} />
-
-                                    {/* CSR Functions */}
-                                    <CSR {...this.state} path={this.props.location?.pathname} setState={(data: any) => this.setState({ ...data })} />
-
-                                    {/* Encoding Functions */}
-                                    <Encoding {...this.state} path={this.props.location?.pathname} setState={(data: any) => this.setState({ ...data })} />
-
+                                    <Routes>
+                                        {/* RSA Functions */}
+                                        <Route path="/RSA/:action" element={<RSA {...this.state} setState={this.setState.bind(this)} />} />
+                                        {/* AES Functions */}
+                                        <Route path="/AES/:action" element={<AES {...this.state} setState={this.setState.bind(this)} />} />
+                                        {/* ECDSA Functions */}
+                                        <Route path="/ECDSA/:action" element={<ECDSA {...this.state} setState={this.setState.bind(this)} />} />
+                                        {/* CSR Functions */}
+                                        <Route path="/CSR" element={<CSR {...this.state} setState={this.setState.bind(this)} />} />
+                                        {/* SHA Functions */}
+                                        <Route path="/SHA" element={<SHA {...this.state} setState={this.setState.bind(this)} />} />
+                                        {/* Encoding Functions */}
+                                        <Route path="/Encoding" element={<Encoding {...this.state} setState={this.setState.bind(this)} />} />
+                                    </Routes>
                                 </Col>
                             </Row>
                         </Col>
-                        <Col lg={4} xs={5} className="output-container">
-                            <Row className="h-50 mv-1">
-                                <Form.Group >
-                                    <Form.Label>Input {this.state.input?.length ? `(${this.state.input?.length} characters)` : null}</Form.Label>
-                                    <Form.Control as="textarea" className="nice-text-area" placeholder="Input for action i.e Public/Private Key"
-                                        value={this.state.input} onChange={e => this.setState({ input: e.target.value })} />
-                                </Form.Group>
-                            </Row>
-                            <Row className="h-50 mv-1">
-                                <Form.Group >
-                                    <Form.Label>Output {this.state.output?.length ? `(${this.state.output?.length} characters)` : null}</Form.Label>
-                                    <Form.Control as="textarea" className="nice-text-area" placeholder="Output of action i.e CSR or Key"
-                                        value={this.state.output} onChange={e => this.setState({ output: e.target.value })} />
-                                </Form.Group>
-                            </Row>
-                        </Col>
+
+                        <this.OutputContainer />
+
                     </Row>
+
                     <Alert variant='info' className="footer">
                         Made with <i className="bi bi-heart-fill" style={{ color: "#ff0000" }} /> and <i className="bi bi-cup-hot-fill" />. <br />
                         Open source on <Alert.Link href="https://github.com/reznik99/CryptoTools" {...{ target: "_blank" }}>github.com</Alert.Link>
@@ -126,7 +132,6 @@ class App extends React.Component<IProps, IState> {
         );
     }
 }
-
 const withNavigation = (Component: any) => {
     return (props: any) => <Component {...props} location={useLocation()} />;
 }

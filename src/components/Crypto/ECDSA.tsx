@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Buffer } from 'buffer';
-
+import { useParams } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
@@ -126,8 +126,10 @@ export default function AES(props: Props) {
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
 
-    switch (props.path) {
-        case '/ECDSA-Gen':
+    const { action } = useParams();
+
+    switch (action) {
+        case 'Gen':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Generate Key </h4>
@@ -143,7 +145,7 @@ export default function AES(props: Props) {
                     {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
                 </Col>
             </Row>
-        case '/ECDSA-Sig':
+        case 'Sig':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Sign/Validate </h4>

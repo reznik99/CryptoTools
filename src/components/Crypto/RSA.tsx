@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Buffer } from 'buffer';
-
+import { Props, CryptoSettings } from 'types/SharedTypes';
+import { useParams } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
@@ -9,7 +10,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import * as encoding from 'lib/encoding';
-import { Props, CryptoSettings } from 'types/SharedTypes';
 
 const encSettings: CryptoSettings = {
     algorithm: {
@@ -191,8 +191,10 @@ export default function RSA(props: Props) {
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
 
-    switch (props.path) {
-        case '/RSA-Gen':
+    const { action } = useParams();
+
+    switch (action) {
+        case 'Gen':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Generate Key </h4>
@@ -204,7 +206,7 @@ export default function RSA(props: Props) {
                     {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
                 </Col>
             </Row>
-        case '/RSA-Enc':
+        case 'Enc':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Encrypt/Decrypt </h4>
@@ -233,7 +235,7 @@ export default function RSA(props: Props) {
                     }
                 </Col>
             </Row>
-        case '/RSA-Sig':
+        case 'Sig':
             return <Row className="justify-content-center align-items-center">
                 <Col lg={8} >
                     <h4> Sign/Validate </h4>
