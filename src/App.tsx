@@ -80,16 +80,17 @@ class App extends React.Component<IProps, IState> {
                 <Row className="wrapper">
                     <Row>
                         <Col xs="auto" className="p-0">
-                            <Sidebar collapsed={!this.state.menuOpen} toggled={true} path={this.props.location?.pathname} />
+                            <Sidebar collapsed={!this.state.menuOpen} toggled={true} path={this.props.location?.pathname || ""} />
                         </Col>
 
                         <Col xs>
                             <Row style={{ position: 'relative' }}>
                                 {/* Menu Button */}
-                                <this.MenuBtn />
+                                {this.MenuBtn()}
                                 <Col sm={12} className="content-container px-5">
                                     <Routes>
                                         <Route index element={<Navigate to="/AES/Gen" />} />
+
                                         <Route path="/AES/:action" index={true}
                                             element={<AES {...this.state} setState={this.updateState} />} />
                                         <Route path="/RSA/:action"
@@ -117,11 +118,12 @@ class App extends React.Component<IProps, IState> {
                 </Row>
 
                 {/* Alerts */}
-                <this.Toaster />
+                {this.Toaster()}
             </Container>
         );
     }
 }
+
 const withNavigation = (Component: any) => {
     return (props: any) => <Component {...props} location={useLocation()} />;
 }
