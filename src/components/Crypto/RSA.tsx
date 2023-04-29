@@ -66,8 +66,8 @@ const generateRSA = async (props: Props, keyLength: number) => {
 
         props.setState({ output: await encoding.keypairToPem(keypair), successMsg: `(RSA-${keyLength}) Generated successfully` })
     } catch (err) {
-        console.error(err)
-        props.setState({ errorMsg: err })
+        console.error(`Failed to generate RSA-${keyLength} keypair: ${err}`)
+        props.setState({ errorMsg: `Failed to generate RSA-${keyLength} keypair: ${err}` })
     } finally {
         props.setState({ loading: false })
     }
@@ -89,8 +89,8 @@ const encryptRSA = async (props: Props, message: string) => {
 
         props.setState({ output: encoding.arrayBufferToBase64(cipherText), successMsg: `(RSA-OAEP) Encrypted successfully` })
     } catch (err) {
-        console.error(err)
-        props.setState({ errorMsg: err })
+        console.error(`Failed to RSA-OAEP encrypt: ${err}`)
+        props.setState({ errorMsg: `Failed to RSA-OAEP encrypt: ${err}` })
     } finally {
         props.setState({ loading: false })
     }
@@ -112,8 +112,8 @@ const decryptRSA = async (props: Props, message: string) => {
 
         props.setState({ output: encoding.arrayBufferToString(plainText), successMsg: `(RSA-OAEP) Decrypted successfully` })
     } catch (err) {
-        console.error(err)
-        props.setState({ errorMsg: err })
+        console.error(`Failed to RSA-OAEP decrypt: ${err}`)
+        props.setState({ errorMsg: `Failed to RSA-OAEP decrypt: ${err}` })
     } finally {
         props.setState({ loading: false })
     }
@@ -144,8 +144,8 @@ const signRSA = async (props: Props, rsaMode: string, hashAlgo: string, message:
 
         props.setState({ output: encoding.arrayBufferToBase64(signature), successMsg: `(${rsaMode}) Signed successfully` });
     } catch (err) {
-        console.error(err);
-        props.setState({ errorMsg: err });
+        console.error(`Failed to ${rsaMode} sign: ${err}`);
+        props.setState({ errorMsg: `Failed to ${rsaMode} sign: ${err}` })
     } finally {
         props.setState({ loading: false });
     }
@@ -177,8 +177,8 @@ const verifyRSA = async (props: Props, rsaMode: string, hashAlgo: string, messag
         if (valid) props.setState({ output: "Valid", successMsg: `${rsaMode}) Verified successfully` });
         else props.setState({ output: "Invalid", errorMsg: `${rsaMode}) Verification failed` });
     } catch (err) {
-        console.error(err)
-        props.setState({ errorMsg: err });
+        console.error(`Failed to ${rsaMode} verify: ${err}`)
+        props.setState({ errorMsg: `Failed to ${rsaMode} verify: ${err}` })
     } finally {
         props.setState({ loading: false });
     }
@@ -202,8 +202,8 @@ export default function RSA(props: Props) {
                         <Form.Label>Keylength</Form.Label>
                         <Form.Control type="numeric" placeholder="2048" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
                     </Form.Group>
-                    {!props.loading && <Button onClick={() => generateRSA(props, keyLength)}>Generate RSA Key</Button>}
-                    {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
+                    <Button hidden={props.loading} onClick={() => generateRSA(props, keyLength)}>Generate RSA Key</Button>
+                    <Button hidden={!props.loading}><Spinner animation="border" size="sm" /> Generating</Button>
                 </Col>
             </Row>
         case 'Enc':
@@ -221,18 +221,10 @@ export default function RSA(props: Props) {
                         <Form.Label>PlainText / CipherText</Form.Label>
                         <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
                     </Form.Group>
-                    {!props.loading &&
-                        <ButtonGroup size="lg" className="mb-2">
-                            <Button onClick={() => decryptRSA(props, message)}>Decrypt</Button>
-                            <Button onClick={() => encryptRSA(props, message)}>Encrypt</Button>
-                        </ButtonGroup>
-                    }
-                    {props.loading &&
-                        <ButtonGroup size="lg" className="mb-2">
-                            <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
-                            <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
-                        </ButtonGroup>
-                    }
+                    <ButtonGroup size="lg" className="mb-2">
+                        <Button onClick={() => decryptRSA(props, message)} disabled={props.loading}>Decrypt</Button>
+                        <Button onClick={() => encryptRSA(props, message)} disabled={props.loading}>Encrypt</Button>
+                    </ButtonGroup>
                 </Col>
             </Row>
         case 'Sig':
@@ -269,18 +261,14 @@ export default function RSA(props: Props) {
                         <Form.Label>Signature (required for validation)</Form.Label>
                         <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
                     </Form.Group>
-                    {!props.loading &&
-                        <ButtonGroup size="lg" className="mb-2">
-                            <Button onClick={() => verifyRSA(props, rsaMode, hashAlgo, message, signature)}>Validate</Button>
-                            <Button onClick={() => signRSA(props, rsaMode, hashAlgo, message)}>Sign</Button>
-                        </ButtonGroup>
-                    }
-                    {props.loading &&
-                        <ButtonGroup size="lg" className="mb-2">
-                            <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
-                            <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
-                        </ButtonGroup>
-                    }
+                    <ButtonGroup size="lg" className="mb-2" hidden={props.loading}>
+                        <Button onClick={() => verifyRSA(props, rsaMode, hashAlgo, message, signature)}>Validate</Button>
+                        <Button onClick={() => signRSA(props, rsaMode, hashAlgo, message)}>Sign</Button>
+                    </ButtonGroup>
+                    <ButtonGroup size="lg" className="mb-2" hidden={!props.loading}>
+                        <Button><Spinner animation="border" size="sm" /> Validating</Button>
+                        <Button><Spinner animation="border" size="sm" /> Signing</Button>
+                    </ButtonGroup>
                 </Col>
             </Row>
         default:

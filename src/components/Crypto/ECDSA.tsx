@@ -63,8 +63,8 @@ const generateECDSA = async (props: Props, curve: string) => {
 
         props.setState({ output: await encoding.keypairToPem(keypair), successMsg: `(ECDSA-${curve}) Generated successfully` })
     } catch (err) {
-        console.error(err)
-        props.setState({ errorMsg: err })
+        console.error(`Failed to generate ECDSA ${curve}: ${err}`)
+        props.setState({ errorMsg: `Failed to generate ECDSA ${curve}: ${err}` })
     } finally {
         props.setState({ loading: false })
     }
@@ -87,8 +87,8 @@ const signECDSA = async (props: Props, hashAlgo: string, message: string) => {
 
         props.setState({ output: encoding.arrayBufferToBase64(signature), successMsg: `(ECDSA) Signed successfully` })
     } catch (err) {
-        console.error(err)
-        props.setState({ errorMsg: err })
+        console.error(`Failed to ECDSA sign: ${err}`)
+        props.setState({ errorMsg: `Failed to ECDSA sign: ${err}` })
     } finally {
         props.setState({ loading: false })
     }
@@ -113,8 +113,8 @@ const verifyECDSA = async (props: Props, hashAlgo: string, message: string, sign
         if (valid) props.setState({ output: "Valid", successMsg: `(ECDSA) Verified successfully` })
         else props.setState({ output: "Invalid", errorMsg: `(ECDSA) Verification failed` })
     } catch (err) {
-        console.error(err)
-        props.setState({ errorMsg: err })
+        console.error(`Failed to ECDSA verify: ${err}`)
+        props.setState({ errorMsg: `Failed to ECDSA verify: ${err}` })
     } finally {
         props.setState({ loading: false })
     }
@@ -141,8 +141,8 @@ export default function AES(props: Props) {
                             <option value="P-521">P-521</option>
                         </Form.Select>
                     </Form.Group>
-                    {!props.loading && <Button onClick={() => generateECDSA(props, curve)}>Generate ECDSA Key</Button>}
-                    {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
+                    <Button hidden={props.loading} onClick={() => generateECDSA(props, curve)}>Generate ECDSA Key</Button>
+                    <Button hidden={!props.loading}><Spinner animation="border" size="sm" /> Generating</Button>
                 </Col>
             </Row>
         case 'Sig':
@@ -178,18 +178,14 @@ export default function AES(props: Props) {
                         <Form.Label>Signature (required for validation)</Form.Label>
                         <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
                     </Form.Group>
-                    {!props.loading &&
-                        <ButtonGroup size="lg" className="mb-2">
-                            <Button onClick={() => verifyECDSA(props, hashAlgo, message, signature)} > Validate</Button>
-                            <Button onClick={() => signECDSA(props, hashAlgo, message)}>Sign</Button>
-                        </ButtonGroup>
-                    }
-                    {props.loading &&
-                        <ButtonGroup size="lg" className="mb-2">
-                            <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
-                            <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
-                        </ButtonGroup>
-                    }
+                    <ButtonGroup size="lg" className="mb-2" hidden={props.loading}>
+                        <Button onClick={() => verifyECDSA(props, hashAlgo, message, signature)}> Validate</Button>
+                        <Button onClick={() => signECDSA(props, hashAlgo, message)}> Sign</Button>
+                    </ButtonGroup>
+                    <ButtonGroup size="lg" className="mb-2" hidden={!props.loading}>
+                        <Button><Spinner animation="border" size="sm" /> Validating</Button>
+                        <Button><Spinner animation="border" size="sm" /> Signing</Button>
+                    </ButtonGroup>
                 </Col>
             </Row>
         default:
