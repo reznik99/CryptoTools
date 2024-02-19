@@ -1,13 +1,17 @@
 import { ArrowDropDown, ArrowDropUp, Handshake, Key, Lock, Settings, SignalWifiStatusbar4Bar } from '@mui/icons-material';
-import { Box, Collapse, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Box, Collapse, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Badge } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import Badge from 'react-bootstrap/Badge';
 import { Link } from 'react-router-dom';
 
 type menuObject = {
     link: string;
     icon: JSX.Element;
-    submenus?: Map<string, { link: string }>
+    submenus?: Map<string, submenuObject>
+}
+
+type submenuObject = {
+    link: string;
+    isNew?: boolean;
 }
 
 const actions = new Map<string, menuObject>(
@@ -15,7 +19,7 @@ const actions = new Map<string, menuObject>(
         ["Key Generation", {
             link: "/Gen",
             icon: <Key />,
-            submenus: new Map<string, { link: string }>(
+            submenus: new Map(
                 [
                     ["AES Key", {
                         link: "/AES"
@@ -27,15 +31,16 @@ const actions = new Map<string, menuObject>(
                         link: "/ECDSA"
                     }],
                     ["CSRs", {
-                        link: "/CSR"
+                        link: "/CSR",
+                        isNew: true
                     }]
                 ]
             )
         }],
-        ["Encryption/Decryption", {
+        ["Encryption", {
             link: "/Enc",
             icon: <Lock />,
-            submenus: new Map<string, { link: string }>(
+            submenus: new Map(
                 [
                     ["AES", {
                         link: "/AES"
@@ -46,10 +51,10 @@ const actions = new Map<string, menuObject>(
                 ]
             )
         }],
-        ["Signing/Validation", {
+        ["Signatures", {
             link: "/Sig",
             icon: <SignalWifiStatusbar4Bar />,
-            submenus: new Map<string, { link: string }>(
+            submenus: new Map(
                 [
                     ["RSA", {
                         link: "/RSA"
@@ -63,10 +68,11 @@ const actions = new Map<string, menuObject>(
         ["Hashing", {
             link: "/SHA",
             icon: <Handshake />,
-            submenus: new Map<string, { link: string }>(
+            submenus: new Map(
                 [
                     ["SHA", {
-                        link: ""
+                        link: "",
+                        isNew: true
                     }],
                 ]
             )
@@ -74,10 +80,11 @@ const actions = new Map<string, menuObject>(
         ["Encoding", {
             link: "/Encoding",
             icon: <Settings />,
-            submenus: new Map<string, { link: string }>(
+            submenus: new Map(
                 [
                     ["Convert", {
-                        link: ""
+                        link: "",
+                        isNew: true
                     }]
                 ]
             )
@@ -100,7 +107,7 @@ const Sidebar = (props: IProps) => {
         if (menuOpen === "" && action?.length) {
             setMenuOpen("/" + action[action.length - 1])
         }
-    }, [props.path])
+    }, [props.path, menuOpen])
 
     const toggleSubMenu = (action: string) => {
         if (menuOpen === action) {
@@ -111,11 +118,12 @@ const Sidebar = (props: IProps) => {
     }
 
     return (
-        <Drawer anchor="left"
-            open={props.open}
-            onClose={props.toggleMenu}>
+        <Drawer anchor="left" open={props.open} onClose={props.toggleMenu}>
 
-            <Box sx={{ width: 250 }} role="presentation">
+            <p className='drawer-darker-section title py-3 m-0'> Crypto Tools </p>
+            <Divider />
+
+            <Box role="presentation" sx={{ width: 275, pr: 1 }} className="drawer-darker-section">
                 {Array.from(actions).map(([key, value], idx) => {
                     const action = value.link
                     const submenu = value.submenus || new Map<string, menuObject>()
@@ -125,8 +133,9 @@ const Sidebar = (props: IProps) => {
                             <ListItem disablePadding onClick={() => toggleSubMenu(action)}>
                                 <ListItemButton>
                                     <ListItemIcon> {value.icon} </ListItemIcon>
-                                    <ListItemText primary={key} className='text-secondary' />
+                                    <ListItemText primary={key} className='text-success' />
                                     <ListItemIcon> {submenuOpen ? <ArrowDropUp /> : <ArrowDropDown />} </ListItemIcon>
+                                    <Badge badgeContent={`+${submenu.size}`} color="success" />
                                 </ListItemButton>
                             </ListItem>
                             <Collapse in={submenuOpen} >
@@ -137,10 +146,10 @@ const Sidebar = (props: IProps) => {
                                             <Link to={path} key={idx}
                                                 className='text-light'
                                                 style={{ textDecoration: 'none' }}>
-                                                <ListItemButton
-                                                    sx={{ pl: 4 }}
+                                                <ListItemButton sx={{ pl: 4 }}
                                                     selected={props.path === path}>
                                                     <ListItemText primary={subkey} />
+                                                    {subvalue.isNew && <Badge badgeContent="New" color="info" sx={{ mr: 1 }}/>}
                                                 </ListItemButton>
                                             </Link>
                                         )
@@ -153,7 +162,8 @@ const Sidebar = (props: IProps) => {
                 })}
             </Box>
 
-            <div className="text-center mb-3 mt-auto" >
+            <Divider />
+            <div className="drawer-darker-section text-center p-3 mt-auto" >
                 <a href="https://github.com/reznik99/CryptoTools"
                     target="_blank"
                     className="text-success p-3"
@@ -162,7 +172,7 @@ const Sidebar = (props: IProps) => {
                 </a>
             </div>
 
-        </Drawer>
+        </Drawer >
     );
 }
 

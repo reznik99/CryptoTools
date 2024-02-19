@@ -49,7 +49,7 @@ class App extends React.Component<IProps, IState> {
 
     MenuBtn = () => {
         return this.state.menuOpen
-            ? <i className="bi bi-x px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: false })} />
+            ? <i className="bi bi-x px-3 py-2 toggle-menu-btn active" onClick={() => this.setState({ menuOpen: false })} />
             : <i className="bi bi-list px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: true })} />
     }
 

@@ -18,6 +18,15 @@ const darkTheme = createTheme({
     palette: {
         mode: 'dark',
     },
+    components: {
+        MuiDrawer: {
+            styleOverrides: {
+                paper: {
+                    background: "var(--background)"
+                }
+            }
+        }
+    }
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
