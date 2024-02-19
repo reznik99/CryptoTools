@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Buffer } from 'buffer';
 import { useParams } from 'react-router-dom';
 import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-
-import * as encoding from 'lib/encoding';
-import { Props, CryptoSettings } from 'types/SharedTypes';
 import { Key, Lock, LockOpen } from '@mui/icons-material';
+
+import { Props, CryptoSettings } from 'types/SharedTypes';
+import * as encoding from 'lib/encoding';
 
 const keyUsages: Array<KeyUsage> = ["encrypt", "decrypt"];
 
@@ -123,7 +123,7 @@ export default function AES(props: Props) {
                     direction="column"
                     justifyContent="center"
                     alignItems="center"
-                    sx={{ mx: '250px' }}>
+                    sx={{ ml: '250px' }}>
                     <Typography variant='h4'> Generate Key </Typography>
                     <FormControl fullWidth sx={{ my: 1 }}>
                         <InputLabel id='keysize-label'>Key Size</InputLabel>
@@ -150,7 +150,7 @@ export default function AES(props: Props) {
                     direction="column"
                     justifyContent="center"
                     alignItems="center"
-                    sx={{ mx: '250px' }}>
+                    sx={{ ml: '250px' }}>
                     <Typography variant='h4'> Encrypt/Decrypt </Typography>
                     <FormControl fullWidth>
                         <InputLabel id='algorithm-label'>Algorithm</InputLabel>
@@ -160,6 +160,7 @@ export default function AES(props: Props) {
                             onChange={e => setAESMode(e.target.value)}>
                             <MenuItem value='AES-CBC'>AES-CBC</MenuItem>
                             <MenuItem value='AES-GCM'>AES-GCM</MenuItem>
+                            <MenuItem value='AES-CTR' disabled>AES-CTR</MenuItem>
                         </Select>
                     </FormControl>
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Buffer } from 'buffer';
 import { useParams } from 'react-router-dom';
-import { Button, ButtonGroup, CircularProgress, FormControl, FormGroup, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { Lock, LockOpen } from '@mui/icons-material';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
@@ -195,7 +195,7 @@ export default function RSA(props: Props) {
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ mx: '250px' }}>
+                sx={{ ml: '250px' }}>
                 <Typography variant='h4'> Generate Key </Typography>
 
                 <FormControl fullWidth>
@@ -221,7 +221,7 @@ export default function RSA(props: Props) {
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ mx: '250px' }}>
+                sx={{ ml: '250px' }}>
                 <Typography variant='h4'> Encrypt/Decrypt </Typography>
 
                 <FormControl fullWidth>
@@ -229,7 +229,7 @@ export default function RSA(props: Props) {
                     <Select labelId='algorithm-label'
                         label='Algorithm'
                         value='RSA-OAEP'>
-                        <MenuItem value="AES-GCM" disabled={true}>RSAES-PKCS1-v1_5</MenuItem>
+                        <MenuItem value="RSAES-PKCS1-v1_5" disabled>RSAES-PKCS1-v1_5</MenuItem>
                         <MenuItem value="RSA-OAEP">RSA-OAEP</MenuItem>
                     </Select>
                 </FormControl>
@@ -263,7 +263,7 @@ export default function RSA(props: Props) {
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ mx: '250px' }}>
+                sx={{ ml: '250px' }}>
                 <Typography variant='h4'> Sign/Validate </Typography>
                 <Stack direction="row" spacing={2} width='100%'>
                     <FormControl fullWidth>

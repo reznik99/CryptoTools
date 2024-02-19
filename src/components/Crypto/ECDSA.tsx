@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
 import { Buffer } from 'buffer';
 import { useParams } from 'react-router-dom';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Form from 'react-bootstrap/Form';
-import Spinner from 'react-bootstrap/Spinner';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Lock, LockOpen } from '@mui/icons-material';
 
-import * as encoding from 'lib/encoding';
 import { Props, CryptoSettings } from 'types/SharedTypes';
+import * as encoding from 'lib/encoding';
 
 
 const sigSettings: CryptoSettings = {
@@ -130,64 +126,95 @@ export default function ECDSA(props: Props) {
 
     switch (action) {
         case 'Gen':
-            return <Row className="justify-content-center align-items-center">
-                <Col lg={8} >
-                    <h4> Generate Key </h4>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Curve</Form.Label>
-                        <Form.Select value={curve} onChange={(e) => setCurve(e.target.value)}>
-                            <option value="P-256">P-256</option>
-                            <option value="P-384">P-384</option>
-                            <option value="P-521">P-521</option>
-                        </Form.Select>
-                    </Form.Group>
-                    <Button hidden={props.loading} onClick={() => generateECDSA(props, curve)}>Generate ECDSA Key</Button>
-                    <Button hidden={!props.loading}><Spinner animation="border" size="sm" /> Generating</Button>
-                </Col>
-            </Row>
+            return <Stack spacing={2}
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                sx={{ ml: '250px' }}>
+                <Typography variant='h4'> Generate Key </Typography>
+
+                <FormControl fullWidth>
+                    <InputLabel id='curve-label'>Curve</InputLabel>
+                    <Select labelId='curve-label'
+                        label='Curve'
+                        value={curve}
+                        onChange={(e) => setCurve(e.target.value)}>
+                        <MenuItem value="P-256">P-256</MenuItem>
+                        <MenuItem value="P-384">P-384</MenuItem>
+                        <MenuItem value="P-521">P-521</MenuItem>
+                    </Select>
+                </FormControl>
+
+                {props.loading
+                    ? <Button variant='contained' disabled>
+                        <CircularProgress size={18} sx={{ mx: 1 }} /> Generating
+                    </Button>
+                    : <Button variant='contained'
+                        onClick={() => generateECDSA(props, curve)}>
+                        Generate ECDSA Key
+                    </Button>
+                }
+            </Stack>
         case 'Sig':
-            return <Row className="justify-content-center align-items-center">
-                <Col lg={8} >
-                    <h4> Sign/Validate </h4>
-                    <Row>
-                        <Col lg={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Algorithm</Form.Label>
-                                <Form.Select disabled>
-                                    <option value="ECDSA">ECDSA</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                        <Col lg={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Hash Algorithm</Form.Label>
-                                <Form.Select value={hashAlgo} onChange={e => setHashAlgo(e.target.value)}>
-                                    <option value="SHA-1">SHA-1</option>
-                                    <option value="SHA-256">SHA-256</option>
-                                    <option value="SHA-384">SHA-384</option>
-                                    <option value="SHA-512">SHA-512</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Message</Form.Label>
-                        <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Signature (required for validation)</Form.Label>
-                        <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
-                    </Form.Group>
-                    <ButtonGroup size="lg" className="mb-2" hidden={props.loading}>
-                        <Button onClick={() => verifyECDSA(props, hashAlgo, message, signature)}> Validate</Button>
-                        <Button onClick={() => signECDSA(props, hashAlgo, message)}> Sign</Button>
-                    </ButtonGroup>
-                    <ButtonGroup size="lg" className="mb-2" hidden={!props.loading}>
-                        <Button><Spinner animation="border" size="sm" /> Validating</Button>
-                        <Button><Spinner animation="border" size="sm" /> Signing</Button>
-                    </ButtonGroup>
-                </Col>
-            </Row>
+            return <Stack spacing={2}
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                sx={{ ml: '250px' }}>
+                <Typography variant='h4'> Sign/Validate </Typography>
+                <Stack direction="row" spacing={2} width='100%'>
+                    <FormControl fullWidth>
+                        <InputLabel id='algorithm-label'>Algorithm</InputLabel>
+                        <Select labelId='algorithm-label'
+                            label='Algorithm'
+                            value='ECDSA'>
+                            <MenuItem value="ECDSA">ECDSA</MenuItem>
+                            <MenuItem value="EdDSA" disabled>EdDSA</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth>
+                        <InputLabel id='hash-algorithm-label'>Hash Algorithm</InputLabel>
+                        <Select labelId='hash-algorithm-label'
+                            label='Hash Algorithm'
+                            value={hashAlgo}
+                            onChange={e => setHashAlgo(e.target.value)}>
+                            <MenuItem value="SHA-1">SHA-1</MenuItem>
+                            <MenuItem value="SHA-256">SHA-256</MenuItem>
+                            <MenuItem value="SHA-384">SHA-384</MenuItem>
+                            <MenuItem value="SHA-512">SHA-512</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Stack>
+
+                <FormControl fullWidth>
+                    <TextField label="Message"
+                        variant="outlined"
+                        placeholder="Hi Mom"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)} />
+                </FormControl>
+
+                <FormControl fullWidth>
+                    <TextField label="Signature (required for validation)"
+                        variant="outlined"
+                        placeholder="Base64 signature"
+                        value={signature}
+                        onChange={(e) => setSignature(e.target.value)} />
+                </FormControl>
+
+                <ButtonGroup hidden={!props.loading}>
+                    <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Loading</Button>
+                    <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Loading</Button>
+                </ButtonGroup>
+                <ButtonGroup hidden={props.loading}>
+                    <Button variant='contained'
+                        startIcon={<LockOpen />}
+                        onClick={() => verifyECDSA(props, hashAlgo, message, signature)}>Validate</Button>
+                    <Button variant='contained'
+                        startIcon={<Lock />}
+                        onClick={() => signECDSA(props, hashAlgo, message)}>Sign</Button>
+                </ButtonGroup>
+            </Stack>
         default:
             return <></>
     }

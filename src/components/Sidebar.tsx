@@ -118,7 +118,7 @@ const Sidebar = (props: IProps) => {
     }
 
     return (
-        <Drawer anchor="left" open={props.open} onClose={props.toggleMenu}>
+        <Drawer anchor="left" variant='persistent' open={props.open} onClose={props.toggleMenu}>
 
             <p className='drawer-darker-section title py-3 m-0'> Crypto Tools </p>
             <Divider />
