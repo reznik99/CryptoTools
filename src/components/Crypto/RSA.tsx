@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { Buffer } from 'buffer';
-import { Props, CryptoSettings } from 'types/SharedTypes';
 import { useParams } from 'react-router-dom';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Form from 'react-bootstrap/Form';
-import Spinner from 'react-bootstrap/Spinner';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import { Button, ButtonGroup, CircularProgress, FormControl, FormGroup, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Lock, LockOpen } from '@mui/icons-material';
 
+import { Props, CryptoSettings } from 'types/SharedTypes';
 import * as encoding from 'lib/encoding';
 
 const encSettings: CryptoSettings = {
@@ -195,82 +191,139 @@ export default function RSA(props: Props) {
 
     switch (action) {
         case 'Gen':
-            return <Row className="justify-content-center align-items-center">
-                <Col lg={8} >
-                    <h4> Generate Key </h4>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Keylength</Form.Label>
-                        <Form.Control type="numeric" placeholder="2048" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
-                    </Form.Group>
-                    <Button hidden={props.loading} onClick={() => generateRSA(props, keyLength)}>Generate RSA Key</Button>
-                    <Button hidden={!props.loading}><Spinner animation="border" size="sm" /> Generating</Button>
-                </Col>
-            </Row>
+            return <Stack spacing={2}
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                sx={{ mx: '250px' }}>
+                <Typography variant='h4'> Generate Key </Typography>
+
+                <FormControl fullWidth>
+                    <TextField label="Keylength"
+                        variant="outlined"
+                        placeholder="2048"
+                        value={keyLength}
+                        onChange={(e) => setKeyLength(Number(e.target.value))}
+                    />
+                </FormControl>
+                {props.loading
+                    ? <Button variant='contained' disabled>
+                        <CircularProgress size={18} sx={{ mx: 1 }} /> Generating
+                    </Button>
+                    : <Button variant='contained'
+                        onClick={() => generateRSA(props, keyLength)}>
+                        Generate RSA Key
+                    </Button>
+                }
+            </Stack>
         case 'Enc':
-            return <Row className="justify-content-center align-items-center">
-                <Col lg={8} >
-                    <h4> Encrypt/Decrypt </h4>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Algorithm</Form.Label>
-                        <Form.Select disabled>
-                            <option value="RSA-OAEP">RSA-OAEP</option>
-                            <option value="AES-GCM">RSAES-PKCS1-v1_5</option>
-                        </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>PlainText / CipherText</Form.Label>
-                        <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
-                    </Form.Group>
-                    <ButtonGroup size="lg" className="mb-2">
-                        <Button onClick={() => decryptRSA(props, message)} disabled={props.loading}>Decrypt</Button>
-                        <Button onClick={() => encryptRSA(props, message)} disabled={props.loading}>Encrypt</Button>
+            return <Stack spacing={2}
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                sx={{ mx: '250px' }}>
+                <Typography variant='h4'> Encrypt/Decrypt </Typography>
+
+                <FormControl fullWidth>
+                    <InputLabel id='algorithm-label'>Algorithm</InputLabel>
+                    <Select labelId='algorithm-label'
+                        label='Algorithm'
+                        value='RSA-OAEP'>
+                        <MenuItem value="AES-GCM" disabled={true}>RSAES-PKCS1-v1_5</MenuItem>
+                        <MenuItem value="RSA-OAEP">RSA-OAEP</MenuItem>
+                    </Select>
+                </FormControl>
+
+                <FormControl fullWidth>
+                    <TextField label="PlainText / CipherText"
+                        variant="outlined"
+                        placeholder="Hi Mom"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                </FormControl>
+
+                {props.loading
+                    ? <ButtonGroup>
+                        <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Decrypting</Button>
+                        <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Encrypting</Button>
                     </ButtonGroup>
-                </Col>
-            </Row>
+                    : <ButtonGroup>
+                        <Button variant='contained'
+                            startIcon={<LockOpen />}
+                            onClick={() => decryptRSA(props, message)} disabled={props.loading}>Decrypt Data</Button>
+                        <Button variant='contained'
+                            startIcon={<Lock />}
+                            onClick={() => encryptRSA(props, message)} disabled={props.loading}>Encrypt Data</Button>
+                    </ButtonGroup>
+                }
+            </Stack>
         case 'Sig':
-            return <Row className="justify-content-center align-items-center">
-                <Col lg={8} >
-                    <h4> Sign/Validate </h4>
-                    <Row>
-                        <Col lg={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Algorithm</Form.Label>
-                                <Form.Select value={rsaMode} onChange={e => setRSAMode(e.target.value)}>
-                                    <option value="RSASSA-PKCS1-v1_5">RSASSA-PKCS1-v1_5</option>
-                                    <option value="RSA-PSS">RSA-PSS</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                        <Col lg={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Hash Algorithm</Form.Label>
-                                <Form.Select value={hashAlgo} onChange={e => setHashAlgo(e.target.value)}>
-                                    <option value="SHA-1">SHA-1</option>
-                                    <option value="SHA-256">SHA-256</option>
-                                    <option value="SHA-384">SHA-384</option>
-                                    <option value="SHA-512">SHA-512</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Message</Form.Label>
-                        <Form.Control type="text" placeholder="Hi Mom" value={message} onChange={(e) => setMessage(e.target.value)} />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Signature (required for validation)</Form.Label>
-                        <Form.Control type="text" placeholder="Base64 signature" value={signature} onChange={(e) => setSignature(e.target.value)} />
-                    </Form.Group>
-                    <ButtonGroup size="lg" className="mb-2" hidden={props.loading}>
-                        <Button onClick={() => verifyRSA(props, rsaMode, hashAlgo, message, signature)}>Validate</Button>
-                        <Button onClick={() => signRSA(props, rsaMode, hashAlgo, message)}>Sign</Button>
+            return <Stack spacing={2}
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                sx={{ mx: '250px' }}>
+                <Typography variant='h4'> Sign/Validate </Typography>
+                <Stack direction="row" spacing={2} width='100%'>
+                    <FormControl fullWidth>
+                        <InputLabel id='algorithm-label'>Algorithm</InputLabel>
+                        <Select labelId='algorithm-label'
+                            label='Algorithm'
+                            value={rsaMode}
+                            onChange={e => setRSAMode(e.target.value)}>
+                            <MenuItem value="RSASSA-PKCS1-v1_5">RSASSA-PKCS1-v1_5</MenuItem>
+                            <MenuItem value="RSA-PSS">RSA-PSS</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth>
+                        <InputLabel id='hash-algorithm-label'>Hash Algorithm</InputLabel>
+                        <Select labelId='hash-algorithm-label'
+                            label='Hash Algorithm'
+                            value={hashAlgo}
+                            onChange={e => setHashAlgo(e.target.value)}>
+                            <MenuItem value="SHA-1">SHA-1</MenuItem>
+                            <MenuItem value="SHA-256">SHA-256</MenuItem>
+                            <MenuItem value="SHA-384">SHA-384</MenuItem>
+                            <MenuItem value="SHA-512">SHA-512</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Stack>
+
+                <FormControl fullWidth>
+                    <TextField label="Message"
+                        variant="outlined"
+                        placeholder="Hi Mom"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                </FormControl>
+
+                <FormControl fullWidth>
+                    <TextField label="Signature (required for validation)"
+                        variant="outlined"
+                        placeholder="Base64 signature"
+                        value={signature}
+                        onChange={(e) => setSignature(e.target.value)}
+                    />
+                </FormControl>
+
+                {props.loading
+                    ? <ButtonGroup>
+                        <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Loading</Button>
+                        <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Loading</Button>
                     </ButtonGroup>
-                    <ButtonGroup size="lg" className="mb-2" hidden={!props.loading}>
-                        <Button><Spinner animation="border" size="sm" /> Validating</Button>
-                        <Button><Spinner animation="border" size="sm" /> Signing</Button>
+                    : <ButtonGroup>
+                        <Button variant='contained'
+                            startIcon={<LockOpen />}
+                            onClick={() => verifyRSA(props, rsaMode, hashAlgo, message, signature)}>Validate</Button>
+                        <Button variant='contained'
+                            startIcon={<Lock />}
+                            onClick={() => signRSA(props, rsaMode, hashAlgo, message)}>Sign</Button>
                     </ButtonGroup>
-                </Col>
-            </Row>
+                }
+            </Stack>
         default:
             return <></>
     }

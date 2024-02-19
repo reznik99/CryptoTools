@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import { Buffer } from 'buffer';
-
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Form from 'react-bootstrap/Form';
-import Spinner from 'react-bootstrap/Spinner';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import { useParams } from 'react-router-dom';
+import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 
 import * as encoding from 'lib/encoding';
 import { Props, CryptoSettings } from 'types/SharedTypes';
-import { useParams } from 'react-router-dom';
+import { Key, Lock, LockOpen } from '@mui/icons-material';
 
 const keyUsages: Array<KeyUsage> = ["encrypt", "decrypt"];
 
@@ -123,50 +118,85 @@ export default function AES(props: Props) {
     switch (action) {
         case '':
         case 'Gen':
-            return <Row className="justify-content-center align-items-center">
-                <Col lg={8} >
-                    <h4> Generate Key </h4>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Keylength</Form.Label>
-                        <Form.Control type="numeric" placeholder="256" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
-                    </Form.Group>
-                    {!props.loading && <Button onClick={() => generateAES(props, keyLength)}>Generate AES Key</Button>}
-                    {props.loading && <Button><Spinner animation="border" size="sm" /> Generating</Button>}
-                </Col>
-            </Row>
+            return (
+                <Stack spacing={2}
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="center"
+                    sx={{ mx: '250px' }}>
+                    <Typography variant='h4'> Generate Key </Typography>
+                    <FormControl fullWidth sx={{ my: 1 }}>
+                        <InputLabel id='keysize-label'>Key Size</InputLabel>
+                        <Select labelId='keysize-label'
+                            label='Key Size'
+                            value={keyLength}
+                            onChange={(e) => setKeyLength(Number(e.target.value))} >
+                            <MenuItem value={128}>128-bits</MenuItem>
+                            <MenuItem value={192}>192-bits</MenuItem>
+                            <MenuItem value={256}>256-bits</MenuItem>
+                        </Select>
+                    </FormControl>
+                    {props.loading
+                        ? <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Generating...</Button>
+                        : <Button variant='contained'
+                            startIcon={<Key />}
+                            onClick={() => generateAES(props, keyLength)}>Generate AES Key</Button>
+                    }
+                </Stack>
+            )
         case 'Enc':
-            return <Row className="justify-content-center align-items-center">
-                <Col lg={8} >
-                    <h4> Encrypt/Decrypt </h4>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Algorithm</Form.Label>
-                        <Form.Select value={aesMode} onChange={e => setAESMode(e.target.value)}>
-                            <option value="AES-CBC">AES-CBC</option>
-                            <option value="AES-GCM">AES-GCM</option>
-                        </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>PlainText / CipherText</Form.Label>
-                        <Form.Control type="text" placeholder="ASCII for encryption and base64 for decryption" value={message} onChange={(e) => setMessage(e.target.value)} />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>IV (required for decryption)</Form.Label>
-                        <Form.Control type="text" placeholder="Base64 IV for decryption" value={iv} onChange={(e) => setIV(e.target.value)} />
-                    </Form.Group>
-                    {!props.loading &&
-                        <ButtonGroup size="lg" className="mb-2">
-                            <Button onClick={() => decryptAES(props, aesMode, message, iv)}>Decrypt</Button>
-                            <Button onClick={() => encryptAES(props, aesMode, message)}>Encrypt</Button>
+            return (
+                <Stack spacing={2}
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="center"
+                    sx={{ mx: '250px' }}>
+                    <Typography variant='h4'> Encrypt/Decrypt </Typography>
+                    <FormControl fullWidth>
+                        <InputLabel id='algorithm-label'>Algorithm</InputLabel>
+                        <Select labelId='algorithm-label'
+                            label='Algorithm'
+                            value={aesMode}
+                            onChange={e => setAESMode(e.target.value)}>
+                            <MenuItem value='AES-CBC'>AES-CBC</MenuItem>
+                            <MenuItem value='AES-GCM'>AES-GCM</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth>
+                        <TextField label="PlainText / CipherText"
+                            variant="outlined"
+                            placeholder="ASCII for encryption and base64 for decryption"
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                        />
+                    </FormControl>
+
+                    <FormControl fullWidth>
+                        <TextField label="IV (required for decryption)"
+                            variant="outlined"
+                            placeholder="Base64 IV for decryption"
+                            value={iv}
+                            onChange={(e) => setIV(e.target.value)}
+                        />
+                    </FormControl>
+
+                    {props.loading
+                        ? <ButtonGroup >
+                            <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Decrypting</Button>
+                            <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Encrypting</Button>
+                        </ButtonGroup>
+                        : <ButtonGroup>
+                            <Button variant='contained'
+                                startIcon={<LockOpen />}
+                                onClick={() => decryptAES(props, aesMode, message, iv)}>Decrypt data</Button>
+                            <Button variant='contained'
+                                startIcon={<Lock />}
+                                onClick={() => encryptAES(props, aesMode, message)}>Encrypt data</Button>
                         </ButtonGroup>
                     }
-                    {props.loading &&
-                        <ButtonGroup size="lg" className="mb-2">
-                            <Button><Spinner animation="border" size="sm" /> Decrypting</Button>
-                            <Button><Spinner animation="border" size="sm" /> Encrypting</Button>
-                        </ButtonGroup>
-                    }
-                </Col>
-            </Row>
+                </Stack>
+            )
         default:
             return <></>
     }
