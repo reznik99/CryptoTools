@@ -120,7 +120,7 @@ const verifyECDSA = async (props: Props, hashAlgo: string, message: string, sign
     }
 }
 
-export default function AES(props: Props) {
+export default function ECDSA(props: Props) {
     const [curve, setCurve] = useState('P-256')
     const [hashAlgo, setHashAlgo] = useState('SHA-256')
     const [message, setMessage] = useState('')

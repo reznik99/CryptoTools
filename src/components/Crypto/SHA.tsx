@@ -25,7 +25,7 @@ const digest = async (props: Props, message: string, algorithm: string) => {
     }
 }
 
-export default function AES(props: Props) {
+export default function SHA(props: Props) {
     const [algorithm, setAlgorithm] = useState('SHA-256')
     const [message, setMessage] = useState('')
 
