@@ -80,7 +80,10 @@ class App extends React.Component<IProps, IState> {
                 <Row className="wrapper">
                     <Row>
                         <Col xs="auto" className="p-0">
-                            <Sidebar collapsed={!this.state.menuOpen} toggled={true} path={this.props.location?.pathname || ""} />
+                            <Sidebar open={this.state.menuOpen}
+                                path={this.props.location?.pathname || ""}
+                                toggleMenu={() => this.setState({menuOpen: !this.state.menuOpen})}
+                            />
                         </Col>
 
                         <Col xs>
@@ -97,7 +100,7 @@ class App extends React.Component<IProps, IState> {
                                             element={<RSA {...this.state} setState={this.updateState} />} />
                                         <Route path="/ECDSA/:action"
                                             element={<ECDSA {...this.state} setState={this.updateState} />} />
-                                        <Route path="/CSR"
+                                        <Route path="/CSR/Gen"
                                             element={<CSR {...this.state} setState={this.updateState} />} />
                                         <Route path="/SHA"
                                             element={<SHA {...this.state} setState={this.updateState} />} />

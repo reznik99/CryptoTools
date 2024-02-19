@@ -1,83 +1,160 @@
-import React from 'react';
+import { ArrowDownward, ArrowDropDown, ArrowDropUp, Handshake, Key, Lock, Settings, SignalWifiStatusbar4Bar } from '@mui/icons-material';
+import { Box, Collapse, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
-import { ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarFooter, SidebarContent } from 'react-pro-sidebar';
 import { Link } from 'react-router-dom';
 
+type menuObject = {
+    link: string;
+    icon: JSX.Element;
+    submenus?: Map<string, { link: string }>
+}
+
+const actions = new Map<string, menuObject>(
+    [
+        ["Key Generation", {
+            link: "/Gen",
+            icon: <Key />,
+            submenus: new Map<string, { link: string }>(
+                [
+                    ["AES Key", {
+                        link: "/AES"
+                    }],
+                    ["RSA Keys", {
+                        link: "/RSA"
+                    }],
+                    ["ECDSA Keys", {
+                        link: "/ECDSA"
+                    }],
+                    ["CSRs", {
+                        link: "/CSR"
+                    }]
+                ]
+            )
+        }],
+        ["Encryption/Decryption", {
+            link: "/Enc",
+            icon: <Lock />,
+            submenus: new Map<string, { link: string }>(
+                [
+                    ["AES", {
+                        link: "/AES"
+                    }],
+                    ["RSA", {
+                        link: "/RSA"
+                    }],
+                ]
+            )
+        }],
+        ["Signing/Validation", {
+            link: "/Sig",
+            icon: <SignalWifiStatusbar4Bar />,
+            submenus: new Map<string, { link: string }>(
+                [
+                    ["RSA", {
+                        link: "/RSA"
+                    }],
+                    ["ECDSA", {
+                        link: "/ECDSA"
+                    }],
+                ]
+            )
+        }],
+        ["Hashing", {
+            link: "/SHA",
+            icon: <Handshake />,
+            submenus: new Map<string, { link: string }>(
+                [
+                    ["SHA", {
+                        link: ""
+                    }],
+                ]
+            )
+        }],
+        ["Encoding", {
+            link: "/Encoding",
+            icon: <Settings />,
+            submenus: new Map<string, { link: string }>(
+                [
+                    ["Convert", {
+                        link: ""
+                    }]
+                ]
+            )
+        }],
+    ]
+)
+
 interface IProps {
-    collapsed: boolean,
-    toggled: boolean,
+    toggleMenu: () => void
+    open: boolean,
     path: string,
 }
 
 const Sidebar = (props: IProps) => {
 
+    const [menuOpen, setMenuOpen] = useState("")
+
+    useEffect(() => {
+        const action = props.path.split("/")
+        if (menuOpen === "" && action?.length) {
+            setMenuOpen("/" + action[action.length - 1])
+        }
+    }, [props.path])
+
+    const toggleSubMenu = (action: string) => {
+        if (menuOpen === action) {
+            setMenuOpen("")
+        } else {
+            setMenuOpen(action)
+        }
+    }
+
     return (
-        <ProSidebar
-            collapsed={props.collapsed}
-            toggled={props.toggled}
-            breakPoint="xs"
-            className='p-0'>
-            <SidebarHeader>
-                <p className='title py-3 m-0'>
-                    Crypto Tools
-                </p>
-            </SidebarHeader>
+        <Drawer anchor="left"
+            open={props.open}
+            onClose={props.toggleMenu}>
 
-            <SidebarContent>
-                <Menu iconShape="circle">
-                    <SubMenu defaultOpen
-                        popperarrow={true}
-                        suffix={<Badge bg="dark">4</Badge>}
-                        title="Generation"
-                        icon={<i className="bi bi-key" />} >
-                        <MenuItem active={props.path === "/AES/Gen"}>AES Key<Link to="/AES/Gen" /></MenuItem>
-                        <MenuItem active={props.path === "/RSA/Gen"}>RSA Keys<Link to="/RSA/Gen" /></MenuItem>
-                        <MenuItem active={props.path === "/ECDSA/Gen"}>ECDSA Keys<Link to="/ECDSA/Gen" /></MenuItem>
-                        <MenuItem active={props.path === "/CSR"} suffix={<Badge bg="success">New</Badge>}>CSR<Link to="/CSR" /></MenuItem>
-                    </SubMenu>
+            <Box sx={{ width: 250 }} role="presentation">
+                {Array.from(actions).map(([key, value], idx) => {
+                    const action = value.link
+                    const submenu = value.submenus || new Map<string, menuObject>()
+                    const submenuOpen = menuOpen === action
+                    return (
+                        <List key={idx}>
+                            <ListItem disablePadding onClick={() => toggleSubMenu(action)}>
+                                <ListItemButton>
+                                    <ListItemIcon> {value.icon} </ListItemIcon>
+                                    <ListItemText primary={key} className='text-secondary' />
+                                    <ListItemIcon> {submenuOpen ? <ArrowDropUp /> : <ArrowDropDown />} </ListItemIcon>
+                                </ListItemButton>
+                            </ListItem>
+                            <Collapse in={submenuOpen} >
+                                <List component="div" disablePadding>
+                                    {Array.from(submenu).map(([subkey, subvalue], idx) => {
+                                        const path = subvalue.link + action
+                                        return (
+                                            <Link to={path} key={idx}
+                                                className='text-light'
+                                                style={{ textDecoration: 'none' }}>
+                                                <ListItemButton
+                                                    sx={{ pl: 4 }}
+                                                    selected={props.path === path}>
+                                                    <ListItemText primary={subkey} />
+                                                </ListItemButton>
+                                            </Link>
+                                        )
+                                    })}
+                                </List>
+                            </Collapse>
+                            <Divider />
+                        </List>
+                    )
+                })}
+            </Box>
 
-                    <SubMenu suffix={<Badge bg="dark">2</Badge>}
-                        title="Encryption/Decryption"
-                        icon={<i className="bi bi-lock" />} >
-                        <MenuItem active={props.path === "/AES/Enc"}>AES<Link to="/AES/Enc" /></MenuItem>
-                        <MenuItem active={props.path === "/RSA/Enc"}>RSA<Link to="/RSA/Enc" /></MenuItem>
-                    </SubMenu>
-
-                    <SubMenu suffix={<Badge bg="dark">2</Badge>}
-                        title="Signing/Validation"
-                        icon={<i className="bi bi-pen" />} >
-                        <MenuItem active={props.path === "/RSA/Sig"}>RSA<Link to="/RSA/Sig" /></MenuItem>
-                        <MenuItem active={props.path === "/ECDSA/Sig"} suffix={<Badge bg="success">New</Badge>}>ECDSA<Link to="/ECDSA/Sig" /></MenuItem>
-                    </SubMenu>
-
-                    <SubMenu suffix={<Badge bg="dark">2</Badge>}
-                        title="Hashing"
-                        icon={<i className="bi bi-hash" />} >
-                        <MenuItem active={props.path === "/SHA"} suffix={<Badge bg="success">New</Badge>}>SHA<Link to="/SHA" /></MenuItem>
-                        <MenuItem>MD5</MenuItem>
-                    </SubMenu>
-
-                    <SubMenu suffix={<Badge bg="dark">1</Badge>}
-                        title="Encoding"
-                        icon={<i className="bi bi-wrench" />} >
-                        <MenuItem active={props.path === "/Encoding"} suffix={<Badge bg="success">New</Badge>}>Converter<Link to="/Encoding" /></MenuItem>
-                    </SubMenu>
-                </Menu>
-            </SidebarContent>
-
-            <SidebarFooter style={{ textAlign: 'center' }}>
-                <div className="sidebar-btn-wrapper p-3" >
-                    <a
-                        href="https://github.com/reznik99/CryptoTools"
-                        target="_blank"
-                        className="sidebar-btn"
-                        rel="noopener noreferrer" >
-                        <i className="bi bi-key" />
-                    </a>
-                </div>
-            </SidebarFooter>
-        </ProSidebar>
+        </Drawer>
     );
-};
+}
 
-export default Sidebar;
+export default Sidebar
