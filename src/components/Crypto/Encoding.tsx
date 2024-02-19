@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Buffer } from 'buffer';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+import { Button, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { ArrowForward } from '@mui/icons-material';
 
 import { Props } from 'types/SharedTypes';
 
@@ -15,32 +13,45 @@ export default function Encoding(props: Props) {
     const [inEncoding, setInEncoding] = useState('base64' as BufferEncoding)
     const [outEncoding, setOutEncoding] = useState('hex' as BufferEncoding)
 
-    return <Row className="justify-content-center align-items-center">
-        <Col lg={10}>
-            <h4 className="mb-3"> Encode/Decode </h4>
-            <Row>
-                <Col lg={6} className="mb-3">
-                    <Form.Group>
-                        <Form.Label>From</Form.Label>
-                        <Form.Select value={inEncoding} onChange={e => setInEncoding(e.target.value as any)}>
-                            <option value="ascii">ASCII</option>
-                            <option value="base64">Base64</option>
-                            <option value="hex">Hex</option>
-                        </Form.Select>
-                    </Form.Group>
-                </Col>
-                <Col lg={6} className="mb-3">
-                    <Form.Group>
-                        <Form.Label>To</Form.Label>
-                        <Form.Select value={outEncoding} onChange={e => setOutEncoding(e.target.value as any)}>
-                            <option value="ascii">ASCII</option>
-                            <option value="base64">Base64</option>
-                            <option value="hex">Hex</option>
-                        </Form.Select>
-                    </Form.Group>
-                </Col>
-            </Row>
-            <Button onClick={() => props.setState({ output: encode(props.input, inEncoding, outEncoding) })}>Convert</Button>
-        </Col>
-    </Row>
+    return (
+        <Stack spacing={2}
+            direction='column'
+            justifyContent='center'
+            alignItems='center'
+            sx={{ ml: '250px' }}>
+            <Typography variant='h4'> Encode/Decode </Typography>
+
+            <Stack direction='row' spacing={2} width='100%'>
+                <FormControl fullWidth>
+                    <InputLabel id='from-label'>From</InputLabel>
+                    <Select labelId='from-label'
+                        label='From'
+                        value={inEncoding}
+                        onChange={e => setInEncoding(e.target.value as any)}>
+                        <MenuItem value='ascii'>ASCII</MenuItem>
+                        <MenuItem value='base64'>Base64</MenuItem>
+                        <MenuItem value='hex'>Hex</MenuItem>
+                    </Select>
+                </FormControl>
+
+                <FormControl fullWidth>
+                    <InputLabel id='to-label'>To</InputLabel>
+                    <Select labelId='to-label'
+                        label='To'
+                        value={outEncoding}
+                        onChange={e => setOutEncoding(e.target.value as any)}>
+                        <MenuItem value='ascii'>ASCII</MenuItem>
+                        <MenuItem value='base64'>Base64</MenuItem>
+                        <MenuItem value='hex'>Hex</MenuItem>
+                    </Select>
+                </FormControl>
+            </Stack>
+
+            <Button variant='contained'
+                startIcon={<ArrowForward />}
+                onClick={() => props.setState({ output: encode(props.input, inEncoding, outEncoding) })}>
+                Convert
+            </Button>
+        </Stack>
+    )
 }
