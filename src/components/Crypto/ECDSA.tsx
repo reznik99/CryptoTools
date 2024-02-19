@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Buffer } from 'buffer';
 import { useParams } from 'react-router-dom';
 import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { Lock, LockOpen } from '@mui/icons-material';
+import { Check, Draw } from '@mui/icons-material';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
 import * as encoding from 'lib/encoding';
@@ -208,10 +208,10 @@ export default function ECDSA(props: Props) {
                 </ButtonGroup>
                 <ButtonGroup hidden={props.loading}>
                     <Button variant='contained'
-                        startIcon={<LockOpen />}
+                        startIcon={<Check />}
                         onClick={() => verifyECDSA(props, hashAlgo, message, signature)}>Validate</Button>
                     <Button variant='contained'
-                        startIcon={<Lock />}
+                        startIcon={<Draw />}
                         onClick={() => signECDSA(props, hashAlgo, message)}>Sign</Button>
                 </ButtonGroup>
             </Stack>

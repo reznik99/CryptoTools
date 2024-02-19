@@ -1,4 +1,4 @@
-import { ArrowDropDown, ArrowDropUp, Handshake, Key, Lock, Settings, SignalWifiStatusbar4Bar } from '@mui/icons-material';
+import { ArrowDropDown, ArrowDropUp, Draw, Key, Lock, Settings, SignalWifiStatusbar4Bar } from '@mui/icons-material';
 import { Box, Collapse, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Badge } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -67,7 +67,7 @@ const actions = new Map<string, menuObject>(
         }],
         ["Hashing", {
             link: "/SHA",
-            icon: <Handshake />,
+            icon: <Draw />,
             submenus: new Map(
                 [
                     ["SHA", {
@@ -149,7 +149,7 @@ const Sidebar = (props: IProps) => {
                                                 <ListItemButton sx={{ pl: 4 }}
                                                     selected={props.path === path}>
                                                     <ListItemText primary={subkey} />
-                                                    {subvalue.isNew && <Badge badgeContent="New" color="info" sx={{ mr: 1 }}/>}
+                                                    {subvalue.isNew && <Badge badgeContent="New" color="info" sx={{ mr: 1 }} />}
                                                 </ListItemButton>
                                             </Link>
                                         )

@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { Buffer } from 'buffer';
+import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Spinner from 'react-bootstrap/Spinner';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
-
-import * as encoding from 'lib/encoding';
 import { Props } from 'types/SharedTypes';
+import * as encoding from 'lib/encoding';
+import { Draw } from '@mui/icons-material';
 
 const digest = async (props: Props, message: string, algorithm: string) => {
     try {
@@ -29,24 +25,43 @@ export default function SHA(props: Props) {
     const [algorithm, setAlgorithm] = useState('SHA-256')
     const [message, setMessage] = useState('')
 
-    return <Row className="justify-content-center align-items-center">
-        <Col lg={8} >
-            <h4> Hash </h4>
-            <Form.Group className="mb-3">
-                <Form.Label>Algorithm</Form.Label>
-                <Form.Select value={algorithm} onChange={e => setAlgorithm(e.target.value)}>
-                    <option value="SHA-1">SHA-1</option>
-                    <option value="SHA-256">SHA-256</option>
-                    <option value="SHA-384">SHA-384</option>
-                    <option value="SHA-512">SHA-512</option>
-                </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3">
-                <Form.Label>Message</Form.Label>
-                <Form.Control type="text" placeholder="ASCII message to hash" value={message} onChange={(e) => setMessage(e.target.value)} />
-            </Form.Group>
-            {!props.loading && <Button onClick={() => digest(props, message, algorithm)}>Digest</Button>}
-            {props.loading && <Button><Spinner animation="border" size="sm" /> Hashing</Button>}
-        </Col>
-    </Row>
+    return (
+        <Stack spacing={2}
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ ml: '250px' }}>
+            <Typography variant='h4'> Hash </Typography>
+
+            <FormControl fullWidth>
+                <InputLabel id='hash-algorithm-label'>Hash Algorithm</InputLabel>
+                <Select labelId='hash-algorithm-label'
+                    label='Hash Algorithm'
+                    value={algorithm}
+                    onChange={e => setAlgorithm(e.target.value)}>
+                    <MenuItem value="SHA-1">SHA-1</MenuItem>
+                    <MenuItem value="SHA-256">SHA-256</MenuItem>
+                    <MenuItem value="SHA-384">SHA-384</MenuItem>
+                    <MenuItem value="SHA-512">SHA-512</MenuItem>
+                </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+                <TextField label="Message"
+                    variant="outlined"
+                    placeholder="ASCII message to hash"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)} />
+            </FormControl>
+
+            <Button hidden={!props.loading} variant='contained' disabled>
+                <CircularProgress size={18} sx={{ mx: 1 }} /> Hashing
+            </Button>
+            <Button hidden={props.loading} variant='contained'
+                startIcon={<Draw />}
+                onClick={() => digest(props, message, algorithm)}>
+                Digest
+            </Button>
+        </Stack>
+    )
 }
