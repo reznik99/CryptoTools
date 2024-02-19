@@ -1,4 +1,4 @@
-import { ArrowDownward, ArrowDropDown, ArrowDropUp, Handshake, Key, Lock, Settings, SignalWifiStatusbar4Bar } from '@mui/icons-material';
+import { ArrowDropDown, ArrowDropUp, Handshake, Key, Lock, Settings, SignalWifiStatusbar4Bar } from '@mui/icons-material';
 import { Box, Collapse, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
@@ -152,6 +152,15 @@ const Sidebar = (props: IProps) => {
                     )
                 })}
             </Box>
+
+            <div className="text-center mb-3 mt-auto" >
+                <a href="https://github.com/reznik99/CryptoTools"
+                    target="_blank"
+                    className="text-success p-3"
+                    rel="noopener noreferrer" >
+                    <Key />
+                </a>
+            </div>
 
         </Drawer>
     );
