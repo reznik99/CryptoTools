@@ -39,7 +39,7 @@ const generateAES = async (props: Props, keyLength: number) => {
         props.setState({ output: encoding.arrayBufferToBase64(exportedKeyBuffer), successMsg: `(AES-${keyLength}) Generated successfully` })
     } catch (err) {
         console.error(err)
-        props.setState({ errorMsg: err })
+        props.setState({ errorMsg: `Failed to generate AES key: ${err}` })
     } finally {
         props.setState({ loading: false })
     }
@@ -71,7 +71,7 @@ const encryptAES = async (props: Props, aesMode: string, message: string) => {
         })
     } catch (err) {
         console.error(err)
-        props.setState({ errorMsg: err })
+        props.setState({ errorMsg: `Failed to encrypt: ${err}` })
     } finally {
         props.setState({ loading: false })
     }
@@ -100,7 +100,7 @@ const decryptAES = async (props: Props, aesMode: string, message: string, ivText
         props.setState({ output: encoding.arrayBufferToString(plainText), successMsg: `(AES-CBC) Decrypted successfully` })
     } catch (err) {
         console.error(err)
-        props.setState({ errorMsg: err })
+        props.setState({ errorMsg: `Failed to decrypt: ${err}` })
     } finally {
         props.setState({ loading: false })
     }

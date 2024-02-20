@@ -15,7 +15,7 @@ const digest = async (props: Props, message: string, algorithm: string) => {
         props.setState({ output: encoding.arrayBufferToBase64(hash), successMsg: `(${algorithm}) Hashed successfully` })
     } catch (err) {
         console.error(err)
-        props.setState({ errorMsg: err })
+        props.setState({ errorMsg: `Failed to digest data: ${err}` })
     } finally {
         props.setState({ loading: false })
     }

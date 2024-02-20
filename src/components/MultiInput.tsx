@@ -19,7 +19,7 @@ function MultiInput(props: IProps) {
     return (
         <>
             {props.Rows.map((row, idx) => (
-                <Stack direction="row" spacing={2} width='100%'>
+                <Stack direction="row" spacing={2} width='100%' key={idx}>
 
                     <FormControl fullWidth>
                         <TextField label="Value"

@@ -67,7 +67,7 @@ const generateCSR = async (props: Props, algorithm: string, curve: string, hash:
         props.setState({ output: csrPEM, successMsg: `(${algorithm}-${hash}) CSR Generated successfully` });
     } catch (err) {
         console.error(err);
-        props.setState({ errorMsg: err });
+        props.setState({ errorMsg: `Failed to generate CSR: ${err}` })
     } finally {
         props.setState({ loading: false });
     }
