@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Buffer } from 'buffer';
 import { useParams } from 'react-router-dom';
 import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { Check, Draw } from '@mui/icons-material';
+import { Check, Draw, Key } from '@mui/icons-material';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
 import * as encoding from 'lib/encoding';
@@ -130,7 +130,7 @@ export default function ECDSA(props: Props) {
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ mx: '250px', minHeight: '50vh' }}>
+                sx={{ minHeight: '50vh' }}>
                 <Typography variant='h4'> Generate Key </Typography>
 
                 <FormControl fullWidth>
@@ -150,6 +150,7 @@ export default function ECDSA(props: Props) {
                         <CircularProgress size={18} sx={{ mx: 1 }} /> Generating
                     </Button>
                     : <Button variant='contained'
+                        startIcon={<Key />}
                         onClick={() => generateECDSA(props, curve)}>
                         Generate ECDSA Key
                     </Button>
@@ -160,7 +161,7 @@ export default function ECDSA(props: Props) {
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ mx: '250px', minHeight: '50vh' }}>
+                sx={{ minHeight: '50vh' }}>
                 <Typography variant='h4'> Sign/Validate </Typography>
                 <Stack direction="row" spacing={2} width='100%'>
                     <FormControl fullWidth>

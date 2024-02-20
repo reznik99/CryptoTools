@@ -6,6 +6,7 @@ import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, St
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { Props } from 'types/SharedTypes';
 import * as encoding from 'lib/encoding';
+import { Create } from '@mui/icons-material';
 
 const DefaultSAN: RowContent = { type: 'DNSName', value: '' }
 
@@ -87,8 +88,7 @@ export default function CSR(props: Props) {
     return <Stack spacing={2}
         direction="column"
         justifyContent="center"
-        alignItems="center"
-        sx={{ mx: '250px', minHeight: '50vh' }}>
+        alignItems="center">
         <Typography variant='h4'> Key Details </Typography>
 
         <Stack direction="row" spacing={2} width='100%'>
@@ -194,6 +194,7 @@ export default function CSR(props: Props) {
             <CircularProgress size={18} sx={{ mx: 1 }} /> Generating
         </Button>
         <Button hidden={props.loading} variant='contained'
+            startIcon={<Create />}
             onClick={() => generateCSR(props, algorithm, curve, hash, commonName, organisation, organisationalUnit, locality, country)}>
             Generate CSR
         </Button>

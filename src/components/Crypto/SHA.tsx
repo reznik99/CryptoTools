@@ -30,7 +30,7 @@ export default function SHA(props: Props) {
             direction="column"
             justifyContent="center"
             alignItems="center"
-            sx={{ mx: '250px', minHeight: '50vh' }}>
+            sx={{ minHeight: '50vh' }}>
             <Typography variant='h4'> Hash </Typography>
 
             <FormControl fullWidth>

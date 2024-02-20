@@ -33,10 +33,6 @@ code {
     color: white
 }
 
-.wrapper {
-    height: 100vh;
-}
-
 .toggle-menu-btn{
     position: absolute;
     top: 0;
@@ -68,13 +64,6 @@ code {
 }
 .drawer-darker-section {
     background-color: var(--gray-900);
-}
-
-.content-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    max-height: calc(100vh - 80px);
 }
 
 .nice-text-area {
