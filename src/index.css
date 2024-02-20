@@ -16,15 +16,8 @@
     --gray-900: #212529;
 }
 
-* {
-    box-sizing: border-box;
-}
-
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -82,7 +75,6 @@ code {
     flex-direction: column;
     justify-content: center;
     max-height: calc(100vh - 80px);
-    overflow: scroll;
 }
 
 .nice-text-area {

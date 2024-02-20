@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { Button, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Stack, TextField } from '@mui/material';
+import { Add, Delete } from '@mui/icons-material';
 
 interface IProps {
     Rows: Array<RowContent>,
@@ -42,17 +43,20 @@ function MultiInput(props: IProps) {
                         </Select>
                     </FormControl>
 
-
-                    <Button variant='contained'
-                        color='error'
-                        onClick={() => props.DeleteRow(idx)} disabled={props.Rows.length <= 1}>
-                        X
-                    </Button>
-                    <Button variant='contained'
-                        color='success'
-                        onClick={() => props.AddRow()}>
-                        +
-                    </Button>
+                    <Paper component="form" sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>
+                        <IconButton type="button" aria-label="search"
+                            color='error'
+                            onClick={() => props.DeleteRow(idx)}
+                            disabled={props.Rows.length <= 1}>
+                            <Delete />
+                        </IconButton>
+                        <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+                        <IconButton type="button" aria-label="search"
+                            color='success'
+                            onClick={() => props.AddRow()}>
+                            <Add />
+                        </IconButton>
+                    </Paper>
                 </Stack>
             ))}
         </>
