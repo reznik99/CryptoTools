@@ -195,7 +195,7 @@ export default function RSA(props: Props) {
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ ml: '250px' }}>
+                sx={{ mx: '250px', minHeight: '50vh' }}>
                 <Typography variant='h4'> Generate Key </Typography>
 
                 <FormControl fullWidth>
@@ -221,7 +221,7 @@ export default function RSA(props: Props) {
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ ml: '250px' }}>
+                sx={{ mx: '250px', minHeight: '50vh' }}>
                 <Typography variant='h4'> Encrypt/Decrypt </Typography>
 
                 <FormControl fullWidth>
@@ -263,7 +263,7 @@ export default function RSA(props: Props) {
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                sx={{ ml: '250px' }}>
+                sx={{ mx: '250px', minHeight: '50vh' }}>
                 <Typography variant='h4'> Sign/Validate </Typography>
                 <Stack direction="row" spacing={2} width='100%'>
                     <FormControl fullWidth>

@@ -3,7 +3,7 @@ import React from 'react';
 import { Location, useLocation, Routes, Route, Navigate } from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
+import BootstrapContainer from 'react-bootstrap/Container';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import Alert from 'react-bootstrap/Alert';
@@ -16,6 +16,7 @@ import ECDSA from 'components/Crypto/ECDSA';
 import CSR from 'components/Crypto/CSR';
 import SHA from 'components/Crypto/SHA';
 import Encoding from 'components/Crypto/Encoding';
+import { Container } from '@mui/material';
 
 interface IState {
     loading: boolean,
@@ -76,13 +77,13 @@ class App extends React.Component<IProps, IState> {
 
     render = () => {
         return (
-            <Container fluid className="App">
+            <BootstrapContainer fluid className="App">
                 <Row className="wrapper">
-                    <Row>
+                    <Row className="content-container">
                         <Col xs="auto" className="p-0">
                             <Sidebar open={this.state.menuOpen}
                                 path={this.props.location?.pathname || ""}
-                                toggleMenu={() => this.setState({menuOpen: !this.state.menuOpen})}
+                                toggleMenu={() => this.setState({ menuOpen: !this.state.menuOpen })}
                             />
                         </Col>
 
@@ -90,7 +91,7 @@ class App extends React.Component<IProps, IState> {
                             <Row style={{ position: 'relative' }}>
                                 {/* Menu Button */}
                                 {this.MenuBtn()}
-                                <Col sm={12} className="content-container px-5">
+                                <Col sm={12} className="px-5">
                                     <Routes>
                                         <Route index element={<Navigate to="/AES/Gen" />} />
 
@@ -109,9 +110,10 @@ class App extends React.Component<IProps, IState> {
                                     </Routes>
                                 </Col>
                             </Row>
+                            <Container>
+                                <Output {...this.state} setState={this.updateState} />
+                            </Container>
                         </Col>
-                        {/* Input/Output boxes */}
-                        <Output {...this.state} setState={this.updateState} />
                     </Row>
 
                     <Alert variant='info' className="footer">
@@ -122,7 +124,7 @@ class App extends React.Component<IProps, IState> {
 
                 {/* Alerts */}
                 {this.Toaster()}
-            </Container>
+            </BootstrapContainer>
         );
     }
 }

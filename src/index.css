@@ -41,7 +41,7 @@ code {
 }
 
 .wrapper {
-    min-height: 100vh;
+    height: 100vh;
 }
 
 .toggle-menu-btn{
@@ -81,7 +81,8 @@ code {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+    overflow: scroll;
 }
 
 .nice-text-area {

@@ -18,7 +18,7 @@ export default function Encoding(props: Props) {
             direction='column'
             justifyContent='center'
             alignItems='center'
-            sx={{ ml: '250px' }}>
+            sx={{ mx: '250px', minHeight: '50vh' }}>
             <Typography variant='h4'> Encode/Decode </Typography>
 
             <Stack direction='row' spacing={2} width='100%'>

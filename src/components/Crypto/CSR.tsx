@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import * as pkijs from 'pkijs';
 import * as asn1js from 'asn1js';
-
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Spinner from 'react-bootstrap/Spinner';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
-
-import * as encoding from 'lib/encoding';
-import { Props } from 'types/SharedTypes';
+import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 
 import { MultiInput, RowContent } from 'components/MultiInput'
+import { Props } from 'types/SharedTypes';
+import * as encoding from 'lib/encoding';
 
 const DefaultSAN: RowContent = { type: 'DNSName', value: '' }
 
@@ -90,94 +84,118 @@ export default function CSR(props: Props) {
     const [country, setCountry] = useState('')
     const [extensions, setExtensions] = useState([DefaultSAN])
 
-    return <>
-        <h4> Key Details </h4>
-        <Row>
-            <Col lg={6}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Algorithm</Form.Label>
-                    <Form.Select value={algorithm} onChange={e => setAlgorithm(e.target.value)}>
-                        <option value="RSASSA-PKCS1-V1_5">RSASSA-PKCS1-V1_5</option>
-                        <option value="RSA-PSS">RSA-PSS</option>
-                        <option value="ECDSA">ECDSA</option>
-                    </Form.Select>
-                </Form.Group>
-            </Col>
-            <Col lg={6}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Cipher</Form.Label>
-                    <Form.Select value={hash} onChange={e => setHash(e.target.value)}>
-                        <option value="SHA-1">SHA-1</option>
-                        <option value="SHA-256">SHA-256</option>
-                        <option value="SHA-384">SHA-384</option>
-                        <option value="SHA-512">SHA-512</option>
-                    </Form.Select>
-                </Form.Group>
-            </Col>
-        </Row>
-        <Row>
-            <Col lg={6}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Curve (ECDSA Only)</Form.Label>
-                    <Form.Select value={curve} onChange={e => setCurve(e.target.value)} disabled={algorithm !== 'ECDSA'}>
-                        <option value="P-256">P-256</option>
-                        <option value="P-384">P-384</option>
-                        <option value="P-521">P-521</option>
-                    </Form.Select>
-                </Form.Group>
-            </Col>
-            <Col lg={6}><Form.Group className="mb-3">
-                <Form.Group className="mb-3">
-                    <Form.Label>Key Length (RSA Only)</Form.Label>
-                    <Form.Control type="number" value={keyLength} onChange={(e) => setKeyLength(Number(e.target.value))} />
-                </Form.Group>
-            </Form.Group></Col>
-        </Row>
+    return <Stack spacing={2}
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        sx={{ mx: '250px', minHeight: '50vh' }}>
+        <Typography variant='h4'> Key Details </Typography>
 
-        <h4> Subject Details </h4>
-        <Form.Group className="mb-3">
-            <Form.Label>Common Name</Form.Label>
-            <Form.Control type="text" placeholder="My New Certificate" value={commonName} onChange={(e) => setCommonName(e.target.value)} />
-        </Form.Group>
-        <Row>
-            <Col lg={6}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Organisation</Form.Label>
-                    <Form.Control type="text" placeholder="Evil Corp" value={organisation} onChange={(e) => setOrganisation(e.target.value)} />
-                </Form.Group>
-            </Col>
-            <Col lg={6}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Organisational Unit</Form.Label>
-                    <Form.Control type="text" placeholder="EC Finance Dept" value={organisationalUnit} onChange={(e) => setOrganisationalUnit(e.target.value)} />
-                </Form.Group>
-            </Col>
-        </Row>
-        <Row>
-            <Col lg={6}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Locality</Form.Label>
-                    <Form.Control type="text" placeholder="Chicago" value={locality} onChange={(e) => setLocality(e.target.value)} />
-                </Form.Group>
-            </Col>
-            <Col lg={6}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Country</Form.Label>
-                    <Form.Control type="text" placeholder="USA" value={country} onChange={(e) => setCountry(e.target.value)} />
-                </Form.Group>
-            </Col>
-        </Row>
+        <Stack direction="row" spacing={2} width='100%'>
+            <FormControl fullWidth>
+                <InputLabel id='algorithm-label'>Algorithm</InputLabel>
+                <Select labelId='algorithm-label'
+                    label='Algorithm'
+                    value={algorithm}
+                    onChange={e => setAlgorithm(e.target.value)}>
+                    <MenuItem value="RSASSA-PKCS1-V1_5">RSASSA-PKCS1-V1_5</MenuItem>
+                    <MenuItem value="RSA-PSS">RSA-PSS</MenuItem>
+                    <MenuItem value="ECDSA">ECDSA</MenuItem>
+                </Select>
+            </FormControl>
 
-        <h4> Extensions </h4>
+            <FormControl fullWidth>
+                <InputLabel id='hash-algorithm-label'>Hash Algorithm</InputLabel>
+                <Select labelId='hash-algorithm-label'
+                    label='Hash Algorithm'
+                    value={hash}
+                    onChange={e => setHash(e.target.value)}>
+                    <MenuItem value="SHA-1">SHA-1</MenuItem>
+                    <MenuItem value="SHA-256">SHA-256</MenuItem>
+                    <MenuItem value="SHA-384">SHA-384</MenuItem>
+                    <MenuItem value="SHA-512">SHA-512</MenuItem>
+                </Select>
+            </FormControl>
+        </Stack>
+
+        <Stack direction="row" spacing={2} width='100%'>
+            <FormControl fullWidth>
+                <InputLabel id='curve-label'>Curve (ECDSA Only)</InputLabel>
+                <Select labelId='curve-label'
+                    label='Curve (ECDSA Only)'
+                    value={curve}
+                    onChange={e => setCurve(e.target.value)} disabled={algorithm !== 'ECDSA'}>
+                    <MenuItem value="P-256">P-256</MenuItem>
+                    <MenuItem value="P-384">P-384</MenuItem>
+                    <MenuItem value="P-521">P-521</MenuItem>
+                </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+                <TextField label="Key Length (RSA Only)"
+                    variant="outlined"
+                    placeholder="2048"
+                    value={keyLength}
+                    onChange={(e) => setKeyLength(Number(e.target.value))} />
+            </FormControl>
+        </Stack>
+
+        <Typography variant='h4'> Subject Details </Typography>
+        <FormControl fullWidth>
+            <TextField label="Common Name"
+                variant="outlined"
+                placeholder="My New Certificate"
+                value={commonName}
+                onChange={(e) => setCommonName(e.target.value)} />
+        </FormControl>
+
+        <Stack direction="row" spacing={2} width='100%'>
+            <FormControl fullWidth>
+                <TextField label="Organisation"
+                    variant="outlined"
+                    placeholder="Evil Corp"
+                    value={organisation}
+                    onChange={(e) => setOrganisation(e.target.value)} />
+            </FormControl>
+            <FormControl fullWidth>
+                <TextField label="Organisational Unit"
+                    variant="outlined"
+                    placeholder="EC Finance Dept"
+                    value={organisationalUnit}
+                    onChange={(e) => setOrganisationalUnit(e.target.value)} />
+            </FormControl>
+        </Stack>
+
+        <Stack direction="row" spacing={2} width='100%'>
+            <FormControl fullWidth>
+                <TextField label="Locality"
+                    variant="outlined"
+                    placeholder="Chicago"
+                    value={locality}
+                    onChange={(e) => setLocality(e.target.value)} />
+            </FormControl>
+            <FormControl fullWidth>
+                <TextField label="Country"
+                    variant="outlined"
+                    placeholder="USA"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)} />
+            </FormControl>
+        </Stack>
+
+        <Typography variant='h4'> Extensions </Typography>
         <MultiInput Rows={extensions}
             AddRow={() => setExtensions(old => [...old, DefaultSAN])}
             DeleteRow={(idx: number) => setExtensions(old => old.filter((_, i) => i !== idx))}
             onChange={(idx: number, newValue: RowContent) => setExtensions(old => old.map((existingVal: RowContent, i: number) => i === idx ? newValue : existingVal))}
         />
 
-        <div className="mt-2 text-center">
-            {!props.loading && <Button size='lg' onClick={() => generateCSR(props, algorithm, curve, hash, commonName, organisation, organisationalUnit, locality, country)}>Generate CSR</Button>}
-            {props.loading && <Button size='lg'><Spinner animation="border" size="sm" /> Generating...</Button>}
-        </div>
-    </>
+        <Button hidden={!props.loading} variant='contained' disabled>
+            <CircularProgress size={18} sx={{ mx: 1 }} /> Generating
+        </Button>
+        <Button hidden={props.loading} variant='contained'
+            onClick={() => generateCSR(props, algorithm, curve, hash, commonName, organisation, organisationalUnit, locality, country)}>
+            Generate CSR
+        </Button>
+    </Stack>
 }

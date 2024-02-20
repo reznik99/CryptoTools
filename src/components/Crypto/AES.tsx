@@ -123,7 +123,7 @@ export default function AES(props: Props) {
                     direction="column"
                     justifyContent="center"
                     alignItems="center"
-                    sx={{ ml: '250px' }}>
+                    sx={{ mx: '250px', minHeight: '50vh' }}>
                     <Typography variant='h4'> Generate Key </Typography>
                     <FormControl fullWidth sx={{ my: 1 }}>
                         <InputLabel id='keysize-label'>Key Size</InputLabel>
@@ -150,7 +150,7 @@ export default function AES(props: Props) {
                     direction="column"
                     justifyContent="center"
                     alignItems="center"
-                    sx={{ ml: '250px' }}>
+                    sx={{ mx: '250px', minHeight: '50vh' }}>
                     <Typography variant='h4'> Encrypt/Decrypt </Typography>
                     <FormControl fullWidth>
                         <InputLabel id='algorithm-label'>Algorithm</InputLabel>
