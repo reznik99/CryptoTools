@@ -131,9 +131,9 @@ const Sidebar = (props: IProps) => {
                     return (
                         <List key={idx}>
                             <ListItem disablePadding onClick={() => toggleSubMenu(action)}>
-                                <ListItemButton>
+                                <ListItemButton selected={submenuOpen}>
                                     <ListItemIcon> {value.icon} </ListItemIcon>
-                                    <ListItemText primary={key} className='text-success' />
+                                    <ListItemText primary={key} />
                                     <ListItemIcon> {submenuOpen ? <ArrowDropUp /> : <ArrowDropDown />} </ListItemIcon>
                                     <Badge badgeContent={`+${submenu.size}`} color="success" />
                                 </ListItemButton>
@@ -142,14 +142,19 @@ const Sidebar = (props: IProps) => {
                                 <List component="div" disablePadding>
                                     {Array.from(submenu).map(([subkey, subvalue], idx) => {
                                         const path = subvalue.link + action
+                                        const selected = props.path === path
                                         return (
                                             <Link to={path} key={idx}
                                                 className='text-light'
                                                 style={{ textDecoration: 'none' }}>
-                                                <ListItemButton sx={{ pl: 4 }}
-                                                    selected={props.path === path}>
-                                                    <ListItemText primary={subkey} />
-                                                    {subvalue.isNew && <Badge badgeContent="New" color="info" sx={{ mr: 1 }} />}
+                                                <ListItemButton sx={{ pl: 4 }} selected={selected}>
+                                                    <ListItemText primary={subkey}
+                                                        primaryTypographyProps={{ color: selected ? "primary" : "" }}
+                                                    />
+                                                    <Badge hidden={!subvalue.isNew}
+                                                        badgeContent="New"
+                                                        color="info"
+                                                        sx={{ mr: 1 }} />
                                                 </ListItemButton>
                                             </Link>
                                         )

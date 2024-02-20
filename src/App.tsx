@@ -97,30 +97,28 @@ class App extends React.Component<IProps, IState> {
                         />
 
                         {this.MenuBtn()}
-
                         <Container>
-                            <Routes>
-                                <Route index element={<Navigate to="/AES/Gen" />} />
+                            <Stack direction="column" spacing={3}>
+                                <Routes>
+                                    <Route index element={<Navigate to="/AES/Gen" />} />
 
-                                <Route path="/AES/:action" index={true}
-                                    element={<AES {...this.state} setState={this.updateState} />} />
-                                <Route path="/RSA/:action"
-                                    element={<RSA {...this.state} setState={this.updateState} />} />
-                                <Route path="/ECDSA/:action"
-                                    element={<ECDSA {...this.state} setState={this.updateState} />} />
-                                <Route path="/CSR/Gen"
-                                    element={<CSR {...this.state} setState={this.updateState} />} />
-                                <Route path="/SHA"
-                                    element={<SHA {...this.state} setState={this.updateState} />} />
-                                <Route path="/Encoding"
-                                    element={<Encoding {...this.state} setState={this.updateState} />} />
-                            </Routes>
+                                    <Route path="/AES/:action" index={true}
+                                        element={<AES {...this.state} setState={this.updateState} />} />
+                                    <Route path="/RSA/:action"
+                                        element={<RSA {...this.state} setState={this.updateState} />} />
+                                    <Route path="/ECDSA/:action"
+                                        element={<ECDSA {...this.state} setState={this.updateState} />} />
+                                    <Route path="/CSR/Gen"
+                                        element={<CSR {...this.state} setState={this.updateState} />} />
+                                    <Route path="/SHA"
+                                        element={<SHA {...this.state} setState={this.updateState} />} />
+                                    <Route path="/Encoding"
+                                        element={<Encoding {...this.state} setState={this.updateState} />} />
+                                </Routes>
+
+                                <Output {...this.state} setState={this.updateState} />
+                            </Stack>
                         </Container>
-
-                        <Container>
-                            <Output {...this.state} setState={this.updateState} />
-                        </Container>
-
                     </Box>
 
                     <Box sx={{ width: '100%', borderTopColor: 'transparent' }} borderTop={this.state.loading ? 0 : 3}>

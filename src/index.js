@@ -17,16 +17,13 @@ import App from './App';
 const darkTheme = createTheme({
     palette: {
         mode: 'dark',
+        primary: {
+            main: '#1fc2e6',
+        },
+        secondary: {
+            main: '#1f5ee6',
+        },
     },
-    components: {
-        MuiDrawer: {
-            styleOverrides: {
-                paper: {
-                    background: "var(--background)"
-                }
-            }
-        }
-    }
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
