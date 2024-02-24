@@ -23,7 +23,7 @@ type subject = {
     country: string;
 }
 
-const DefaultSAN: RowContent = { type: 'DNSName', value: '' }
+const defaultSAN = { type: 'DNSName', value: '' }
 
 const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject) => {
     try {
@@ -118,7 +118,7 @@ export default function CSR(props: Props) {
         country: ''
     })
 
-    const [extensions, setExtensions] = useState([DefaultSAN])
+    const [extensions, setExtensions] = useState<RowContent[]>([defaultSAN])
 
     return <Stack spacing={2}
         direction="column"
@@ -171,6 +171,7 @@ export default function CSR(props: Props) {
                 <TextField label="Key Length (RSA Only)"
                     variant="outlined"
                     placeholder="2048"
+                    disabled={keyDetails.algorithm === 'ECDSA'}
                     value={keyDetails.keyLength}
                     onChange={(e) => setKeyDetails({ ...keyDetails, keyLength: Number(e.target.value) })} />
             </FormControl>
@@ -220,9 +221,9 @@ export default function CSR(props: Props) {
         </Stack>
 
         <Typography variant='h4'> Extensions </Typography>
-        <MultiInput Rows={extensions}
-            AddRow={() => setExtensions(old => [...old, DefaultSAN])}
-            DeleteRow={(idx: number) => setExtensions(old => old.filter((_, i) => i !== idx))}
+        <MultiInput rows={extensions}
+            addRow={() => setExtensions(old => [...old, defaultSAN])}
+            deleteRow={(idx: number) => setExtensions(old => old.filter((_, i) => i !== idx))}
             onChange={(idx: number, newValue: RowContent) => setExtensions(old => old.map((existingVal: RowContent, i: number) => i === idx ? newValue : existingVal))}
         />
 
