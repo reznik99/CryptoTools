@@ -65,7 +65,8 @@ export const createOU = (organisationalUnit: string) => {
 
 export const createSANExtension = (extensionsArray: RowContent[]) => {
     const filteredExtensions = extensionsArray.filter(row => { return Boolean(row.value.trim()) })
-
+    if (!filteredExtensions.length) return null
+    
     const altNames = new pkijs.GeneralNames({
         names: filteredExtensions.map(row => nameToExtensionID(row.type, row.value))
     })

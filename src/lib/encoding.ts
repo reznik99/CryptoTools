@@ -32,12 +32,17 @@ export const pemToBuffer = (headerTag: string, pem: string) => {
 // Convert SubtleCrypto Keypair to PEM
 export const keypairToPem = async (keypair: CryptoKeyPair) => {
     const exportedPriv = await window.crypto.subtle.exportKey("pkcs8", keypair.privateKey)
-    const exportedPrivAsBase64 = arrayBufferToBase64(new Uint8Array(exportedPriv))
+    const exportedPrivAsBase64 = arrayBufferToBase64(new Uint8Array(exportedPriv)).replace(/(.{64})/g, "$1\n")
     const pemPriv = `-----BEGIN PRIVATE KEY-----\n${exportedPrivAsBase64}\n-----END PRIVATE KEY-----`;
 
     const exportedPub = await window.crypto.subtle.exportKey("spki", keypair.publicKey)
-    const exportedPubAsBase64 = arrayBufferToBase64(new Uint8Array(exportedPub))
+    const exportedPubAsBase64 = arrayBufferToBase64(new Uint8Array(exportedPub)).replace(/(.{64})/g, "$1\n")
     const pemPub = `-----BEGIN PUBLIC KEY-----\n${exportedPubAsBase64}\n-----END PUBLIC KEY-----`;
 
     return `${pemPriv}\n${pemPub}`
+}
+
+export const base64ToPem = (value: string, pemHeader: string) => {
+    const valueFormatted = value.replace(/(.{64})/g, "$1\n")
+    return `-----BEGIN ${pemHeader}-----\n${valueFormatted.trimEnd()}\n-----END ${pemHeader}-----`
 }

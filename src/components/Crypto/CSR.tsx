@@ -6,7 +6,7 @@ import * as pkijs from 'pkijs';
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { Props } from 'types/SharedTypes';
 import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest } from 'lib/PKCS10';
-import { arrayBufferToBase64 } from 'lib/encoding';
+import { arrayBufferToBase64, base64ToPem } from 'lib/encoding';
 
 type keyDetails = {
     algorithm: string;
@@ -99,7 +99,7 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
         const csrPEM = arrayBufferToBase64(csrBER);
         const algoString = `${algorithm} with ${hash} (${algorithm === 'ECDSA' ? curve : keyLength + '-bit'})`
 
-        props.setState({ output: csrPEM, successMsg: `CSR Generated successfully: ${algoString}` });
+        props.setState({ output: base64ToPem(csrPEM, 'CERTIFICATE REQUEST'), successMsg: `CSR Generated successfully: ${algoString}` });
     } catch (err) {
         console.error(err);
         props.setState({ errorMsg: `Failed to generate CSR: ${err}` })
