@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import * as pkijs from 'pkijs';
-import * as asn1js from 'asn1js';
 import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Create } from '@mui/icons-material';
 
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { Props } from 'types/SharedTypes';
-import * as encoding from 'lib/encoding';
-import { Create } from '@mui/icons-material';
+import { createC, createCN, createExtensions, createL, createO, createOU } from 'lib/PKCS10';
+import { arrayBufferToBase64 } from 'lib/encoding';
 
 type keyDetails = {
     algorithm: string;
@@ -25,7 +25,7 @@ type subject = {
 
 const defaultSAN = { type: 'DNSName', value: '' }
 
-const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject) => {
+const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject, extensions: RowContent[]) => {
     try {
         props.setState({ loading: true })
 
@@ -36,13 +36,13 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
 
         // Get Algorithm parameters and Generate appropriate keypair
         const algoParams = pkijs.getAlgorithmParameters(algorithm, 'generateKey')
-        if ((algoParams.algorithm as any)?.hash) {
+        if ('hash' in algoParams.algorithm) {
             (algoParams.algorithm as any).hash = hash
         }
-        if ((algoParams.algorithm as any)?.modulusLength) {
+        if ('modulusLength' in algoParams.algorithm) {
             (algoParams.algorithm as any).modulusLength = keyLength
         }
-        if ((algoParams.algorithm as any)?.namedCurve) {
+        if ('namedCurve' in algoParams.algorithm) {
             (algoParams.algorithm as any).namedCurve = curve
         }
 
@@ -57,34 +57,27 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
 
         // Write CSR Subject values if present
         if (commonName.trim()) {
-            csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
-                type: "2.5.4.3",
-                value: new asn1js.Utf8String({ value: commonName.trim() })
-            }));
+            csr.subject.typesAndValues.push(createCN(commonName));
         }
         if (organisation.trim()) {
-            csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
-                type: "2.5.4.10",
-                value: new asn1js.Utf8String({ value: organisation.trim() })
-            }));
+            csr.subject.typesAndValues.push(createO(organisation));
         }
         if (organisationalUnit.trim()) {
-            csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
-                type: "2.5.4.11",
-                value: new asn1js.Utf8String({ value: organisationalUnit.trim() })
-            }));
+            csr.subject.typesAndValues.push(createOU(organisationalUnit));
         }
         if (locality.trim()) {
-            csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
-                type: "2.5.4.7",
-                value: new asn1js.Utf8String({ value: locality.trim() })
-            }));
+            csr.subject.typesAndValues.push(createL(locality));
         }
         if (country.trim()) {
-            csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
-                type: "2.5.4.6",
-                value: new asn1js.PrintableString({ value: country.trim() })
-            }));
+            csr.subject.typesAndValues.push(createC(country));
+        }
+
+        // Write CSR Extenions if present
+        if (extensions?.length) {
+            const attributes = createExtensions(extensions)
+            if (attributes) {
+                csr.attributes = [attributes]
+            }
         }
 
         // Sign the CSR with the appropriate Private Key
@@ -92,9 +85,10 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
 
         // Export as PEM
         const csrBER = csr.toSchema().toBER(false);
-        const csrPEM = encoding.arrayBufferToBase64(csrBER);
+        const csrPEM = arrayBufferToBase64(csrBER);
+        const algoString = `${algorithm} with ${hash} (${algorithm === 'ECDSA' ? curve : keyLength + '-bit'})`
 
-        props.setState({ output: csrPEM, successMsg: `(${algorithm}-${algorithm === 'ECDSA' ? curve : keyLength}-${hash}) CSR Generated successfully` });
+        props.setState({ output: csrPEM, successMsg: `CSR Generated successfully: ${algoString}` });
     } catch (err) {
         console.error(err);
         props.setState({ errorMsg: `Failed to generate CSR: ${err}` })
@@ -232,7 +226,7 @@ export default function CSR(props: Props) {
         </Button>
         <Button hidden={props.loading} variant='contained'
             startIcon={<Create />}
-            onClick={() => generateCSR(props, keyDetails, subject)}>
+            onClick={() => generateCSR(props, keyDetails, subject, extensions)}>
             Generate CSR
         </Button>
     </Stack>
