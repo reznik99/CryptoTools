@@ -5,7 +5,7 @@ import * as pkijs from 'pkijs';
 
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { Props } from 'types/SharedTypes';
-import { createC, createCN, createExtensions, createL, createO, createOU, createSKIExtension, oidExtensionsRequest } from 'lib/PKCS10';
+import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest } from 'lib/PKCS10';
 import { arrayBufferToBase64 } from 'lib/encoding';
 
 type keyDetails = {
@@ -26,15 +26,13 @@ type subject = {
 const defaultSAN = { type: 'DNSName', value: '' }
 
 const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject, extensions: RowContent[]) => {
+    const { algorithm, hash, keyLength, curve } = keyDetails
+    const { commonName, organisation, organisationalUnit, locality, country } = subject
+    props.setState({ loading: true })
     try {
-        props.setState({ loading: true })
-
-        const { algorithm, hash, keyLength, curve } = keyDetails
-        const { commonName, organisation, organisationalUnit, locality, country } = subject
-
         const csr = new pkijs.CertificationRequest()
 
-        // Get Algorithm parameters and Generate appropriate keypair
+        // Get Algorithm parameters and generate appropriate keypair
         const algoParams = pkijs.getAlgorithmParameters(algorithm, 'generateKey')
         if ('hash' in algoParams.algorithm) {
             (algoParams.algorithm as any).hash = hash
@@ -75,12 +73,12 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
 
         // Write CSR Subject Key Identifier
         const ext = new pkijs.Extensions({
-            extensions: [await createSKIExtension(csr.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHexView)]
+            extensions: [await createSKIExtension(keypair.publicKey)]
         })
 
         // Write CSR SANs if present
         if (extensions?.length) {
-            const san = createExtensions(extensions)
+            const san = createSANExtension(extensions)
             if (san) {
                 ext.extensions.push(san)
             }

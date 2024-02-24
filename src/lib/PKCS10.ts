@@ -6,7 +6,7 @@ import { Buffer } from 'buffer';
 
 // Root OIDs
 export const oidExtensionsRequest = '1.2.840.113549.1.9.14'    // pkcs-9-at-extensionRequest
-export const oidAlternativeNames = '2.5.29.17'                 // XCN_OID_SUBJECT_ALT_NAME2 
+const oidAlternativeNames = '2.5.29.17'                 // XCN_OID_SUBJECT_ALT_NAME2 
 
 // Subject OIDs
 const oidCN = '2.5.4.3'                                 // Common Name
@@ -25,6 +25,8 @@ const ediPartyName = 5                                  // IMPLICIT SeqOfAny,
 const uniformResourceLocator = 6                        // IMPLICIT IA5STRING,
 const iPAddress = 7                                     // IMPLICIT OCTETSTRING,
 const registeredID = 8                                  // IMPLICIT EncodedObjectID -- Not supported
+
+const oidSubjectKeyIdentifier = '2.5.29.14'             // SKI Digest of public key
 
 export const createCN = (commonName: string) => {
     return new pkijs.AttributeTypeAndValue({
@@ -61,7 +63,7 @@ export const createOU = (organisationalUnit: string) => {
     })
 }
 
-export const createExtensions = (extensionsArray: RowContent[]) => {
+export const createSANExtension = (extensionsArray: RowContent[]) => {
     const filteredExtensions = extensionsArray.filter(row => { return Boolean(row.value.trim()) })
 
     const altNames = new pkijs.GeneralNames({
@@ -103,11 +105,13 @@ const nameToExtensionID = (type: string, value: string): pkijs.GeneralName => {
     }
 }
 
-export const createSKIExtension = async (publicKeyRaw: Uint8Array) => {
+export const createSKIExtension = async (publicKey: CryptoKey) => {
+    const publicKeyRaw = await window.crypto.subtle.exportKey('spki', publicKey)
     const ski = await window.crypto.subtle.digest({ name: "SHA-1" }, publicKeyRaw);
     const skiBER = new asn1js.OctetString({ valueHex: ski }).toBER(false)
+
     return new pkijs.Extension({
-        extnID: "2.5.29.14",
+        extnID: oidSubjectKeyIdentifier,
         critical: false,
         extnValue: skiBER
     })
