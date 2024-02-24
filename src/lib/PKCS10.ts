@@ -1,12 +1,12 @@
 import * as pkijs from 'pkijs';
 import * as asn1js from 'asn1js';
 import { RowContent } from 'components/MultiInput';
+import { Buffer } from 'buffer';
 
-type extenionID = 0 | 1 | 2 | 6 | 3 | 4 | 7 | 8
 
 // Root OIDs
-const oidExtensionsRequest = '1.2.840.113549.1.9.14'    // pkcs-9-at-extensionRequest
-const oidAlternativeNames = '2.5.29.17'                 // XCN_OID_SUBJECT_ALT_NAME2 
+export const oidExtensionsRequest = '1.2.840.113549.1.9.14'    // pkcs-9-at-extensionRequest
+export const oidAlternativeNames = '2.5.29.17'                 // XCN_OID_SUBJECT_ALT_NAME2 
 
 // Subject OIDs
 const oidCN = '2.5.4.3'                                 // Common Name
@@ -62,25 +62,16 @@ export const createOU = (organisationalUnit: string) => {
 }
 
 export const createExtensions = (extensionsArray: RowContent[]) => {
-    const altNames = new pkijs.GeneralNames({ names: [] })
+    const filteredExtensions = extensionsArray.filter(row => { return Boolean(row.value.trim()) })
 
-    altNames.names = extensionsArray.map((row, idx) => {
-        return nameToExtensionID(row.type, row.value)
+    const altNames = new pkijs.GeneralNames({
+        names: filteredExtensions.map(row => nameToExtensionID(row.type, row.value))
     })
 
-    const extensions = new pkijs.Extensions({
-        extensions: [
-            new pkijs.Extension({
-                extnID: oidAlternativeNames,
-                critical: false,
-                extnValue: altNames.toSchema().toBER(false)
-            }),
-        ]
-    })
-
-    return new pkijs.Attribute({
-        type: oidExtensionsRequest,
-        values: [extensions.toSchema()]
+    return new pkijs.Extension({
+        extnID: oidAlternativeNames,
+        critical: false,
+        extnValue: altNames.toSchema().toBER(false)
     })
 }
 
@@ -95,6 +86,10 @@ const nameToExtensionID = (type: string, value: string): pkijs.GeneralName => {
             extension.type = rfc822Name
             extension.value = value
             return extension
+        case 'UniformResourceLocator':
+            extension.type = uniformResourceLocator
+            extension.value = new asn1js.IA5String({ valueHex: Buffer.from(value) })
+            return extension
         case 'IPAddress':
             const octets = value.split('.').map(val => parseInt(val))
             extension.type = iPAddress
@@ -106,4 +101,14 @@ const nameToExtensionID = (type: string, value: string): pkijs.GeneralName => {
             extension.value = value
             return extension
     }
+}
+
+export const createSKIExtension = async (publicKeyRaw: Uint8Array) => {
+    const ski = await window.crypto.subtle.digest({ name: "SHA-1" }, publicKeyRaw);
+    const skiBER = new asn1js.OctetString({ valueHex: ski }).toBER(false)
+    return new pkijs.Extension({
+        extnID: "2.5.29.14",
+        critical: false,
+        extnValue: skiBER
+    })
 }

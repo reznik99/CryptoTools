@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import * as pkijs from 'pkijs';
 import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { Create } from '@mui/icons-material';
+import * as pkijs from 'pkijs';
 
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { Props } from 'types/SharedTypes';
-import { createC, createCN, createExtensions, createL, createO, createOU } from 'lib/PKCS10';
+import { createC, createCN, createExtensions, createL, createO, createOU, createSKIExtension, oidExtensionsRequest } from 'lib/PKCS10';
 import { arrayBufferToBase64 } from 'lib/encoding';
 
 type keyDetails = {
@@ -72,13 +72,26 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
             csr.subject.typesAndValues.push(createC(country));
         }
 
-        // Write CSR Extenions if present
+
+        // Write CSR Subject Key Identifier
+        const ext = new pkijs.Extensions({
+            extensions: [await createSKIExtension(csr.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHexView)]
+        })
+
+        // Write CSR SANs if present
         if (extensions?.length) {
-            const attributes = createExtensions(extensions)
-            if (attributes) {
-                csr.attributes = [attributes]
+            const san = createExtensions(extensions)
+            if (san) {
+                ext.extensions.push(san)
             }
         }
+
+        csr.attributes = [
+            new pkijs.Attribute({
+                type: oidExtensionsRequest,
+                values: [ext.toSchema()]
+            })
+        ]
 
         // Sign the CSR with the appropriate Private Key
         await csr.sign(keypair.privateKey, hash);
