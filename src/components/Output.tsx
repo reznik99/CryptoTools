@@ -1,8 +1,19 @@
 import React from 'react';
 import { Props } from 'types/SharedTypes';
-import { FormControl, Stack, TextField } from '@mui/material';
+import { FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack, TextField } from '@mui/material';
+import { CopyAll } from '@mui/icons-material';
+
+export const textfieldMonoStyle = { style: { fontFamily: 'monospace' } }
 
 function Output(props: Props) {
+    const inputLabel = props.input?.length ? `(${props.input.length.toLocaleString()} characters)` : "Input"
+    const outputLabel = props.output?.length ? `(${props.output.length.toLocaleString()} characters)` : "Output"
+
+    const copyText = () => {
+        navigator.clipboard.writeText(props.output || '')
+        props.setState({ showInfo: true, infoMsg: 'Copied to clipboard' })
+    }
+
     return (
         <Stack spacing={2}
             direction="column"
@@ -12,7 +23,8 @@ function Output(props: Props) {
             <FormControl fullWidth>
                 <TextField multiline
                     maxRows={5}
-                    label={props.input?.length ? `(${props.input.length.toLocaleString()} characters)` : "Input"}
+                    inputProps={textfieldMonoStyle}
+                    label={inputLabel}
                     variant="outlined"
                     placeholder="Input for action i.e Public/Private Key"
                     value={props.input}
@@ -20,13 +32,22 @@ function Output(props: Props) {
             </FormControl>
 
             <FormControl fullWidth>
-                <TextField multiline
+                <InputLabel>{outputLabel}</InputLabel>
+                <OutlinedInput multiline
                     maxRows={10}
-                    label={props.output?.length ? `(${props.output.length.toLocaleString()} characters)` : "Output"}
-                    variant="outlined"
+                    inputProps={textfieldMonoStyle}
+                    label={outputLabel}
                     placeholder="Output of action i.e CSR or Key"
                     value={props.output}
-                    onChange={e => props.setState({ output: e.target.value })} />
+                    onChange={e => props.setState({ output: e.target.value })}
+                    endAdornment={
+                        <InputAdornment position="end">
+                            <IconButton onClick={copyText} edge="end">
+                                <CopyAll color='primary'/>
+                            </IconButton>
+                        </InputAdornment>
+                    }
+                />
             </FormControl>
 
         </Stack >

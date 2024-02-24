@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Location, useLocation, Routes, Route, Navigate } from 'react-router-dom';
+import { Alert, Box, Container, LinearProgress, Stack } from '@mui/material';
 
 import Sidebar from 'components/Sidebar';
 import Output from 'components/Output';
@@ -10,15 +11,22 @@ import ECDSA from 'components/Crypto/ECDSA';
 import CSR from 'components/Crypto/CSR';
 import SHA from 'components/Crypto/SHA';
 import Encoding from 'components/Crypto/Encoding';
-import { Alert, AlertTitle, Box, Container, LinearProgress, Snackbar, Stack } from '@mui/material';
+import InfoMessage from 'components/Feedback/InfoMessage';
+import ActionAlerts from 'components/Feedback/ActionAlerts';
 
 interface IState {
-    loading: boolean,
-    menuOpen: boolean,
-    errorMsg: string,
-    successMsg: string,
-    input: string,
-    output: string
+    loading: boolean;
+    menuOpen: boolean;
+
+    // Action feedback
+    errorMsg: string;
+    successMsg: string;
+    infoMsg: string;
+    showInfo: boolean;
+
+    // Input & Output to actions
+    input: string;
+    output: string;
 }
 interface IProps {
     location: Location
@@ -33,6 +41,8 @@ class App extends React.Component<IProps, IState> {
             menuOpen: true,
             errorMsg: '',
             successMsg: '',
+            infoMsg: '',
+            showInfo: false,
             input: '',
             output: ''
         };
@@ -46,43 +56,6 @@ class App extends React.Component<IProps, IState> {
         return this.state.menuOpen
             ? <i className="bi bi-x px-3 py-2 toggle-menu-btn active" onClick={() => this.setState({ menuOpen: false })} />
             : <i className="bi bi-list px-3 py-2 toggle-menu-btn" onClick={() => this.setState({ menuOpen: true })} />
-    }
-
-    ToasterSuccess = () => {
-        return (
-            <Snackbar open={Boolean(this.state.successMsg)}
-                autoHideDuration={6000}
-                onClose={() => this.setState({ successMsg: '' })}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-
-                <Alert
-                    onClose={() => this.setState({ successMsg: '' })}
-                    severity="success"
-                    variant="standard"
-                    sx={{ width: '100%' }}>
-                    <AlertTitle>Success</AlertTitle>
-                    {this.state.successMsg}
-                </Alert>
-            </Snackbar>
-        )
-    }
-
-    ToasterError = () => {
-        return (
-            <Snackbar open={Boolean(this.state.errorMsg)}
-                autoHideDuration={6000}
-                onClose={() => this.setState({ errorMsg: '' })}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-                <Alert
-                    onClose={() => this.setState({ errorMsg: '' })}
-                    severity="error"
-                    variant="standard"
-                    sx={{ width: '100%' }}>
-                    <AlertTitle>Error</AlertTitle>
-                    {this.state.errorMsg}
-                </Alert>
-            </Snackbar>
-        )
     }
 
     render = () => {
@@ -131,9 +104,11 @@ class App extends React.Component<IProps, IState> {
                     </Box>
                 </Stack>
 
-                {/* Alerts */}
-                {this.ToasterSuccess()}
-                {this.ToasterError()}
+                {/* Alerts and Popups */}
+                <InfoMessage close={() => this.setState({ showInfo: false })} showInfo={this.state.showInfo} infoMsg={this.state.infoMsg} />
+                <ActionAlerts setState={(state) => this.setState(state)}
+                    successMsg={this.state.successMsg}
+                    errorMsg={this.state.errorMsg} />
             </Box>
         );
     }
