@@ -1,6 +1,7 @@
 import React from 'react';
 import { Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Stack, TextField } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
+import { validateDNS, validateEmail, validateIPv4, validateURL } from 'lib/validation';
 
 interface IProps {
     rows: Array<RowContent>,
@@ -14,15 +15,34 @@ interface RowContent {
     type: string,
 }
 
+const validateField = (field: RowContent) => {
+    if (!field.value.length) return true
+
+    switch (field.type) {
+        case 'DNSName':
+            return validateDNS(field.value)
+        case 'EmailAddress':
+            return validateEmail(field.value)
+        case 'UniformResourceLocator':
+            return validateURL(field.value)
+        case 'IPAddress':
+            return validateIPv4(field.value)
+    }
+
+    return true
+}
+
 function MultiInput(props: IProps) {
 
     return (
         <>
-            {props.rows.map((row, idx) => (
-                <Stack direction="row" spacing={2} width='100%' key={idx}>
-
+            {props.rows.map((row, idx) => {
+                const fieldValid = validateField(row)
+                return <Stack direction="row" spacing={2} width='100%' key={idx}>
                     <FormControl fullWidth>
                         <TextField label="Value"
+                            error={!fieldValid}
+                            color={fieldValid ? 'success' : 'primary'}
                             variant="outlined"
                             placeholder="Extension Value"
                             value={row.value}
@@ -39,6 +59,7 @@ function MultiInput(props: IProps) {
                                 <MenuItem value="DNSName">DNS Name</MenuItem>
                                 <MenuItem value="IPAddress">IP Address</MenuItem>
                                 <MenuItem value="EmailAddress">Email Address</MenuItem>
+                                <MenuItem value="UniformResourceLocator">Uniform Resource Locator</MenuItem>
                                 <MenuItem value="DirectoryName" disabled>Directory Name</MenuItem>
                                 <MenuItem value="OtherName" disabled>Other Name</MenuItem>
                             </Select>
@@ -59,9 +80,8 @@ function MultiInput(props: IProps) {
                             </Paper>
                         </Stack>
                     </FormControl>
-
                 </Stack>
-            ))}
+            })}
         </>
     )
 }
