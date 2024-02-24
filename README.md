@@ -6,18 +6,18 @@
 [![Issues][issues-shield]][issues-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-# CryptoTools is a Cryptographic web tool
+# CryptoTools
 
 
+### `Cryptographic tools for your browser in a Single-Page app`
 
-### `Cryptographic tools SPA`
-
-This website provides Cryptographic functions in your browser.
+This website [crypto.francescogorini.com](https://crypto.francescogorini.com) is a cryptographic playground to **play** with, **test** and **learn** about **cryptography**. <br />
+It runs all cryptographic operations in the browser utilising [SubtleCrypto API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto), [PKIJS](https://github.com/PeculiarVentures/PKI.js) and [ASN1JS](https://github.com/lapo-luchini/asn1js).
 
 ### This project uses:
 - [React](https://github.com/facebook/react)
 - [Typescript](https://github.com/microsoft/TypeScript)
-- [React-Bootstrap](https://github.com/react-bootstrap/react-bootstrap)
+- [Material UI](https://mui.com/)
 - [PKI.js](https://github.com/PeculiarVentures/PKI.js)
 - [ASN1.js](https://github.com/PeculiarVentures/ASN1.js)
 
@@ -29,19 +29,30 @@ This website provides Cryptographic functions in your browser.
 - [x] __RSA__ Key Generation.
 - [x] __ECDSA__ Key Generation with NIST __P-256__ __P-384__ and __P-521__ curve support.
 - [x] __PKCS10/CSR__ Generation with custom __Subjects__ and with __ECDSA__, __RSA-PSS__ and __RSASSA-PKCS1-v1_5__ signatures.
-- [ ] __PKCS10/CSR__ Generation with custom __Subject Alternative Names__.
-- [ ] __x509 Certificate__ Generation.
+- [x] __PKCS10/CSR__ Generation with custom __Subject Alternative Names__.
+- [ ] __x509 Certificate__ Generation/Signing with custom key/cert.
 ### Encrypt/Decrypt
-- [x] __AES-CBC__ and __AES-GCM__ Encrypt/Decrypt.
+- [x] __AES-CBC__ Encrypt/Decrypt.
+- [x] __AES-GCM__ Encrypt/Decrypt.
 - [x] __RSA-OAEP__ Encrypt/Decrypt.
 - [ ] __AES-GCM__ with additional authenticated data __AEAD__.
+- [ ] __File__ encryption support.
 ### Sign/Verify
-- [x] __RSA-PSS__ and __RSASSA-PKCS1-v1_5__ Sign/Validate.
+- [x] __RSASSA-PKCS1-v1_5__ Sign/Validate.
+- [x] __RSA-PSS__ Sign/Validate.
 - [x] __ECDSA__ Sign/Verify with NIST __P-256__ __P-384__ and __P-521__ curve support.
 - [ ] __HMAC__ support.
+- [ ] __File__ signing support.
 ### Hashing
 - [x] __SHA-1__, __SHA-256__, __SHA-384__ and __SHA-512__ support.
 - [ ] __MD5__ support.
+- [ ] __File__ hashing support.
+### Conversion
+- [x] __Base64__ support.
+- [x] __Hex__ support.
+- [x] __ASCII__ support.
+- [ ] __File__ support.
+- [ ] __PKCS7__ support.
 
 See the [open issues](https://github.com/reznik99/CryptoTools/issues) for a full list of proposed features (and known issues).
 <br>
