@@ -65,10 +65,7 @@ export const createExtensions = (extensionsArray: RowContent[]) => {
     const altNames = new pkijs.GeneralNames({ names: [] })
 
     altNames.names = extensionsArray.map((row, idx) => {
-        return new pkijs.GeneralName({
-            type: nameToExtensionID(row.type),
-            value: row.value
-        })
+        return nameToExtensionID(row.type, row.value)
     })
 
     const extensions = new pkijs.Extensions({
@@ -87,11 +84,26 @@ export const createExtensions = (extensionsArray: RowContent[]) => {
     })
 }
 
-const nameToExtensionID = (type: string): extenionID => {
+const nameToExtensionID = (type: string, value: string): pkijs.GeneralName => {
+    const extension = new pkijs.GeneralName()
     switch (type) {
-        case "DNSName":
-            return dNSName
+        case 'DNSName':
+            extension.type = dNSName
+            extension.value = value
+            return extension
+        case 'EmailAddress':
+            extension.type = rfc822Name
+            extension.value = value
+            return extension
+        case 'IPAddress':
+            const octets = value.split('.').map(val => parseInt(val))
+            extension.type = iPAddress
+            extension.value = new asn1js.OctetString({ valueHex: (new Uint8Array([...octets])).buffer })
+            return extension
         default:
-            return dNSName // default to DNS
+            // default to DNS
+            extension.type = dNSName
+            extension.value = value
+            return extension
     }
 }

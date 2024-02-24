@@ -37,8 +37,8 @@ function MultiInput(props: IProps) {
                                 value={row.type}
                                 onChange={(e) => props.onChange(idx, { type: e.target.value, value: row.value })}>
                                 <MenuItem value="DNSName">DNS Name</MenuItem>
-                                <MenuItem value="IPAddress" disabled>IP Address</MenuItem>
-                                <MenuItem value="EmailAddress" disabled>Email Address</MenuItem>
+                                <MenuItem value="IPAddress">IP Address</MenuItem>
+                                <MenuItem value="EmailAddress">Email Address</MenuItem>
                                 <MenuItem value="DirectoryName" disabled>Directory Name</MenuItem>
                                 <MenuItem value="OtherName" disabled>Other Name</MenuItem>
                             </Select>
