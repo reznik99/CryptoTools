@@ -8,52 +8,82 @@ import { Props } from 'types/SharedTypes';
 import * as encoding from 'lib/encoding';
 import { Create } from '@mui/icons-material';
 
+type keyDetails = {
+    algorithm: string;
+    hash: string;
+    keyLength: number;
+    curve: string;
+}
+
+type subject = {
+    commonName: string;
+    organisation: string;
+    organisationalUnit: string;
+    locality: string;
+    country: string;
+}
+
 const DefaultSAN: RowContent = { type: 'DNSName', value: '' }
 
-const generateCSR = async (props: Props, algorithm: string, curve: string, hash: string, CN: string, O: string, OU: string, L: string, C: string) => {
+const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject) => {
     try {
         props.setState({ loading: true })
+
+        const { algorithm, hash, keyLength, curve } = keyDetails
+        const { commonName, organisation, organisationalUnit, locality, country } = subject
 
         const csr = new pkijs.CertificationRequest()
 
         // Get Algorithm parameters and Generate appropriate keypair
         const algoParams = pkijs.getAlgorithmParameters(algorithm, 'generateKey')
-        if ((algoParams.algorithm as any)?.hash) (algoParams.algorithm as any).hash = hash
-        if ((algoParams.algorithm as any)?.namedCurve) (algoParams.algorithm as any).namedCurve = curve
-        const keypair = await window.crypto.subtle.generateKey(algoParams.algorithm as AlgorithmIdentifier, true, algoParams.usages) as CryptoKeyPair
+        if ((algoParams.algorithm as any)?.hash) {
+            (algoParams.algorithm as any).hash = hash
+        }
+        if ((algoParams.algorithm as any)?.modulusLength) {
+            (algoParams.algorithm as any).modulusLength = keyLength
+        }
+        if ((algoParams.algorithm as any)?.namedCurve) {
+            (algoParams.algorithm as any).namedCurve = curve
+        }
+
+        const keypair = await window.crypto.subtle.generateKey(
+            algoParams.algorithm as AlgorithmIdentifier,
+            true,
+            algoParams.usages
+        ) as CryptoKeyPair
 
         // Write Public Key into CSR
         await csr.subjectPublicKeyInfo.importKey(keypair.publicKey)
 
         // Write CSR Subject values if present
-        if (CN.trim()) {
+        if (commonName.trim()) {
             csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
                 type: "2.5.4.3",
-                value: new asn1js.Utf8String({ value: CN.trim() })
+                value: new asn1js.Utf8String({ value: commonName.trim() })
             }));
         }
-        if (O.trim()) {
+        if (organisation.trim()) {
             csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
                 type: "2.5.4.10",
-                value: new asn1js.Utf8String({ value: O.trim() })
+                value: new asn1js.Utf8String({ value: organisation.trim() })
             }));
         }
-        if (OU.trim()) {
+        if (organisationalUnit.trim()) {
             csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
                 type: "2.5.4.11",
-                value: new asn1js.Utf8String({ value: OU.trim() })
+                value: new asn1js.Utf8String({ value: organisationalUnit.trim() })
             }));
         }
-        if (L.trim()) {
+        if (locality.trim()) {
             csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
                 type: "2.5.4.7",
-                value: new asn1js.Utf8String({ value: L.trim() })
+                value: new asn1js.Utf8String({ value: locality.trim() })
             }));
         }
-        if (C.trim()) {
+        if (country.trim()) {
             csr.subject.typesAndValues.push(new pkijs.AttributeTypeAndValue({
                 type: "2.5.4.6",
-                value: new asn1js.PrintableString({ value: C.trim() })
+                value: new asn1js.PrintableString({ value: country.trim() })
             }));
         }
 
@@ -64,7 +94,7 @@ const generateCSR = async (props: Props, algorithm: string, curve: string, hash:
         const csrBER = csr.toSchema().toBER(false);
         const csrPEM = encoding.arrayBufferToBase64(csrBER);
 
-        props.setState({ output: csrPEM, successMsg: `(${algorithm}-${hash}) CSR Generated successfully` });
+        props.setState({ output: csrPEM, successMsg: `(${algorithm}-${algorithm === 'ECDSA' ? curve : keyLength}-${hash}) CSR Generated successfully` });
     } catch (err) {
         console.error(err);
         props.setState({ errorMsg: `Failed to generate CSR: ${err}` })
@@ -74,15 +104,20 @@ const generateCSR = async (props: Props, algorithm: string, curve: string, hash:
 }
 
 export default function CSR(props: Props) {
-    const [algorithm, setAlgorithm] = useState('ECDSA')
-    const [hash, setHash] = useState('SHA-256')
-    const [keyLength, setKeyLength] = useState(2048)
-    const [curve, setCurve] = useState('P-256')
-    const [commonName, setCommonName] = useState('')
-    const [organisation, setOrganisation] = useState('')
-    const [organisationalUnit, setOrganisationalUnit] = useState('')
-    const [locality, setLocality] = useState('')
-    const [country, setCountry] = useState('')
+    const [keyDetails, setKeyDetails] = useState<keyDetails>({
+        algorithm: 'ECDSA',
+        hash: 'SHA-256',
+        keyLength: 2048,
+        curve: 'P-256',
+    })
+    const [subject, setSubject] = useState<subject>({
+        commonName: '',
+        organisation: '',
+        organisationalUnit: '',
+        locality: '',
+        country: ''
+    })
+
     const [extensions, setExtensions] = useState([DefaultSAN])
 
     return <Stack spacing={2}
@@ -96,8 +131,8 @@ export default function CSR(props: Props) {
                 <InputLabel id='algorithm-label'>Algorithm</InputLabel>
                 <Select labelId='algorithm-label'
                     label='Algorithm'
-                    value={algorithm}
-                    onChange={e => setAlgorithm(e.target.value)}>
+                    value={keyDetails.algorithm}
+                    onChange={e => setKeyDetails({ ...keyDetails, algorithm: e.target.value })}>
                     <MenuItem value="RSASSA-PKCS1-V1_5">RSASSA-PKCS1-V1_5</MenuItem>
                     <MenuItem value="RSA-PSS">RSA-PSS</MenuItem>
                     <MenuItem value="ECDSA">ECDSA</MenuItem>
@@ -108,8 +143,8 @@ export default function CSR(props: Props) {
                 <InputLabel id='hash-algorithm-label'>Hash Algorithm</InputLabel>
                 <Select labelId='hash-algorithm-label'
                     label='Hash Algorithm'
-                    value={hash}
-                    onChange={e => setHash(e.target.value)}>
+                    value={keyDetails.hash}
+                    onChange={e => setKeyDetails({ ...keyDetails, hash: e.target.value })}>
                     <MenuItem value="SHA-1">SHA-1</MenuItem>
                     <MenuItem value="SHA-256">SHA-256</MenuItem>
                     <MenuItem value="SHA-384">SHA-384</MenuItem>
@@ -123,8 +158,9 @@ export default function CSR(props: Props) {
                 <InputLabel id='curve-label'>Curve (ECDSA Only)</InputLabel>
                 <Select labelId='curve-label'
                     label='Curve (ECDSA Only)'
-                    value={curve}
-                    onChange={e => setCurve(e.target.value)} disabled={algorithm !== 'ECDSA'}>
+                    disabled={keyDetails.algorithm !== 'ECDSA'}
+                    value={keyDetails.curve}
+                    onChange={e => setKeyDetails({ ...keyDetails, curve: e.target.value })}>
                     <MenuItem value="P-256">P-256</MenuItem>
                     <MenuItem value="P-384">P-384</MenuItem>
                     <MenuItem value="P-521">P-521</MenuItem>
@@ -135,8 +171,8 @@ export default function CSR(props: Props) {
                 <TextField label="Key Length (RSA Only)"
                     variant="outlined"
                     placeholder="2048"
-                    value={keyLength}
-                    onChange={(e) => setKeyLength(Number(e.target.value))} />
+                    value={keyDetails.keyLength}
+                    onChange={(e) => setKeyDetails({ ...keyDetails, keyLength: Number(e.target.value) })} />
             </FormControl>
         </Stack>
 
@@ -145,8 +181,8 @@ export default function CSR(props: Props) {
             <TextField label="Common Name"
                 variant="outlined"
                 placeholder="My New Certificate"
-                value={commonName}
-                onChange={(e) => setCommonName(e.target.value)} />
+                value={subject.commonName}
+                onChange={(e) => setSubject({ ...subject, commonName: e.target.value })} />
         </FormControl>
 
         <Stack direction="row" spacing={2} width='100%'>
@@ -154,15 +190,15 @@ export default function CSR(props: Props) {
                 <TextField label="Organisation"
                     variant="outlined"
                     placeholder="Evil Corp"
-                    value={organisation}
-                    onChange={(e) => setOrganisation(e.target.value)} />
+                    value={subject.organisation}
+                    onChange={(e) => setSubject({ ...subject, organisation: e.target.value })} />
             </FormControl>
             <FormControl fullWidth>
                 <TextField label="Organisational Unit"
                     variant="outlined"
                     placeholder="EC Finance Dept"
-                    value={organisationalUnit}
-                    onChange={(e) => setOrganisationalUnit(e.target.value)} />
+                    value={subject.organisationalUnit}
+                    onChange={(e) => setSubject({ ...subject, organisationalUnit: e.target.value })} />
             </FormControl>
         </Stack>
 
@@ -171,15 +207,15 @@ export default function CSR(props: Props) {
                 <TextField label="Locality"
                     variant="outlined"
                     placeholder="Chicago"
-                    value={locality}
-                    onChange={(e) => setLocality(e.target.value)} />
+                    value={subject.locality}
+                    onChange={(e) => setSubject({ ...subject, locality: e.target.value })} />
             </FormControl>
             <FormControl fullWidth>
                 <TextField label="Country"
                     variant="outlined"
                     placeholder="USA"
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)} />
+                    value={subject.country}
+                    onChange={(e) => setSubject({ ...subject, country: e.target.value })} />
             </FormControl>
         </Stack>
 
@@ -195,7 +231,7 @@ export default function CSR(props: Props) {
         </Button>
         <Button hidden={props.loading} variant='contained'
             startIcon={<Create />}
-            onClick={() => generateCSR(props, algorithm, curve, hash, commonName, organisation, organisationalUnit, locality, country)}>
+            onClick={() => generateCSR(props, keyDetails, subject)}>
             Generate CSR
         </Button>
     </Stack>
