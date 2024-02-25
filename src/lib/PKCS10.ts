@@ -1,7 +1,6 @@
 import * as pkijs from 'pkijs';
 import * as asn1js from 'asn1js';
 import { RowContent } from 'components/MultiInput';
-import { Buffer } from 'buffer';
 
 
 // Root OIDs
@@ -16,17 +15,25 @@ const oidO = '2.5.4.10'                                 // Organisation
 const oidOU = '2.5.4.11'                                // OrganisationalUnit
 
 // Extension OIDs
-const otherName = 0                                     // IMPLICIT OtherName,
-const rfc822Name = 1                                    // IMPLICIT IA5STRING,
-const dNSName = 2                                       // IMPLICIT IA5STRING,
-const x400Address = 3                                   // IMPLICIT SeqOfAny,       -- Not supported
-const directoryName = 4                                 // EXPLICIT ANY,    
-const ediPartyName = 5                                  // IMPLICIT SeqOfAny,
-const uniformResourceLocator = 6                        // IMPLICIT IA5STRING,
-const iPAddress = 7                                     // IMPLICIT OCTETSTRING,
-const registeredID = 8                                  // IMPLICIT EncodedObjectID -- Not supported
+const otherName = 0                                     // [0] AnotherName         [IMPLICIT OtherName]
+const rfc822Name = 1                                    // [1] IA5String           [IMPLICIT IA5STRING]
+const dNSName = 2                                       // [2] IA5String           [IMPLICIT IA5STRING]
+const x400Address = 3                                   // [3] ORAddress           [IMPLICIT SeqOfAny]          -- Not supported
+const directoryName = 4                                 // [4] Name                [EXPLICIT ANY]
+const ediPartyName = 5                                  // [5] EDIPartyName        [IMPLICIT SeqOfAny]
+const uniformResourceLocator = 6                        // [6] IA5String           [IMPLICIT IA5STRING]
+const iPAddress = 7                                     // [7] OCTET STRING        [IMPLICIT OCTETSTRING]
+const registeredID = 8                                  // [8] OBJECT IDENTIFIER   [IMPLICIT EncodedObjectID]   -- Not supported
 
 const oidSubjectKeyIdentifier = '2.5.29.14'             // SKI Digest of public key
+
+const nameToOid = new Map<string, string>([
+    ["CN", oidCN],
+    ["C", oidC],
+    ["L", oidL],
+    ["O", oidO],
+    ["OU", oidOU],
+])
 
 export const createCN = (commonName: string) => {
     return new pkijs.AttributeTypeAndValue({
@@ -66,7 +73,7 @@ export const createOU = (organisationalUnit: string) => {
 export const createSANExtension = (extensionsArray: RowContent[]) => {
     const filteredExtensions = extensionsArray.filter(row => { return Boolean(row.value.trim()) })
     if (!filteredExtensions.length) return null
-    
+
     const altNames = new pkijs.GeneralNames({
         names: filteredExtensions.map(row => nameToExtensionID(row.type, row.value))
     })
@@ -89,14 +96,28 @@ const nameToExtensionID = (type: string, value: string): pkijs.GeneralName => {
             extension.type = rfc822Name
             extension.value = value
             return extension
+        case 'DirectoryName':
+            const values = value.split(',')
+            extension.type = directoryName
+            extension.value = new pkijs.RelativeDistinguishedNames({
+                typesAndValues: values.map(subval => {
+                    const [type, value] = subval.split('=')
+                    const typeOid = nameToOid.get(type)
+                    return new pkijs.AttributeTypeAndValue({
+                        type: typeOid || oidCN,
+                        value: new asn1js.Utf8String({ value: value })
+                    })
+                })
+            })
+            return extension
         case 'UniformResourceLocator':
             extension.type = uniformResourceLocator
-            extension.value = new asn1js.IA5String({ valueHex: Buffer.from(value) })
+            extension.value = value // new asn1js.IA5String({ valueHex: Buffer.from(value) })
             return extension
         case 'IPAddress':
             const octets = value.split('.').map(val => parseInt(val))
             extension.type = iPAddress
-            extension.value = new asn1js.OctetString({ valueHex: (new Uint8Array([...octets])).buffer })
+            extension.value = new asn1js.OctetString({ valueHex: (new Uint8Array(octets)).buffer })
             return extension
         default:
             // default to DNS

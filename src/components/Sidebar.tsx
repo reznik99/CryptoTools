@@ -16,7 +16,7 @@ type submenuObject = {
 
 const actions = new Map<string, menuObject>(
     [
-        ["Key Generation", {
+        ["Generation", {
             link: "/Gen",
             icon: <Key />,
             submenus: new Map(

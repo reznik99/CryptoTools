@@ -60,7 +60,7 @@ function MultiInput(props: IProps) {
                                 <MenuItem value="IPAddress">IP Address</MenuItem>
                                 <MenuItem value="EmailAddress">Email Address</MenuItem>
                                 <MenuItem value="UniformResourceLocator">Uniform Resource Locator</MenuItem>
-                                <MenuItem value="DirectoryName" disabled>Directory Name</MenuItem>
+                                <MenuItem value="DirectoryName">Directory Name</MenuItem>
                                 <MenuItem value="OtherName" disabled>Other Name</MenuItem>
                             </Select>
 
