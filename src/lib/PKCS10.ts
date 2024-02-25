@@ -5,7 +5,6 @@ import { RowContent } from 'components/MultiInput';
 
 // Root OIDs
 export const oidExtensionsRequest = '1.2.840.113549.1.9.14'    // pkcs-9-at-extensionRequest
-const oidAlternativeNames = '2.5.29.17'                 // XCN_OID_SUBJECT_ALT_NAME2 
 
 // Subject OIDs
 const oidCN = '2.5.4.3'                                 // Common Name
@@ -25,8 +24,6 @@ const uniformResourceLocator = 6                        // [6] IA5String        
 const iPAddress = 7                                     // [7] OCTET STRING        [IMPLICIT OCTETSTRING]
 const registeredID = 8                                  // [8] OBJECT IDENTIFIER   [IMPLICIT EncodedObjectID]   -- Not supported
 
-const oidSubjectKeyIdentifier = '2.5.29.14'             // SKI Digest of public key
-
 const nameToOid = new Map<string, string>([
     ["CN", oidCN],
     ["C", oidC],
@@ -35,65 +32,96 @@ const nameToOid = new Map<string, string>([
     ["OU", oidOU],
 ])
 
-export const createCN = (commonName: string) => {
+export const createCN = (commonName: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidCN,
         value: new asn1js.Utf8String({ value: commonName.trim() })
     })
 }
 
-export const createC = (country: string) => {
+export const createC = (country: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidC,
         value: new asn1js.PrintableString({ value: country.trim() })
     });
 }
 
-export const createL = (locality: string) => {
+export const createL = (locality: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidL,
         value: new asn1js.Utf8String({ value: locality.trim() })
     })
 }
 
-export const createO = (organisation: string) => {
+export const createO = (organisation: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidO,
         value: new asn1js.Utf8String({ value: organisation.trim() })
     })
 }
 
-export const createOU = (organisationalUnit: string) => {
+export const createOU = (organisationalUnit: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidOU,
         value: new asn1js.Utf8String({ value: organisationalUnit.trim() })
     })
 }
 
-export const createSANExtension = (extensionsArray: RowContent[]) => {
+export const createSKIExtension = async (publicKey: CryptoKey): Promise<pkijs.Extension> => {
+    const publicKeyRaw = await window.crypto.subtle.exportKey('spki', publicKey)
+    const ski = await window.crypto.subtle.digest({ name: "SHA-1" }, publicKeyRaw);
+    const skiBER = new asn1js.OctetString({ valueHex: ski }).toBER(false)
+
+    return new pkijs.Extension({
+        extnID: pkijs.id_SubjectKeyIdentifier,
+        critical: false,
+        extnValue: skiBER
+    })
+}
+
+export const createSANExtension = (extensionsArray: RowContent[]): pkijs.Extension | null => {
     const filteredExtensions = extensionsArray.filter(row => { return Boolean(row.value.trim()) })
     if (!filteredExtensions.length) return null
 
     const altNames = new pkijs.GeneralNames({
-        names: filteredExtensions.map(row => nameToExtensionID(row.type, row.value))
+        names: filteredExtensions.map(row => createAltName(row.type, row.value))
     })
 
     return new pkijs.Extension({
-        extnID: oidAlternativeNames,
+        extnID: pkijs.id_SubjectAltName,
         critical: false,
-        extnValue: altNames.toSchema().toBER(false)
+        extnValue: altNames.toSchema().toBER(),
+        parsedValue: altNames
     })
 }
 
-const nameToExtensionID = (type: string, value: string): pkijs.GeneralName => {
+const createAltName = (type: string, value: string): pkijs.GeneralName => {
     const extension = new pkijs.GeneralName()
     switch (type) {
-        case 'DNSName':
-            extension.type = dNSName
-            extension.value = value
+        case 'OtherName':
+            // TODO: pkijs has a bug that causes a nested sequence, which isn't correct. Can't fix without forking PKIJS.
+            extension.type = otherName
+            extension.value = new asn1js.Sequence({
+                value: [
+                    new asn1js.ObjectIdentifier({ value: '1.3.6.1.4.1.311.20.2.3' }),
+                    new asn1js.Constructed({
+                        idBlock: {
+                            tagClass: 3,
+                            tagNumber: 0
+                        },
+                        value: [
+                            new asn1js.Utf8String({ value: value })
+                        ],
+                    }),
+                ]
+            })
             return extension
         case 'EmailAddress':
             extension.type = rfc822Name
+            extension.value = value
+            return extension
+        case 'DNSName':
+            extension.type = dNSName
             extension.value = value
             return extension
         case 'DirectoryName':
@@ -112,7 +140,7 @@ const nameToExtensionID = (type: string, value: string): pkijs.GeneralName => {
             return extension
         case 'UniformResourceLocator':
             extension.type = uniformResourceLocator
-            extension.value = value // new asn1js.IA5String({ valueHex: Buffer.from(value) })
+            extension.value = encodeURI(value)
             return extension
         case 'IPAddress':
             const octets = value.split('.').map(val => parseInt(val))
@@ -125,16 +153,4 @@ const nameToExtensionID = (type: string, value: string): pkijs.GeneralName => {
             extension.value = value
             return extension
     }
-}
-
-export const createSKIExtension = async (publicKey: CryptoKey) => {
-    const publicKeyRaw = await window.crypto.subtle.exportKey('spki', publicKey)
-    const ski = await window.crypto.subtle.digest({ name: "SHA-1" }, publicKeyRaw);
-    const skiBER = new asn1js.OctetString({ valueHex: ski }).toBER(false)
-
-    return new pkijs.Extension({
-        extnID: oidSubjectKeyIdentifier,
-        critical: false,
-        extnValue: skiBER
-    })
 }
