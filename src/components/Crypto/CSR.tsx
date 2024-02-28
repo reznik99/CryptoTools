@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { Create } from '@mui/icons-material';
+import { CloudUpload, Create } from '@mui/icons-material';
 import * as pkijs from 'pkijs';
 
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { Props } from 'types/SharedTypes';
-import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest } from 'lib/PKCS10';
+import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest, CSRTest } from 'lib/PKCS10';
 import { arrayBufferToBase64, base64ToPem } from 'lib/encoding';
+import FileUploadBtn from 'components/FileUploadBtn';
 
 type keyDetails = {
     algorithm: string;
@@ -122,8 +123,8 @@ export default function CSR(props: Props) {
         locality: '',
         country: ''
     })
-
     const [extensions, setExtensions] = useState<RowContent[]>([defaultSAN])
+    const [providedKey, setProvidedKey] = useState<string | null>(null)
 
     return <Stack spacing={2}
         direction="column"
@@ -180,6 +181,18 @@ export default function CSR(props: Props) {
                     value={keyDetails.keyLength}
                     onChange={(e) => setKeyDetails({ ...keyDetails, keyLength: Number(e.target.value) })} />
             </FormControl>
+        </Stack>
+
+        <Stack direction='row' spacing={2} alignItems='center'>
+            <FileUploadBtn startIcon={<CloudUpload />}
+                onRead={(data) => setProvidedKey(String(data))}>
+                Supply Keypair
+            </FileUploadBtn>
+            <p>or</p>
+            <Button variant={providedKey ? 'outlined' : 'contained'}
+                onClick={() => setProvidedKey(null)}>
+                Generate Keypair
+            </Button>
         </Stack>
 
         <Typography variant='h4'> Subject Details </Typography>
@@ -240,5 +253,6 @@ export default function CSR(props: Props) {
             onClick={() => generateCSR(props, keyDetails, subject, extensions)}>
             Generate CSR
         </Button>
+
     </Stack>
 }
