@@ -22,7 +22,7 @@ const decSettings: CryptoSettings = {
     keyUsages: ["decrypt"]
 }
 
-const importRSAPub = async (pem: string, settings: CryptoSettings) => {
+export const importRSAPub = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.pemToBuffer('PUBLIC', pem)
 
     return await window.crypto.subtle.importKey(
@@ -34,7 +34,7 @@ const importRSAPub = async (pem: string, settings: CryptoSettings) => {
     );
 }
 
-const importRSAPriv = async (pem: string, settings: CryptoSettings) => {
+export const importRSAPriv = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.pemToBuffer('PRIVATE', pem)
 
     return window.crypto.subtle.importKey(

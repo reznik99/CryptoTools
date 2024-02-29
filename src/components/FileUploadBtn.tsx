@@ -25,7 +25,7 @@ function truncate(str: string, n: number) {
     return (str.length > n) ? str.slice(0, n - 1) + '...' : str;
 };
 
-export default function (props: Props) {
+export default function FileUploadBtn(props: Props) {
 
     const [filename, setFilename] = useState('')
 
@@ -41,17 +41,13 @@ export default function (props: Props) {
         const reader = new FileReader()
         reader.readAsText(file)
         reader.onloadend = (readerEvent: ProgressEvent<FileReader>) => {
-            console.log(readerEvent?.target?.result)
             props.onRead(readerEvent?.target?.result)
-        }
-        reader.onerror = (_readerEvent: ProgressEvent<FileReader>) => {
-            console.error('Read file err')
         }
     }, [props])
 
     return (
-        <Button variant='outlined'
-            color={filename ? 'success' : 'primary'}
+        <Button variant={filename ? 'contained' : 'outlined'}
+            color={'primary'}
             component="label"
             startIcon={filename ? <Check /> : props.startIcon}>
             <VisuallyHiddenInput type="file" onChange={handleFile} />

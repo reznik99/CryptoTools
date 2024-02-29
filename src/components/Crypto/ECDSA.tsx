@@ -21,7 +21,7 @@ const verSettings: CryptoSettings = {
     keyUsages: ["verify"]
 }
 
-const importECDSAPub = async (pem: string, settings: CryptoSettings) => {
+export const importECDSAPub = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.pemToBuffer('PUBLIC', pem)
 
     return await window.crypto.subtle.importKey(
@@ -33,7 +33,7 @@ const importECDSAPub = async (pem: string, settings: CryptoSettings) => {
     );
 }
 
-const importECDSAPriv = async (pem: string, settings: CryptoSettings) => {
+export const importECDSAPriv = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.pemToBuffer('PRIVATE', pem)
 
     return window.crypto.subtle.importKey(
