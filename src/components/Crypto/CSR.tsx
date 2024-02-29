@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { CloudUpload, Create } from '@mui/icons-material';
+import { Check, CloudUpload, Create, Key } from '@mui/icons-material';
 import * as pkijs from 'pkijs';
 
 import { MultiInput, RowContent } from 'components/MultiInput'
-import { Props } from 'types/SharedTypes';
+import { CryptoSettings, Props } from 'types/SharedTypes';
 import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest, CSRTest } from 'lib/PKCS10';
 import { arrayBufferToBase64, base64ToPem } from 'lib/encoding';
-import FileUploadBtn from 'components/FileUploadBtn';
+import { KeyUploadModal } from 'components/KeyUploadModal';
+import { importRSAPriv, importRSAPub } from './RSA';
+import { importECDSAPriv, importECDSAPub } from './ECDSA';
 
 type keyDetails = {
     algorithm: string;
@@ -26,30 +28,92 @@ type subject = {
 
 const defaultSAN = { type: 'DNSName', value: '' }
 
-const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject, extensions: RowContent[]) => {
+const generateCSRKeypair = async (keyDetails: keyDetails) => {
+    // Get Algorithm parameters and generate appropriate keypair
+    const algoParams = pkijs.getAlgorithmParameters(keyDetails.algorithm, 'generateKey')
+    if ('hash' in algoParams.algorithm) {
+        (algoParams.algorithm as any).hash = keyDetails.hash
+    }
+    if ('modulusLength' in algoParams.algorithm) {
+        (algoParams.algorithm as any).modulusLength = keyDetails.keyLength
+    }
+    if ('namedCurve' in algoParams.algorithm) {
+        (algoParams.algorithm as any).namedCurve = keyDetails.curve
+    }
+
+    const keypair = await window.crypto.subtle.generateKey(
+        algoParams.algorithm as AlgorithmIdentifier,
+        true,
+        algoParams.usages
+    ) as CryptoKeyPair
+
+    return keypair
+}
+
+const importCSRKeypair = async (keyDetails: keyDetails, privPem: string, pubPem: string) => {
+    let privateKey: CryptoKey;
+    let publicKey: CryptoKey;
+
+    try {
+        switch (keyDetails.algorithm) {
+            case 'RSASSA-PKCS1-V1_5':
+            case 'RSA-PSS':
+                const rsaSettings: CryptoSettings = {
+                    algorithm: {
+                        name: keyDetails.algorithm,
+                        hash: keyDetails.hash,
+                    },
+                    keyUsages: []
+                };
+                privateKey = await importRSAPriv(privPem, { ...rsaSettings, keyUsages: ["sign"] })
+                publicKey = await importRSAPub(pubPem, { ...rsaSettings, keyUsages: ["verify"] })
+                break;
+            case 'ECDSA':
+                const ecdsaSettings: CryptoSettings = {
+                    algorithm: {
+                        name: keyDetails.algorithm,
+                    },
+                    keyUsages: []
+                };
+                privateKey = await importECDSAPriv(privPem, { ...ecdsaSettings, keyUsages: ["sign"] })
+                publicKey = await importECDSAPub(pubPem, { ...ecdsaSettings, keyUsages: ["verify"] })
+                break;
+            default:
+                throw new Error('Unrecognized algorithm selected: ' + keyDetails.algorithm)
+        }
+    } catch (err: any) {
+        throw new Error(`Failed to import user keys: ${err?.message || err}. Check key formats and selected algorithm match`)
+    }
+    const output: CryptoKeyPair = { privateKey, publicKey }
+    return output
+}
+
+const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject, extensions: RowContent[], privateKey: string, publicKey: string, doGenerate: boolean) => {
     const { algorithm, hash, keyLength, curve } = keyDetails
     const { commonName, organisation, organisationalUnit, locality, country } = subject
+
+    if (!doGenerate) {
+        if (!privateKey.trim()) {
+            props.setState({ errorMsg: 'Private Key not supplied. Please supply private key or select "Generate Keypair"' })
+            return
+        }
+        if (!publicKey.trim()) {
+            props.setState({ errorMsg: 'Public Key not supplied. Please supply public key or select "Generate Keypair"' })
+            return
+        }
+    }
     props.setState({ loading: true })
     try {
         const csr = new pkijs.CertificationRequest()
 
-        // Get Algorithm parameters and generate appropriate keypair
-        const algoParams = pkijs.getAlgorithmParameters(algorithm, 'generateKey')
-        if ('hash' in algoParams.algorithm) {
-            (algoParams.algorithm as any).hash = hash
+        let keypair: CryptoKeyPair;
+        if (doGenerate) {
+            keypair = await generateCSRKeypair(keyDetails)
+            console.log("Generated keypair", algorithm)
+        } else {
+            keypair = await importCSRKeypair(keyDetails, privateKey, publicKey)
+            console.log("Imported keypair", algorithm)
         }
-        if ('modulusLength' in algoParams.algorithm) {
-            (algoParams.algorithm as any).modulusLength = keyLength
-        }
-        if ('namedCurve' in algoParams.algorithm) {
-            (algoParams.algorithm as any).namedCurve = curve
-        }
-
-        const keypair = await window.crypto.subtle.generateKey(
-            algoParams.algorithm as AlgorithmIdentifier,
-            true,
-            algoParams.usages
-        ) as CryptoKeyPair
 
         // Write Public Key into CSR
         await csr.subjectPublicKeyInfo.importKey(keypair.publicKey)
@@ -101,9 +165,9 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
         const algoString = `${algorithm} with ${hash} (${algorithm === 'ECDSA' ? curve : keyLength + '-bit'})`
 
         props.setState({ output: base64ToPem(csrPEM, 'CERTIFICATE REQUEST'), successMsg: `CSR Generated successfully: ${algoString}` });
-    } catch (err) {
+    } catch (err: any) {
         console.error(err);
-        props.setState({ errorMsg: `Failed to generate CSR: ${err}` })
+        props.setState({ errorMsg: `Failed to generate CSR: ${err?.message || err}` })
     } finally {
         props.setState({ loading: false });
     }
@@ -123,8 +187,12 @@ export default function CSR(props: Props) {
         locality: '',
         country: ''
     })
-    const [extensions, setExtensions] = useState<RowContent[]>([defaultSAN])
-    const [providedKey, setProvidedKey] = useState<string | null>(null)
+    const [extensions, setExtensions] = useState([defaultSAN])
+
+    const [doGenerateKey, setDoGenerateKey] = useState(true)
+    const [modalOpen, setModalOpen] = useState(false)
+    const [privateKey, setPrivateKey] = useState('')
+    const [publicKey, setPublicKey] = useState('')
 
     return <Stack spacing={2}
         direction="column"
@@ -184,16 +252,22 @@ export default function CSR(props: Props) {
         </Stack>
 
         <Stack direction='row' spacing={2} alignItems='center'>
-            <FileUploadBtn startIcon={<CloudUpload />}
-                onRead={(data) => setProvidedKey(String(data))}>
-                Supply Keypair
-            </FileUploadBtn>
-            <p>or</p>
-            <Button variant={providedKey ? 'outlined' : 'contained'}
-                onClick={() => setProvidedKey(null)}>
+            <Button variant={doGenerateKey ? 'contained' : 'outlined'}
+                startIcon={doGenerateKey ? <Check /> : <Key />}
+                onClick={() => setDoGenerateKey(true)}>
                 Generate Keypair
             </Button>
+            <Typography>or</Typography>
+            <Button variant={doGenerateKey ? 'outlined' : 'contained'}
+                startIcon={doGenerateKey ? <CloudUpload /> : <Check />}
+                onClick={() => { setDoGenerateKey(false); setModalOpen(true) }}>
+                Provide Keypair
+            </Button>
         </Stack>
+
+        <KeyUploadModal open={modalOpen}
+            onClose={() => { setModalOpen(false); setPrivateKey(''); setPublicKey(''); setDoGenerateKey(true); }}
+            onSubmit={(priv, pub) => { setPrivateKey(priv); setPublicKey(pub); setModalOpen(false); }} />
 
         <Typography variant='h4'> Subject Details </Typography>
         <FormControl fullWidth>
@@ -250,7 +324,7 @@ export default function CSR(props: Props) {
         </Button>
         <Button hidden={props.loading} variant='contained'
             startIcon={<Create />}
-            onClick={() => generateCSR(props, keyDetails, subject, extensions)}>
+            onClick={() => generateCSR(props, keyDetails, subject, extensions, privateKey, publicKey, doGenerateKey)}>
             Generate CSR
         </Button>
 
