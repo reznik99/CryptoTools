@@ -22,28 +22,32 @@ export function KeyUploadModal(props: Props) {
             <DialogTitle>Supply Keypair</DialogTitle>
             <DialogContent>
 
-                <DialogContentText>
+                <DialogContentText marginBottom={3}>
                     Supply a Private and Public key in <strong>PKCS8 & PKIX</strong> formats to be used in the generation of the CSR.
                 </DialogContentText>
 
                 <Stack direction='row' spacing={2} marginY={2} width='100%'>
-                    <Stack direction='column' width='100%' spacing={2}>
-                        <FileUploadBtn onRead={(priv) => setPrivateKey(String(priv))} startIcon={<CloudUpload />} >
+                    <Stack direction='column' width='100%' spacing={3}>
+                        <FileUploadBtn onRead={(priv) => setPrivateKey(String(priv))}
+                            startIcon={<CloudUpload />}
+                            maxNameLength={15}>
                             Select Private Key
                         </FileUploadBtn>
-                        <TextField fullWidth multiline rows={5}
-                            margin="dense"
+                        <TextField fullWidth multiline
+                            rows={10}
                             label="Private Key"
                             inputProps={textfieldMonoStyle}
                             value={privateKey}
                             onChange={(e) => setPrivateKey(e.target.value)} />
                     </Stack>
-                    <Stack direction='column' width='100%' spacing={2}>
-                        <FileUploadBtn onRead={(pub) => setPublicKey(String(pub))} startIcon={<CloudUpload />} >
+                    <Stack direction='column' width='100%' spacing={3}>
+                        <FileUploadBtn onRead={(pub) => setPublicKey(String(pub))}
+                            startIcon={<CloudUpload />}
+                            maxNameLength={15}>
                             Select Public Key
                         </FileUploadBtn>
-                        <TextField fullWidth multiline rows={5}
-                            margin="dense"
+                        <TextField fullWidth multiline
+                            rows={10}
                             label="Public Key"
                             inputProps={textfieldMonoStyle}
                             value={publicKey}
@@ -53,8 +57,17 @@ export function KeyUploadModal(props: Props) {
 
             </DialogContent>
             <DialogActions sx={{ justifyContent: 'space-around' }}>
-                <Button variant='outlined' color='warning' onClick={props.onClose}>Cancel</Button>
-                <Button variant='contained' color='primary' onClick={() => props.onSubmit(privateKey, publicKey)}>Ok</Button>
+                <Button variant='outlined'
+                    color='warning'
+                    onClick={props.onClose}>
+                    Cancel
+                </Button>
+                <Button variant='contained'
+                    color='primary'
+                    disabled={!privateKey || !publicKey}
+                    onClick={() => props.onSubmit(privateKey, publicKey)}>
+                    Ok
+                </Button>
             </DialogActions>
         </Dialog>
     )

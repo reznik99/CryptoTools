@@ -4,8 +4,9 @@ import { Check } from '@mui/icons-material';
 
 
 type Props = {
-    startIcon?: React.ReactNode;
+    maxNameLength?: number;
     children: React.ReactNode;
+    startIcon?: React.ReactNode;
     onRead: (data: string | ArrayBuffer | null | undefined) => void;
 }
 
@@ -35,7 +36,7 @@ export default function FileUploadBtn(props: Props) {
 
         const name = file.name.substring(0, file.name.lastIndexOf('.'))
         const ext = file.name.substring(file.name.lastIndexOf('.'))
-        setFilename(truncate(name, 10) + ext)
+        setFilename(truncate(name, props.maxNameLength ?? 10) + ext)
 
         // Read the file contents
         const reader = new FileReader()
