@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack, TextField } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import FileUploadBtn from './FileUploadBtn';
 import { CloudUpload } from '@mui/icons-material';
 import { textfieldMonoStyle } from './Output';
@@ -17,8 +17,15 @@ export function KeyUploadModal(props: Props) {
     const [privateKey, setPrivateKey] = useState('')
     const [publicKey, setPublicKey] = useState('')
 
+
+    const closeModal = useCallback(() => {
+        setPrivateKey('')
+        setPublicKey('')
+        props.onClose()
+    }, [props])
+
     return (
-        <Dialog open={props.open} onClose={props.onClose} maxWidth='lg' fullWidth>
+        <Dialog open={props.open} onClose={closeModal} maxWidth='lg' fullWidth>
             <DialogTitle>Supply Keypair</DialogTitle>
             <DialogContent>
 
@@ -63,7 +70,7 @@ export function KeyUploadModal(props: Props) {
             <DialogActions sx={{ justifyContent: 'space-around' }}>
                 <Button variant='outlined'
                     color='warning'
-                    onClick={props.onClose}>
+                    onClick={closeModal}>
                     Cancel
                 </Button>
                 <Button variant='contained'

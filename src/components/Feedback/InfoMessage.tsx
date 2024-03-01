@@ -12,7 +12,7 @@ type IProps = {
 export default function InfoMessage(props: IProps) {
     return (
         <div>
-            <Snackbar open={Boolean(props.showInfo)}
+            <Snackbar open={props.showInfo}
                 autoHideDuration={2000}
                 onClose={props.close}
                 message={props.infoMsg}

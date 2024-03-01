@@ -31,7 +31,7 @@ function Output(props: Props) {
                     onChange={e => props.setState({ input: e.target.value })} />
             </FormControl>
 
-            <FormControl fullWidth>
+            <FormControl fullWidth hidden={!Boolean(props.output)}>
                 <InputLabel>{outputLabel}</InputLabel>
                 <OutlinedInput multiline
                     maxRows={10}

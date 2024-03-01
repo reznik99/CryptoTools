@@ -45,6 +45,7 @@ function MultiInput(props: IProps) {
                             color={fieldValid ? 'success' : 'primary'}
                             variant="outlined"
                             placeholder="Extension Value"
+                            helperText={!fieldValid ? `Invalid ${row.type}` : ''}
                             value={row.value}
                             onChange={(e) => props.onChange(idx, { type: row.type, value: e.target.value })} />
                     </FormControl>
