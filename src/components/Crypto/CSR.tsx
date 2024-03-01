@@ -120,19 +120,19 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
 
         // Write CSR Subject values if present
         if (commonName.trim()) {
-            csr.subject.typesAndValues.push(createCN(commonName));
+            csr.subject.typesAndValues.push(createCN(commonName.trim()));
         }
         if (organisation.trim()) {
-            csr.subject.typesAndValues.push(createO(organisation));
+            csr.subject.typesAndValues.push(createO(organisation.trim()));
         }
         if (organisationalUnit.trim()) {
-            csr.subject.typesAndValues.push(createOU(organisationalUnit));
+            csr.subject.typesAndValues.push(createOU(organisationalUnit.trim()));
         }
         if (locality.trim()) {
-            csr.subject.typesAndValues.push(createL(locality));
+            csr.subject.typesAndValues.push(createL(locality.trim()));
         }
         if (country.trim()) {
-            csr.subject.typesAndValues.push(createC(country));
+            csr.subject.typesAndValues.push(createC(country.trim()));
         }
 
 
@@ -167,7 +167,7 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
         props.setState({ output: base64ToPem(csrPEM, 'CERTIFICATE REQUEST'), successMsg: `CSR Generated successfully: ${algoString}` });
     } catch (err: any) {
         console.error(err);
-        props.setState({ errorMsg: `Failed to generate CSR: ${err?.message || err}` })
+        props.setState({ errorMsg: `Failed to generate CSR: ${err?.message || err}`, output: '' })
     } finally {
         props.setState({ loading: false });
     }
@@ -232,7 +232,7 @@ export default function CSR(props: Props) {
                 <InputLabel id='curve-label'>Curve (ECDSA Only)</InputLabel>
                 <Select labelId='curve-label'
                     label='Curve (ECDSA Only)'
-                    disabled={keyDetails.algorithm !== 'ECDSA'}
+                    disabled={!doGenerateKey || keyDetails.algorithm !== 'ECDSA'}
                     value={keyDetails.curve}
                     onChange={e => setKeyDetails({ ...keyDetails, curve: e.target.value })}>
                     <MenuItem value="P-256">P-256</MenuItem>
@@ -245,7 +245,7 @@ export default function CSR(props: Props) {
                 <TextField label="Key Length (RSA Only)"
                     variant="outlined"
                     placeholder="2048"
-                    disabled={keyDetails.algorithm === 'ECDSA'}
+                    disabled={!doGenerateKey || keyDetails.algorithm === 'ECDSA'}
                     value={keyDetails.keyLength}
                     onChange={(e) => setKeyDetails({ ...keyDetails, keyLength: Number(e.target.value) })} />
             </FormControl>

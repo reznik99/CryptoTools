@@ -43,7 +43,7 @@ function Output(props: Props) {
                     endAdornment={
                         <InputAdornment position="end">
                             <IconButton onClick={copyText} edge="end">
-                                <CopyAll color='primary'/>
+                                <CopyAll color='primary' />
                             </IconButton>
                         </InputAdornment>
                     }

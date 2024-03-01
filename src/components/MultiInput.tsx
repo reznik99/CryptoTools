@@ -62,7 +62,7 @@ function MultiInput(props: IProps) {
                                 <MenuItem value="EmailAddress">Email Address</MenuItem>
                                 <MenuItem value="UniformResourceLocator">Uniform Resource Locator</MenuItem>
                                 <MenuItem value="DirectoryName">Directory Name</MenuItem>
-                                <MenuItem value="OtherName">Other Name</MenuItem>
+                                <MenuItem value="OtherName" disabled>Other Name</MenuItem>
                             </Select>
 
                             <Paper component="form" sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>

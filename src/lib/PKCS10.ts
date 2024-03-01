@@ -35,35 +35,35 @@ const nameToOid = new Map<string, string>([
 export const createCN = (commonName: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidCN,
-        value: new asn1js.Utf8String({ value: commonName.trim() })
+        value: new asn1js.Utf8String({ value: commonName })
     })
 }
 
 export const createC = (country: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidC,
-        value: new asn1js.PrintableString({ value: country.trim() })
+        value: new asn1js.PrintableString({ value: country })
     });
 }
 
 export const createL = (locality: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidL,
-        value: new asn1js.Utf8String({ value: locality.trim() })
+        value: new asn1js.Utf8String({ value: locality })
     })
 }
 
 export const createO = (organisation: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidO,
-        value: new asn1js.Utf8String({ value: organisation.trim() })
+        value: new asn1js.Utf8String({ value: organisation })
     })
 }
 
 export const createOU = (organisationalUnit: string): pkijs.AttributeTypeAndValue => {
     return new pkijs.AttributeTypeAndValue({
         type: oidOU,
-        value: new asn1js.Utf8String({ value: organisationalUnit.trim() })
+        value: new asn1js.Utf8String({ value: organisationalUnit })
     })
 }
 
@@ -100,6 +100,7 @@ const createAltName = (type: string, value: string): pkijs.GeneralName => {
     switch (type) {
         case 'OtherName':
             // TODO: pkijs has a bug that causes a nested sequence, which isn't correct. Can't fix without forking PKIJS.
+            // https://github.com/PeculiarVentures/PKI.js/issues/395
             extension.type = otherName
             extension.value = new asn1js.Sequence({
                 value: [
