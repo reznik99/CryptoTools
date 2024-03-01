@@ -1,26 +1,15 @@
 import React, { ChangeEvent, useCallback, useState } from 'react';
-import { Button, styled } from "@mui/material";
+import { Button } from '@mui/material';
 import { Check } from '@mui/icons-material';
 
 
 type Props = {
+    acceptFiles?: string;
     maxNameLength?: number;
     children: React.ReactNode;
     startIcon?: React.ReactNode;
     onRead: (data: string | ArrayBuffer | null | undefined) => void;
 }
-
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-});
 
 function truncate(str: string, n: number) {
     return (str.length > n) ? str.slice(0, n - 1) + '...' : str;
@@ -47,12 +36,15 @@ export default function FileUploadBtn(props: Props) {
     }, [props])
 
     return (
-        <Button variant={filename ? 'contained' : 'outlined'}
-            color={'primary'}
-            component="label"
+        <Button variant='outlined'
+            color={filename ? 'success' : 'primary'}
+            component='label'
             startIcon={filename ? <Check /> : props.startIcon}>
-            <VisuallyHiddenInput type="file" onChange={handleFile} />
             {filename || props.children}
+            <input hidden
+                type='file'
+                accept={props.acceptFiles ?? '*'}
+                onChange={handleFile} />
         </Button>
     )
 }

@@ -1,8 +1,8 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack, TextField } from "@mui/material";
-import React, { useState } from "react";
-import FileUploadBtn from "./FileUploadBtn";
-import { CloudUpload } from "@mui/icons-material";
-import { textfieldMonoStyle } from "./Output";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import FileUploadBtn from './FileUploadBtn';
+import { CloudUpload } from '@mui/icons-material';
+import { textfieldMonoStyle } from './Output';
 
 
 type Props = {
@@ -30,12 +30,14 @@ export function KeyUploadModal(props: Props) {
                     <Stack direction='column' width='100%' spacing={3}>
                         <FileUploadBtn onRead={(priv) => setPrivateKey(String(priv))}
                             startIcon={<CloudUpload />}
-                            maxNameLength={15}>
+                            maxNameLength={15}
+                            acceptFiles='.pem, .key, .p8, .priv'>
                             Select Private Key
                         </FileUploadBtn>
                         <TextField fullWidth multiline
                             rows={10}
-                            label="Private Key"
+                            label='Private Key'
+                            placeholder='PKCS8 Private key file in PEM format'
                             inputProps={textfieldMonoStyle}
                             value={privateKey}
                             onChange={(e) => setPrivateKey(e.target.value)} />
@@ -43,12 +45,14 @@ export function KeyUploadModal(props: Props) {
                     <Stack direction='column' width='100%' spacing={3}>
                         <FileUploadBtn onRead={(pub) => setPublicKey(String(pub))}
                             startIcon={<CloudUpload />}
-                            maxNameLength={15}>
+                            maxNameLength={15}
+                            acceptFiles='.pem, .key, .pub'>
                             Select Public Key
                         </FileUploadBtn>
                         <TextField fullWidth multiline
                             rows={10}
-                            label="Public Key"
+                            label='Public Key'
+                            placeholder='PKIX Public key file in PEM format'
                             inputProps={textfieldMonoStyle}
                             value={publicKey}
                             onChange={(e) => setPublicKey(e.target.value)} />
