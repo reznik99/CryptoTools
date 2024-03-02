@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, Divider, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { Check, CloudUpload, Create, Key } from '@mui/icons-material';
+import { Buffer } from 'buffer';
 import * as pkijs from 'pkijs';
 
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { CryptoSettings, Props } from 'types/SharedTypes';
 import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest, CSRTest } from 'lib/PKCS10';
-import { arrayBufferToBase64, base64ToPem } from 'lib/encoding';
+import { encodePEM } from 'lib/encoding';
 import { KeyUploadModal } from 'components/KeyUploadModal';
 import { importRSAPriv, importRSAPub } from './RSA';
 import { importECDSAPriv, importECDSAPub } from './ECDSA';
@@ -161,10 +162,10 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
 
         // Export as PEM
         const csrBER = csr.toSchema().toBER(false);
-        const csrPEM = arrayBufferToBase64(csrBER);
+        const csrPEM = Buffer.from(csrBER).toString('base64');
         const algoString = `${algorithm} with ${hash} (${algorithm === 'ECDSA' ? curve : keyLength + '-bit'})`
 
-        props.setState({ output: base64ToPem(csrPEM, 'CERTIFICATE REQUEST'), successMsg: `CSR Generated successfully: ${algoString}` });
+        props.setState({ output: encodePEM(csrPEM, 'CERTIFICATE REQUEST'), successMsg: `CSR Generated successfully: ${algoString}` });
     } catch (err: any) {
         console.error(err);
         props.setState({ errorMsg: `Failed to generate CSR: ${err?.message || err}`, output: '' })
@@ -198,7 +199,7 @@ export default function CSR(props: Props) {
         direction="column"
         justifyContent="center"
         alignItems="center">
-        <Typography variant='h4'> Key Details </Typography>
+        <Typography variant='h5'> Key Details </Typography>
 
         <Stack direction="row" spacing={2} width='100%'>
             <FormControl fullWidth>
@@ -269,7 +270,9 @@ export default function CSR(props: Props) {
             onClose={() => { setModalOpen(false); setPrivateKey(''); setPublicKey(''); setDoGenerateKey(true); }}
             onSubmit={(priv, pub) => { setPrivateKey(priv); setPublicKey(pub); setModalOpen(false); }} />
 
-        <Typography variant='h4'> Subject Details </Typography>
+        <Divider> <Typography variant='h5'> Subject Details </Typography> </Divider>
+
+
         <FormControl fullWidth>
             <TextField label="Common Name"
                 variant="outlined"
@@ -312,7 +315,8 @@ export default function CSR(props: Props) {
             </FormControl>
         </Stack>
 
-        <Typography variant='h4'> Extensions </Typography>
+        <Divider color='#fff'> <Typography variant='h5'> Extensions </Typography> </Divider>
+
         <MultiInput rows={extensions}
             addRow={() => setExtensions(old => [...old, defaultSAN])}
             deleteRow={(idx: number) => setExtensions(old => old.filter((_, i) => i !== idx))}

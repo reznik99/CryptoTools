@@ -22,7 +22,7 @@ const verSettings: CryptoSettings = {
 }
 
 export const importECDSAPub = async (pem: string, settings: CryptoSettings) => {
-    const binaryDer = encoding.pemToBuffer('PUBLIC', pem)
+    const binaryDer = encoding.decodePEM('PUBLIC KEY', pem)
 
     return await window.crypto.subtle.importKey(
         "spki",
@@ -34,7 +34,7 @@ export const importECDSAPub = async (pem: string, settings: CryptoSettings) => {
 }
 
 export const importECDSAPriv = async (pem: string, settings: CryptoSettings) => {
-    const binaryDer = encoding.pemToBuffer('PRIVATE', pem)
+    const binaryDer = encoding.decodePEM('PRIVATE KEY', pem)
 
     return window.crypto.subtle.importKey(
         "pkcs8",
@@ -57,7 +57,7 @@ const generateECDSA = async (props: Props, curve: string) => {
             ["sign", "verify"]
         );
 
-        props.setState({ output: await encoding.keypairToPem(keypair), successMsg: `(ECDSA-${curve}) Generated successfully` })
+        props.setState({ output: await encoding.keypairToPEM(keypair), successMsg: `(ECDSA-${curve}) Generated successfully` })
     } catch (err) {
         console.error(`Failed to generate ECDSA ${curve}: ${err}`)
         props.setState({ errorMsg: `Failed to generate ECDSA ${curve}: ${err}` })
@@ -81,7 +81,7 @@ const signECDSA = async (props: Props, hashAlgo: string, message: string) => {
             Buffer.from(message, 'ascii')
         );
 
-        props.setState({ output: encoding.arrayBufferToBase64(signature), successMsg: `(ECDSA) Signed successfully` })
+        props.setState({ output: Buffer.from(signature).toString('base64'), successMsg: `(ECDSA) Signed successfully` })
     } catch (err) {
         console.error(`Failed to ECDSA sign: ${err}`)
         props.setState({ errorMsg: `Failed to ECDSA sign: ${err}` })

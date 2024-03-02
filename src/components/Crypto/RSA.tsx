@@ -23,7 +23,7 @@ const decSettings: CryptoSettings = {
 }
 
 export const importRSAPub = async (pem: string, settings: CryptoSettings) => {
-    const binaryDer = encoding.pemToBuffer('PUBLIC', pem)
+    const binaryDer = encoding.decodePEM('PUBLIC KEY', pem)
 
     return await window.crypto.subtle.importKey(
         "spki",
@@ -35,7 +35,7 @@ export const importRSAPub = async (pem: string, settings: CryptoSettings) => {
 }
 
 export const importRSAPriv = async (pem: string, settings: CryptoSettings) => {
-    const binaryDer = encoding.pemToBuffer('PRIVATE', pem)
+    const binaryDer = encoding.decodePEM('PRIVATE KEY', pem)
 
     return window.crypto.subtle.importKey(
         "pkcs8",
@@ -60,7 +60,7 @@ const generateRSA = async (props: Props, keyLength: number) => {
             ["encrypt", "decrypt"]
         );
 
-        props.setState({ output: await encoding.keypairToPem(keypair), successMsg: `(RSA-${keyLength}) Generated successfully` })
+        props.setState({ output: await encoding.keypairToPEM(keypair), successMsg: `(RSA-${keyLength}) Generated successfully` })
     } catch (err) {
         console.error(`Failed to generate RSA-${keyLength} keypair: ${err}`)
         props.setState({ errorMsg: `Failed to generate RSA-${keyLength} keypair: ${err}` })
@@ -83,7 +83,7 @@ const encryptRSA = async (props: Props, message: string) => {
             Buffer.from(message, 'ascii')
         );
 
-        props.setState({ output: encoding.arrayBufferToBase64(cipherText), successMsg: `(RSA-OAEP) Encrypted successfully` })
+        props.setState({ output: Buffer.from(cipherText).toString('base64'), successMsg: `(RSA-OAEP) Encrypted successfully` })
     } catch (err) {
         console.error(`Failed to RSA-OAEP encrypt: ${err}`)
         props.setState({ errorMsg: `Failed to RSA-OAEP encrypt: ${err}` })
@@ -106,7 +106,7 @@ const decryptRSA = async (props: Props, message: string) => {
             Buffer.from(message, 'base64')
         );
 
-        props.setState({ output: encoding.arrayBufferToString(plainText), successMsg: `(RSA-OAEP) Decrypted successfully` })
+        props.setState({ output: Buffer.from(plainText).toString(), successMsg: `(RSA-OAEP) Decrypted successfully` })
     } catch (err) {
         console.error(`Failed to RSA-OAEP decrypt: ${err}`)
         props.setState({ errorMsg: `Failed to RSA-OAEP decrypt: ${err}` })
@@ -138,7 +138,7 @@ const signRSA = async (props: Props, rsaMode: string, hashAlgo: string, message:
             Buffer.from(message, 'ascii')
         );
 
-        props.setState({ output: encoding.arrayBufferToBase64(signature), successMsg: `(${rsaMode}) Signed successfully` });
+        props.setState({ output: Buffer.from(signature).toString('base64'), successMsg: `(${rsaMode}) Signed successfully` });
     } catch (err) {
         console.error(`Failed to ${rsaMode} sign: ${err}`);
         props.setState({ errorMsg: `Failed to ${rsaMode} sign: ${err}` })

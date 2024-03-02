@@ -3,7 +3,6 @@ import { Buffer } from 'buffer';
 import { Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 
 import { Props } from 'types/SharedTypes';
-import * as encoding from 'lib/encoding';
 import { Draw } from '@mui/icons-material';
 
 const digest = async (props: Props, message: string, algorithm: string) => {
@@ -12,7 +11,7 @@ const digest = async (props: Props, message: string, algorithm: string) => {
 
         const hash = await crypto.subtle.digest(algorithm, Buffer.from(message, 'ascii'));
 
-        props.setState({ output: encoding.arrayBufferToBase64(hash), successMsg: `(${algorithm}) Hashed successfully` })
+        props.setState({ output: Buffer.from(hash).toString('base64'), successMsg: `(${algorithm}) Hashed successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: `Failed to digest data: ${err}` })

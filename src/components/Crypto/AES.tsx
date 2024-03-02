@@ -1,13 +1,29 @@
 import React, { useState } from 'react';
-import { Buffer } from 'buffer';
 import { useParams } from 'react-router-dom';
-import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Button, ButtonGroup, CircularProgress, FormControl, FormGroup, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { Key, Lock, LockOpen } from '@mui/icons-material';
+import { Buffer } from 'buffer';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
-import * as encoding from 'lib/encoding';
+import FileUploadBtn from 'components/FileUploadBtn';
 
 const keyUsages: Array<KeyUsage> = ["encrypt", "decrypt"];
+
+const generateIV = (aesMode: string) => {
+    let ivLen = 16
+    switch (aesMode) {
+        case 'AES-CBC':
+            ivLen = 16; // 16 Bytes IV
+            break;
+        case 'AES-GCM':
+            ivLen = 12; // 12 Bytes Nonce
+            break;
+        case 'AES-CTR':
+            ivLen = 12; // 12 Bytes Counter
+            break;
+    }
+    return window.crypto.getRandomValues(new Uint8Array(ivLen));
+}
 
 const importAES = async (key: string, settings: CryptoSettings) => {
     const binaryDer = Buffer.from(key, 'base64')
@@ -34,9 +50,8 @@ const generateAES = async (props: Props, keyLength: number) => {
         );
 
         const exported = await window.crypto.subtle.exportKey("raw", key)
-        const exportedKeyBuffer = new Uint8Array(exported);
 
-        props.setState({ output: encoding.arrayBufferToBase64(exportedKeyBuffer), successMsg: `(AES-${keyLength}) Generated successfully` })
+        props.setState({ output: Buffer.from(exported).toString('base64'), successMsg: `(AES-${keyLength}) Generated successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: `Failed to generate AES key: ${err}` })
@@ -54,7 +69,7 @@ const encryptAES = async (props: Props, aesMode: string, message: string) => {
             keyUsages
         }
         const key = await importAES(props.input, settings)
-        const iv = window.crypto.getRandomValues(new Uint8Array(16));
+        const iv = generateIV(aesMode);
 
         const cipherText = await window.crypto.subtle.encrypt(
             {
@@ -66,8 +81,8 @@ const encryptAES = async (props: Props, aesMode: string, message: string) => {
         );
 
         props.setState({
-            output: `ciphertext: ${encoding.arrayBufferToBase64(cipherText)}\niv: ${encoding.arrayBufferToBase64(iv)}`,
-            successMsg: `(AES-CBC) Encrypted successfully`
+            output: `ciphertext: ${Buffer.from(cipherText).toString('base64')}\niv: ${Buffer.from(iv).toString('base64')}`,
+            successMsg: `(${aesMode}) Encrypted successfully`
         })
     } catch (err) {
         console.error(err)
@@ -97,7 +112,7 @@ const decryptAES = async (props: Props, aesMode: string, message: string, ivText
             Buffer.from(message, 'base64')
         );
 
-        props.setState({ output: encoding.arrayBufferToString(plainText), successMsg: `(AES-CBC) Decrypted successfully` })
+        props.setState({ output: Buffer.from(plainText).toString(), successMsg: `(${aesMode}) Decrypted successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: `Failed to decrypt: ${err}` })
@@ -105,7 +120,6 @@ const decryptAES = async (props: Props, aesMode: string, message: string, ivText
         props.setState({ loading: false })
     }
 }
-
 
 export default function AES(props: Props) {
     const [aesMode, setAESMode] = useState('AES-GCM')
@@ -165,18 +179,18 @@ export default function AES(props: Props) {
                     </FormControl>
 
                     <FormControl fullWidth>
-                        <TextField label="PlainText / CipherText"
+                        <TextField label="Plaintext / Ciphertext"
                             variant="outlined"
-                            placeholder="ASCII for encryption and base64 for decryption"
+                            placeholder="ASCII (for encryption) | Base64 (for decryption)"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                         />
                     </FormControl>
 
                     <FormControl fullWidth>
-                        <TextField label="IV (required for decryption)"
+                        <TextField label="IV / Nonce"
                             variant="outlined"
-                            placeholder="Base64 IV for decryption"
+                            placeholder="Base64 (for decryption)"
                             value={iv}
                             onChange={(e) => setIV(e.target.value)}
                         />
