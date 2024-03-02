@@ -6,7 +6,7 @@ import * as pkijs from 'pkijs';
 
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { CryptoSettings, Props } from 'types/SharedTypes';
-import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest, CSRTest } from 'lib/PKCS10';
+import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest } from 'lib/PKCS10';
 import { encodePEM } from 'lib/encoding';
 import { KeyUploadModal } from 'components/KeyUploadModal';
 import { importRSAPriv, importRSAPub } from './RSA';

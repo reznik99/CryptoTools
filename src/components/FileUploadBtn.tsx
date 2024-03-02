@@ -1,12 +1,13 @@
 import React, { ChangeEvent, useCallback, useState } from 'react';
-import { Button } from '@mui/material';
+import { Button, SxProps, Theme } from '@mui/material';
 import { Check } from '@mui/icons-material';
 
 
 type Props = {
+    children: React.ReactNode;
+    sx?: SxProps<Theme>;
     acceptFiles?: string;
     maxNameLength?: number;
-    children: React.ReactNode;
     startIcon?: React.ReactNode;
     onRead: (data: string | ArrayBuffer | null | undefined) => void;
 }
@@ -36,7 +37,8 @@ export default function FileUploadBtn(props: Props) {
     }, [props])
 
     return (
-        <Button variant='outlined'
+        <Button sx={props.sx} 
+            variant='outlined'
             color={filename ? 'success' : 'primary'}
             component='label'
             startIcon={filename ? <Check /> : props.startIcon}>

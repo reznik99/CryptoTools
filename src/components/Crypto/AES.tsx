@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, ButtonGroup, CircularProgress, FormControl, FormGroup, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { Key, Lock, LockOpen } from '@mui/icons-material';
+import { CloudUpload, Key, Lock, LockOpen } from '@mui/icons-material';
 import { Buffer } from 'buffer';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
@@ -178,14 +178,21 @@ export default function AES(props: Props) {
                         </Select>
                     </FormControl>
 
-                    <FormControl fullWidth>
-                        <TextField label="Plaintext / Ciphertext"
-                            variant="outlined"
-                            placeholder="ASCII (for encryption) | Base64 (for decryption)"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-                    </FormControl>
+                    <TextField fullWidth
+                        label="Plaintext / Ciphertext"
+                        variant="outlined"
+                        placeholder="ASCII (for encryption) | Base64 (for decryption)"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        InputProps={{
+                            sx: {paddingRight: 0},
+                            endAdornment:
+                                <FileUploadBtn onRead={(data) => setMessage(String(data))}
+                                    startIcon={<CloudUpload />}>
+                                    UploadFile
+                                </FileUploadBtn>
+                        }}
+                    />
 
                     <FormControl fullWidth>
                         <TextField label="IV / Nonce"
