@@ -7,20 +7,6 @@ import { Check, Draw, Key, Lock, LockOpen } from '@mui/icons-material';
 import { Props, CryptoSettings } from 'types/SharedTypes';
 import * as encoding from 'lib/encoding';
 
-const encSettings: CryptoSettings = {
-    algorithm: {
-        name: "RSA-OAEP",
-        hash: "SHA-256",
-    },
-    keyUsages: ["encrypt"]
-}
-const decSettings: CryptoSettings = {
-    algorithm: {
-        name: "RSA-OAEP",
-        hash: "SHA-256",
-    },
-    keyUsages: ["decrypt"]
-}
 
 export const importRSAPub = async (pem: string, settings: CryptoSettings) => {
     const binaryDer = encoding.decodePEM('PUBLIC KEY', pem)
@@ -69,11 +55,19 @@ const generateRSA = async (props: Props, keyLength: number) => {
     }
 }
 
-const encryptRSA = async (props: Props, message: string) => {
+const encryptRSA = async (props: Props, hashAlgo: string, message: string) => {
     try {
         props.setState({ loading: true })
 
-        const publicKey = await importRSAPub(props.input, encSettings)
+        const settings: CryptoSettings = {
+            algorithm: {
+                name: "RSA-OAEP",
+                hash: hashAlgo,
+            },
+            keyUsages: ["encrypt"] as Array<KeyUsage>
+        };
+
+        const publicKey = await importRSAPub(props.input, settings)
 
         const cipherText = await window.crypto.subtle.encrypt(
             {
@@ -92,11 +86,18 @@ const encryptRSA = async (props: Props, message: string) => {
     }
 }
 
-const decryptRSA = async (props: Props, message: string) => {
+const decryptRSA = async (props: Props, hashAlgo: string, message: string) => {
     try {
         props.setState({ loading: true })
 
-        const privateKey = await importRSAPriv(props.input, decSettings)
+        const settings: CryptoSettings = {
+            algorithm: {
+                name: "RSA-OAEP",
+                hash: hashAlgo,
+            },
+            keyUsages: ["decrypt"] as Array<KeyUsage>
+        };
+        const privateKey = await importRSAPriv(props.input, settings)
 
         const plainText = await window.crypto.subtle.decrypt(
             {
@@ -225,15 +226,30 @@ export default function RSA(props: Props) {
                 sx={{ minHeight: '50vh' }}>
                 <Typography variant='h4'> Encrypt/Decrypt </Typography>
 
-                <FormControl fullWidth>
-                    <InputLabel id='algorithm-label'>Algorithm</InputLabel>
-                    <Select labelId='algorithm-label'
-                        label='Algorithm'
-                        value='RSA-OAEP'>
-                        <MenuItem value="RSAES-PKCS1-v1_5" disabled>RSAES-PKCS1-v1_5</MenuItem>
-                        <MenuItem value="RSA-OAEP">RSA-OAEP</MenuItem>
-                    </Select>
-                </FormControl>
+                <Stack direction="row" spacing={2} width='100%'>
+                    <FormControl fullWidth>
+                        <InputLabel id='algorithm-label'>Algorithm</InputLabel>
+                        <Select labelId='algorithm-label'
+                            label='Algorithm'
+                            value='RSA-OAEP'>
+                            <MenuItem value="RSAES-PKCS1-v1_5" disabled>RSAES-PKCS1-v1_5</MenuItem>
+                            <MenuItem value="RSA-OAEP">RSA-OAEP</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth>
+                        <InputLabel id='hash-algorithm-label'>Hash Algorithm</InputLabel>
+                        <Select labelId='hash-algorithm-label'
+                            label='Hash Algorithm'
+                            value={hashAlgo}
+                            onChange={e => setHashAlgo(e.target.value)}>
+                            <MenuItem value="SHA-1">SHA-1</MenuItem>
+                            <MenuItem value="SHA-256">SHA-256</MenuItem>
+                            <MenuItem value="SHA-384">SHA-384</MenuItem>
+                            <MenuItem value="SHA-512">SHA-512</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Stack>
 
                 <FormControl fullWidth>
                     <TextField label="PlainText / CipherText"
@@ -252,10 +268,10 @@ export default function RSA(props: Props) {
                     : <ButtonGroup>
                         <Button variant='contained'
                             startIcon={<LockOpen />}
-                            onClick={() => decryptRSA(props, message)} disabled={props.loading}>Decrypt Data</Button>
+                            onClick={() => decryptRSA(props, hashAlgo, message)} disabled={props.loading}>Decrypt Data</Button>
                         <Button variant='contained'
                             startIcon={<Lock />}
-                            onClick={() => encryptRSA(props, message)} disabled={props.loading}>Encrypt Data</Button>
+                            onClick={() => encryptRSA(props, hashAlgo, message)} disabled={props.loading}>Encrypt Data</Button>
                     </ButtonGroup>
                 }
             </Stack>
