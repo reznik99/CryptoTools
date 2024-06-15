@@ -7,10 +7,11 @@ import * as pkijs from 'pkijs';
 import { MultiInput, RowContent } from 'components/MultiInput'
 import { CryptoSettings, Props } from 'types/SharedTypes';
 import { createC, createCN, createSANExtension, createL, createO, createOU, createSKIExtension, oidExtensionsRequest } from 'lib/PKCS10';
-import { encodePEM } from 'lib/encoding';
+import { encodePEM, keypairToPEM } from 'lib/encoding';
 import { KeyUploadModal } from 'components/KeyUploadModal';
 import { importRSAPriv, importRSAPub } from './RSA';
 import { importECDSAPriv, importECDSAPub } from './ECDSA';
+import FileDownloadBtn from 'components/FileDownloadBtn';
 
 type keyDetails = {
     algorithm: string;
@@ -89,7 +90,7 @@ const importCSRKeypair = async (keyDetails: keyDetails, privPem: string, pubPem:
     return output
 }
 
-const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject, extensions: RowContent[], privateKey: string, publicKey: string, doGenerate: boolean) => {
+const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subject, extensions: RowContent[], privateKey: string, publicKey: string, doGenerate: boolean, setToDownload: (arg0: any) => void) => {
     const { algorithm, hash, keyLength, curve } = keyDetails
     const { commonName, organisation, organisationalUnit, locality, country } = subject
 
@@ -162,10 +163,13 @@ const generateCSR = async (props: Props, keyDetails: keyDetails, subject: subjec
 
         // Export as PEM
         const csrBER = csr.toSchema().toBER(false);
-        const csrPEM = Buffer.from(csrBER).toString('base64');
-        const algoString = `${algorithm} with ${hash} (${algorithm === 'ECDSA' ? curve : keyLength + '-bit'})`
+        const csrPEM = encodePEM(Buffer.from(csrBER).toString('base64'), 'CERTIFICATE REQUEST');
 
-        props.setState({ output: encodePEM(csrPEM, 'CERTIFICATE REQUEST'), successMsg: `CSR Generated successfully: ${algoString}` });
+        const [private_pem, public_pem] = await keypairToPEM(keypair)
+        setToDownload({ private_pem: private_pem, public_pem: public_pem, csr_pem: csrPEM })
+
+        const algoString = `${algorithm} with ${hash} (${algorithm === 'ECDSA' ? curve : keyLength + '-bit'})`
+        props.setState({ output: csrPEM, successMsg: `CSR Generated successfully: ${algoString}` });
     } catch (err: any) {
         console.error(err);
         props.setState({ errorMsg: `Failed to generate CSR: ${err?.message || err}`, output: '' })
@@ -194,6 +198,7 @@ export default function CSR(props: Props) {
     const [modalOpen, setModalOpen] = useState(false)
     const [privateKey, setPrivateKey] = useState('')
     const [publicKey, setPublicKey] = useState('')
+    const [toDownload, setToDownload] = useState({ private_pem: '', public_pem: '', csr_pem: '' })
 
     return <Stack spacing={2}
         direction="column"
@@ -328,9 +333,21 @@ export default function CSR(props: Props) {
         </Button>
         <Button hidden={props.loading} variant='contained'
             startIcon={<Create />}
-            onClick={() => generateCSR(props, keyDetails, subject, extensions, privateKey, publicKey, doGenerateKey)}>
+            onClick={() => generateCSR(props, keyDetails, subject, extensions, privateKey, publicKey, doGenerateKey, setToDownload)}>
             Generate CSR
         </Button>
+
+        <Stack spacing={2} direction='row'>
+            <FileDownloadBtn hide={!toDownload.public_pem} data={toDownload.public_pem || ''} fileName={`${keyDetails.algorithm}-public.pem`}>
+                Public Key (SPKI)
+            </FileDownloadBtn>
+            <FileDownloadBtn hide={!toDownload.private_pem} data={toDownload.private_pem || ''} fileName={`${keyDetails.algorithm}-private.pem`}>
+                Private Key (PKCS8)
+            </FileDownloadBtn>
+            <FileDownloadBtn hide={!toDownload.csr_pem} data={toDownload.csr_pem || ''} fileName={`${keyDetails.algorithm}.req`}>
+                CSR (PKCS10)
+            </FileDownloadBtn>
+        </Stack>
 
     </Stack>
 }

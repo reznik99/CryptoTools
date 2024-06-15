@@ -6,6 +6,7 @@ import { Check, Draw, Key } from '@mui/icons-material';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
 import * as encoding from 'lib/encoding';
+import FileDownloadBtn from 'components/FileDownloadBtn';
 
 
 const sigSettings: CryptoSettings = {
@@ -45,7 +46,7 @@ export const importECDSAPriv = async (pem: string, settings: CryptoSettings) => 
     );
 }
 
-const generateECDSA = async (props: Props, curve: string) => {
+const generateECDSA = async (props: Props, curve: string, setKeypair: (arg0: any) => void) => {
     try {
         props.setState({ loading: true })
         const keypair = await window.crypto.subtle.generateKey(
@@ -56,8 +57,10 @@ const generateECDSA = async (props: Props, curve: string) => {
             true,
             ["sign", "verify"]
         );
+        const [private_pem, public_pem] = await encoding.keypairToPEM(keypair)
+        setKeypair({ private_pem: private_pem, public_pem: public_pem })
 
-        props.setState({ output: await encoding.keypairToPEM(keypair), successMsg: `(ECDSA-${curve}) Generated successfully` })
+        props.setState({ output: `${private_pem}\n${public_pem}`, successMsg: `(ECDSA-${curve}) Generated successfully` })
     } catch (err) {
         console.error(`Failed to generate ECDSA ${curve}: ${err}`)
         props.setState({ errorMsg: `Failed to generate ECDSA ${curve}: ${err}` })
@@ -121,7 +124,7 @@ export default function ECDSA(props: Props) {
     const [hashAlgo, setHashAlgo] = useState('SHA-256')
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
-
+    const [keypair, setKeypair] = useState({ private_pem: '', public_pem: '' })
     const { action } = useParams();
 
     switch (action) {
@@ -151,10 +154,20 @@ export default function ECDSA(props: Props) {
                     </Button>
                     : <Button variant='contained'
                         startIcon={<Key />}
-                        onClick={() => generateECDSA(props, curve)}>
+                        onClick={() => generateECDSA(props, curve, setKeypair)}>
                         Generate ECDSA Key
                     </Button>
                 }
+
+                <Stack spacing={2} direction='row'>
+                    <FileDownloadBtn hide={!keypair.public_pem} data={keypair.public_pem || ''} fileName='ECDSA-public.pem'>
+                        Public Key (SPKI)
+                    </FileDownloadBtn>
+                    <FileDownloadBtn hide={!keypair.private_pem} data={keypair.private_pem || ''} fileName='ECDSA-private.pem'>
+                        Private Key (PKCS8)
+                    </FileDownloadBtn>
+                </Stack>
+
             </Stack>
         case 'Sig':
             return <Stack spacing={2}

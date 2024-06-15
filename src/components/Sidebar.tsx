@@ -93,9 +93,10 @@ const actions = new Map<string, menuObject>(
 )
 
 interface IProps {
-    toggleMenu: () => void
-    open: boolean,
-    path: string,
+    toggleMenu: () => void;
+    setState: Function;
+    open: boolean;
+    path: string;
 }
 
 const Sidebar = (props: IProps) => {
@@ -144,7 +145,7 @@ const Sidebar = (props: IProps) => {
                                         const path = subvalue.link + action
                                         const selected = props.path === path
                                         return (
-                                            <Link to={path} key={idx}
+                                            <Link to={path} onClick={() => props.setState({ output: '' })} key={idx}
                                                 className='text-light'
                                                 style={{ textDecoration: 'none' }}>
                                                 <ListItemButton sx={{ pl: 4 }} selected={selected}>

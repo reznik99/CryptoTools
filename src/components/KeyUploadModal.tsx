@@ -30,7 +30,7 @@ export function KeyUploadModal(props: Props) {
             <DialogContent>
 
                 <DialogContentText marginBottom={3}>
-                    Supply a Private and Public key in <strong>PKCS8 & PKIX</strong> formats to be used in the generation of the CSR.
+                    Supply a Private and Public key in <strong>PKCS8 & SPKI</strong> formats to be used in the generation of the CSR.
                 </DialogContentText>
 
                 <Stack direction='row' spacing={2} marginY={2} width='100%'>

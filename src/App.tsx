@@ -65,6 +65,7 @@ class App extends React.Component<IProps, IState> {
                     <Box sx={{ flexGrow: 1, overflowY: 'scroll', py: 5 }}>
 
                         <Sidebar open={this.state.menuOpen}
+                            setState={this.updateState}
                             path={this.props.location?.pathname || ""}
                             toggleMenu={() => this.setState({ menuOpen: !this.state.menuOpen })}
                         />

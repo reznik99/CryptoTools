@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { CloudUpload, Key, Lock, LockOpen } from '@mui/icons-material';
+import { CloudUpload, Key, Lock, LockOpen, Download } from '@mui/icons-material';
 import { Buffer } from 'buffer';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
 import FileUploadBtn from 'components/FileUploadBtn';
+import FileDownloadBtn from 'components/FileDownloadBtn';
 
 const keyUsages: Array<KeyUsage> = ["encrypt", "decrypt"];
 
@@ -139,7 +140,7 @@ export default function AES(props: Props) {
                     alignItems="center"
                     sx={{ minHeight: '50vh' }}>
                     <Typography variant='h4'> Generate Key </Typography>
-                    <FormControl fullWidth sx={{ my: 1 }}>
+                    <FormControl fullWidth sx={{ my: 2 }}>
                         <InputLabel id='keysize-label'>Key Size</InputLabel>
                         <Select labelId='keysize-label'
                             label='Key Size'
@@ -152,10 +153,14 @@ export default function AES(props: Props) {
                     </FormControl>
                     {props.loading
                         ? <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Generating...</Button>
-                        : <Button variant='contained'
-                            startIcon={<Key />}
+                        : <Button variant='contained' startIcon={<Key />}
                             onClick={() => generateAES(props, keyLength)}>Generate AES Key</Button>
                     }
+
+                    <FileDownloadBtn hide={!props.output} data={props.output || ''} fileName='AES.key'>
+                        Download Key (Base64)
+                    </FileDownloadBtn>
+
                 </Stack>
             )
         case 'Enc':
@@ -185,7 +190,7 @@ export default function AES(props: Props) {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         InputProps={{
-                            sx: {paddingRight: 0},
+                            sx: { paddingRight: 0 },
                             endAdornment:
                                 <FileUploadBtn onRead={(data) => setMessage(String(data))}
                                     startIcon={<CloudUpload />}>

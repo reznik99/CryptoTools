@@ -6,6 +6,7 @@ import { Check, Draw, Key, Lock, LockOpen } from '@mui/icons-material';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
 import * as encoding from 'lib/encoding';
+import FileDownloadBtn from 'components/FileDownloadBtn';
 
 
 export const importRSAPub = async (pem: string, settings: CryptoSettings) => {
@@ -32,7 +33,7 @@ export const importRSAPriv = async (pem: string, settings: CryptoSettings) => {
     );
 }
 
-const generateRSA = async (props: Props, keyLength: number) => {
+const generateRSA = async (props: Props, keyLength: number, setKeypair: (arg0: any) => void) => {
     try {
         props.setState({ loading: true })
         const keypair = await window.crypto.subtle.generateKey(
@@ -45,8 +46,10 @@ const generateRSA = async (props: Props, keyLength: number) => {
             true,
             ["encrypt", "decrypt"]
         );
+        const [private_pem, public_pem] = await encoding.keypairToPEM(keypair)
+        setKeypair({ private_pem: private_pem, public_pem: public_pem })
 
-        props.setState({ output: await encoding.keypairToPEM(keypair), successMsg: `(RSA-${keyLength}) Generated successfully` })
+        props.setState({ output: `${private_pem}\n${public_pem}`, successMsg: `(RSA-${keyLength}) Generated successfully` })
     } catch (err) {
         console.error(`Failed to generate RSA-${keyLength} keypair: ${err}`)
         props.setState({ errorMsg: `Failed to generate RSA-${keyLength} keypair: ${err}` })
@@ -187,7 +190,7 @@ export default function RSA(props: Props) {
     const [hashAlgo, setHashAlgo] = useState('SHA-256')
     const [message, setMessage] = useState('')
     const [signature, setSignature] = useState('')
-
+    const [keypair, setKeypair] = useState({ private_pem: '', public_pem: '' })
     const { action } = useParams();
 
     switch (action) {
@@ -213,10 +216,19 @@ export default function RSA(props: Props) {
                     </Button>
                     : <Button variant='contained'
                         startIcon={<Key />}
-                        onClick={() => generateRSA(props, keyLength)}>
+                        onClick={() => generateRSA(props, keyLength, setKeypair)}>
                         Generate RSA Key
                     </Button>
                 }
+
+                <Stack spacing={2} direction='row'>
+                    <FileDownloadBtn hide={!keypair.public_pem} data={keypair.public_pem || ''} fileName='rsa-public.pem'>
+                        Public Key (SPKI)
+                    </FileDownloadBtn>
+                    <FileDownloadBtn hide={!keypair.private_pem} data={keypair.private_pem || ''} fileName='rsa-private.pem'>
+                        Private Key (PKCS8)
+                    </FileDownloadBtn>
+                </Stack>
             </Stack>
         case 'Enc':
             return <Stack spacing={2}

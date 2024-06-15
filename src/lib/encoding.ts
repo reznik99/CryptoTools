@@ -18,7 +18,8 @@ export const keypairToPEM = async (keypair: CryptoKeyPair) => {
     const exportedPrivAsBase64 = Buffer.from(exportedPriv).toString('base64')
     const exportedPubAsBase64 = Buffer.from(exportedPub).toString('base64')
 
-    return `${encodePEM(exportedPrivAsBase64, 'PRIVATE KEY')}\n${encodePEM(exportedPubAsBase64, 'PUBLIC KEY')}`
+
+    return [encodePEM(exportedPrivAsBase64, 'PRIVATE KEY'), encodePEM(exportedPubAsBase64, 'PUBLIC KEY')]
 }
 
 export const encodePEM = (value: string, pemHeader: string) => {
