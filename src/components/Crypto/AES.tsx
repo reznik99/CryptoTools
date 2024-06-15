@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, ButtonGroup, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { CloudUpload, Key, Lock, LockOpen, Download } from '@mui/icons-material';
+import { CloudUpload, Key, Lock, LockOpen } from '@mui/icons-material';
 import { Buffer } from 'buffer';
 
 import { Props, CryptoSettings } from 'types/SharedTypes';
