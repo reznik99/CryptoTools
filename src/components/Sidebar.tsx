@@ -56,11 +56,15 @@ const actions = new Map<string, menuObject>(
             icon: <SignalWifiStatusbar4Bar />,
             submenus: new Map(
                 [
-                    ["RSA", {
+                    ["RSASSA", {
                         link: "/RSA"
                     }],
                     ["ECDSA", {
                         link: "/ECDSA"
+                    }],
+                    ["HMAC", {
+                        link: "/AES",
+                        isNew: true
                     }],
                 ]
             )
