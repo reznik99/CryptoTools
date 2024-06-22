@@ -9,6 +9,7 @@ type Props = {
     acceptFiles?: string;
     maxNameLength?: number;
     startIcon?: React.ReactNode;
+    disabled?: boolean
     onRead: (data: string | ArrayBuffer | null | undefined) => void;
 }
 
@@ -41,6 +42,7 @@ export default function FileUploadBtn(props: Props) {
             variant='outlined'
             color={filename ? 'success' : 'primary'}
             component='label'
+            disabled={props.disabled}
             startIcon={filename ? <Check /> : props.startIcon}>
             {filename || props.children}
             <input hidden
