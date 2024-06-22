@@ -9,6 +9,7 @@ import AES from 'components/Crypto/AES';
 import RSA from 'components/Crypto/RSA';
 import ECDSA from 'components/Crypto/ECDSA';
 import CSR from 'components/Crypto/CSR';
+import Certificate from 'components/Crypto/Certificate';
 import SHA from 'components/Crypto/SHA';
 import Encoding from 'components/Crypto/Encoding';
 import InfoMessage from 'components/Feedback/InfoMessage';
@@ -84,6 +85,8 @@ class App extends React.Component<IProps, IState> {
                                         element={<ECDSA {...this.state} setState={this.updateState} />} />
                                     <Route path="/CSR/Gen"
                                         element={<CSR {...this.state} setState={this.updateState} />} />
+                                    <Route path="/Certificate/Gen"
+                                        element={<Certificate {...this.state} setState={this.updateState} />} />
                                     <Route path="/SHA"
                                         element={<SHA {...this.state} setState={this.updateState} />} />
                                     <Route path="/Encoding"

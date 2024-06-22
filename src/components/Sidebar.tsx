@@ -33,6 +33,10 @@ const actions = new Map<string, menuObject>(
                     ["CSRs", {
                         link: "/CSR",
                         isNew: true
+                    }],
+                    ["Certificates", {
+                        link: "/Certificate",
+                        isNew: true
                     }]
                 ]
             )
