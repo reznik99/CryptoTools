@@ -12,7 +12,7 @@
 ### `Cryptographic tools for your browser in a Single-Page app`
 
 This website [crypto.francescogorini.com](https://crypto.francescogorini.com) is a cryptographic playground to **play** with, **test** and **learn** about **cryptography**. <br />
-It runs all cryptographic operations in the browser utilising [SubtleCrypto API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto), [PKIJS](https://github.com/PeculiarVentures/PKI.js) and [ASN1JS](https://github.com/lapo-luchini/asn1js).
+It runs all cryptographic operations in the browser utilising [SubtleCrypto API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto), [PKIJS](https://github.com/PeculiarVentures/PKI.js) and [ASN1JS](https://github.com/lapo-luchini/asn1js) as well as [Go](https://go.dev/wiki/WebAssembly).
 
 ### This project uses:
 - [React](https://github.com/facebook/react)
@@ -28,9 +28,8 @@ It runs all cryptographic operations in the browser utilising [SubtleCrypto API]
 - [x] __AES__ Key Generation.
 - [x] __RSA__ Key Generation.
 - [x] __ECDSA__ Key Generation with NIST __P-256__ __P-384__ and __P-521__ curve support.
-- [x] __PKCS10/CSR__ Generation with custom __Subjects__ and with __ECDSA__, __RSA-PSS__ and __RSASSA-PKCS1-v1_5__ signatures.
-- [x] __PKCS10/CSR__ Generation with custom __Subject Alternative Names__.
-- [ ] __x509 Certificate__ Generation/Signing with custom key/cert.
+- [x] __PKCS10/CSR__ Generation with custom __Subjects__ and __SANs__, with __ECDSA__, __RSA-PSS__ and __RSASSA-PKCS1-v1_5__ signatures.
+- [x] __x509 Certificate__ Generation/Signing with custom key/cert.
 ### Encrypt/Decrypt
 - [x] __AES-CBC__ Encrypt/Decrypt.
 - [x] __AES-GCM__ Encrypt/Decrypt.
@@ -41,7 +40,7 @@ It runs all cryptographic operations in the browser utilising [SubtleCrypto API]
 - [x] __RSASSA-PKCS1-v1_5__ Sign/Validate.
 - [x] __RSA-PSS__ Sign/Validate.
 - [x] __ECDSA__ Sign/Verify with NIST __P-256__ __P-384__ and __P-521__ curve support.
-- [ ] __HMAC__ support.
+- [x] __HMAC__ support.
 - [ ] __File__ signing support.
 ### Hashing
 - [x] __SHA-1__, __SHA-256__, __SHA-384__ and __SHA-512__ support.
