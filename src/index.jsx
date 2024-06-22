@@ -13,8 +13,8 @@ import '@fontsource/roboto/700.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './index.css';
-import './types/WasmTypes.d.ts'
-import './lib/wasm_exec.js'
+import './types/WasmTypes.d.ts';
+import './lib/wasm_exec.js';
 
 const darkTheme = createTheme({
     palette: {

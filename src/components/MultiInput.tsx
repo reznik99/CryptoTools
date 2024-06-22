@@ -10,7 +10,7 @@ interface IProps {
     deleteRow: (index: number) => void
 }
 
-interface RowContent {
+export interface RowContent {
     value: string,
     type: string,
 }
@@ -32,7 +32,7 @@ const validateField = (field: RowContent) => {
     return true
 }
 
-function MultiInput(props: IProps) {
+export function MultiInput(props: IProps) {
 
     return (
         <>
@@ -85,10 +85,4 @@ function MultiInput(props: IProps) {
             })}
         </>
     )
-}
-
-
-export {
-    RowContent,
-    MultiInput
 }
