@@ -27,7 +27,6 @@
     "baseUrl": "src"
   },
   "include": [
-    "src",
-    "src/lib/wasm_exec.js"
+    "src"
   ]
 }

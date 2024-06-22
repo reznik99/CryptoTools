@@ -7,5 +7,5 @@ import topLevelAwait from "vite-plugin-top-level-await"
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '',
-  plugins: [react(), tsconfigPaths(), wasm(), topLevelAwait()]
+  plugins: [tsconfigPaths(), react(), wasm(), topLevelAwait()]
 })
