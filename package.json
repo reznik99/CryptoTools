@@ -6,7 +6,8 @@
     "homepage": "",
     "scripts": {
         "start": "vite",
-        "build": "tsc && vite build"
+        "build": "tsc && vite build",
+        "build-wasm": "cd webassembly-crypto && @powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./build.ps1 && move crypto.wasm ../public"
     },
     "dependencies": {
         "@emotion/react": "^11.11.4",

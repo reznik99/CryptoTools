@@ -108,7 +108,7 @@ export default function Certificate(props: Props) {
             Create Certificate
         </Button>
 
-        <FileDownloadBtn hide={!newCertificate} data={newCertificate || ''} fileName={`newCertificate.pem`}>
+        <FileDownloadBtn hide={!newCertificate} data={newCertificate || ''} fileName={`certificate.crt`}>
             Certificate (PEM)
         </FileDownloadBtn>
     </Stack>
