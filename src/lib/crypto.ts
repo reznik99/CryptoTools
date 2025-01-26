@@ -1,0 +1,25 @@
+import { ImportOpts } from "types/SharedTypes";
+
+export const hkdfImportOpts: ImportOpts = {
+    format: "raw",
+    algorithm: { name: "HKDF" },
+    exportable: true,
+    usages: ["deriveKey"]
+}
+
+export const pbkdf2ImportOpts: ImportOpts = {
+    format: "raw",
+    algorithm: { name: "PBKDF2" },
+    exportable: true,
+    usages: ["deriveKey"]
+}
+
+export async function importKey(key: Buffer, opts: ImportOpts) {
+    return crypto.subtle.importKey(
+        opts.format,
+        key,
+        opts.algorithm,
+        opts.exportable,
+        opts.usages
+    );
+}

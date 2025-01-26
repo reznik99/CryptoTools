@@ -30,10 +30,6 @@ const actions = new Map<string, menuObject>(
                     ["ECDSA Keys", {
                         link: "/ECDSA"
                     }],
-                    ["KDF Generation", {
-                        link: "/KDF",
-                        isNew: true
-                    }],
                     ["CSRs", {
                         link: "/CSR",
                         isNew: true
@@ -42,6 +38,22 @@ const actions = new Map<string, menuObject>(
                         link: "/Certificate",
                         isNew: true
                     }]
+                ]
+            )
+        }],
+        ["Derivation", {
+            link: "/Derive",
+            icon: <Lock />,
+            submenus: new Map(
+                [
+                    ["HKDF", {
+                        link: "/HKDF",
+                        isNew: true
+                    }],
+                    ["PBKDF2", {
+                        link: "/PBKDF2",
+                        isNew: true
+                    }],
                 ]
             )
         }],
