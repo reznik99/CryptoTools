@@ -8,14 +8,15 @@ import Output from 'components/Output';
 import AES from 'components/Crypto/AES';
 import RSA from 'components/Crypto/RSA';
 import ECDSA from 'components/Crypto/ECDSA';
-import HKDF from 'components/Crypto/KDF_HKDF';
 import CSR from 'components/Crypto/CSR';
 import Certificate from 'components/Crypto/Certificate';
+import HKDF from 'components/Crypto/KDF_HKDF';
+import PBKDF2 from 'components/Crypto/KDF_PBKDF2';
+import ECDH from 'components/Crypto/KDF_ECDH';
 import SHA from 'components/Crypto/SHA';
 import Encoding from 'components/Crypto/Encoding';
 import InfoMessage from 'components/Feedback/InfoMessage';
 import ActionAlerts from 'components/Feedback/ActionAlerts';
-import PBKDF2 from 'components/Crypto/KDF_PBKDF2';
 
 interface IState {
     loading: boolean;
@@ -85,14 +86,16 @@ class App extends React.Component<IProps, IState> {
                                         element={<RSA {...this.state} setState={this.updateState} />} />
                                     <Route path="/ECDSA/:action"
                                         element={<ECDSA {...this.state} setState={this.updateState} />} />
-                                    <Route path="/HKDF/:algorith"
-                                        element={<HKDF {...this.state} setState={this.updateState} />} />
-                                    <Route path="/PBKDF2/:action"
-                                        element={<PBKDF2 {...this.state} setState={this.updateState} />} />
                                     <Route path="/CSR/Gen"
                                         element={<CSR {...this.state} setState={this.updateState} />} />
                                     <Route path="/Certificate/Gen"
                                         element={<Certificate {...this.state} setState={this.updateState} />} />
+                                    <Route path="/HKDF/:algorith"
+                                        element={<HKDF {...this.state} setState={this.updateState} />} />
+                                    <Route path="/PBKDF2/:action"
+                                        element={<PBKDF2 {...this.state} setState={this.updateState} />} />
+                                    <Route path="/ECDH/:action"
+                                        element={<ECDH {...this.state} setState={this.updateState} />} />
                                     <Route path="/SHA"
                                         element={<SHA {...this.state} setState={this.updateState} />} />
                                     <Route path="/Encoding"

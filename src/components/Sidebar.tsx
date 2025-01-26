@@ -54,6 +54,10 @@ const actions = new Map<string, menuObject>(
                         link: "/PBKDF2",
                         isNew: true
                     }],
+                    ["ECDH", {
+                        link: "/ECDH",
+                        isNew: true
+                    }],
                 ]
             )
         }],

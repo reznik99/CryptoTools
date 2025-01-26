@@ -4,19 +4,15 @@ import FileUploadBtn from './FileUploadBtn';
 import { CloudUpload } from '@mui/icons-material';
 import { textfieldMonoStyle } from './Output';
 
-
 type Props = {
     open: boolean;
     onClose: () => void;
     onSubmit: (priv: string, pub: string) => void;
 }
 
-
 export function KeyUploadModal(props: Props) {
-
     const [privateKey, setPrivateKey] = useState('')
     const [publicKey, setPublicKey] = useState('')
-
 
     const closeModal = useCallback(() => {
         setPrivateKey('')
@@ -45,7 +41,7 @@ export function KeyUploadModal(props: Props) {
                             rows={10}
                             label='Private Key'
                             placeholder='PKCS8 Private key file in PEM format'
-                            inputProps={textfieldMonoStyle}
+                            slotProps={{ htmlInput: textfieldMonoStyle }}
                             value={privateKey}
                             onChange={(e) => setPrivateKey(e.target.value)} />
                     </Stack>
@@ -60,7 +56,7 @@ export function KeyUploadModal(props: Props) {
                             rows={10}
                             label='Public Key'
                             placeholder='PKIX Public key file in PEM format'
-                            inputProps={textfieldMonoStyle}
+                            slotProps={{ htmlInput: textfieldMonoStyle }}
                             value={publicKey}
                             onChange={(e) => setPublicKey(e.target.value)} />
                     </Stack>
