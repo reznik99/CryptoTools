@@ -6,6 +6,38 @@ import { CheckBox, CheckBoxOutlineBlank, Info, Key } from '@mui/icons-material';
 
 import { Props } from 'types/SharedTypes';
 
+type ImportOpts = {
+    format: "raw" | "pkcs8" | "spki",
+    algorithm: {
+        name: string
+    },
+    exportable: boolean,
+    usages: Array<KeyUsage>
+}
+
+const hkdfImportOpts: ImportOpts = {
+    format: "raw",
+    algorithm: { name: "HKDF" },
+    exportable: true,
+    usages: ["deriveKey"]
+}
+const pbkdf2ImportOpts: ImportOpts = {
+    format: "raw",
+    algorithm: { name: "PBKDF2" },
+    exportable: true,
+    usages: ["deriveKey"]
+}
+
+async function importKey(key: Buffer, opts: ImportOpts) {
+    return crypto.subtle.importKey(
+        opts.format,
+        key,
+        opts.algorithm,
+        opts.exportable,
+        opts.usages
+    );
+}
+
 const HKDF = async (props: Props, hashAlgo: string, keyMaterial: Buffer, saltIn: Buffer, info: Buffer) => {
     try {
         props.setState({ loading: true })
@@ -15,14 +47,8 @@ const HKDF = async (props: Props, hashAlgo: string, keyMaterial: Buffer, saltIn:
             salt = Buffer.from(window.crypto.getRandomValues(new Uint8Array(32)))
         }
         // Import raw key material
-        const baseKey = await crypto.subtle.importKey(
-            'raw',
-            keyMaterial,
-            { name: "HKDF" },
-            true,
-            ["deriveKey"]
-        );
-        // Derive key from key material using HKDF and salt
+        const baseKey = await importKey(keyMaterial, hkdfImportOpts)
+        // Derive key from key material using HKDF
         const derivedKey = await crypto.subtle.deriveKey(
             {
                 name: "HKDF",
@@ -55,14 +81,8 @@ const PBKDF2 = async (props: Props, hashAlgo: string, password: string, saltIn: 
             salt = Buffer.from(window.crypto.getRandomValues(new Uint8Array(32)))
         }
         // Import raw key material
-        const baseKey = await crypto.subtle.importKey(
-            'raw',
-            Buffer.from(password),
-            { name: "PBKDF2" },
-            true,
-            ["deriveKey"]
-        );
-
+        const baseKey = await importKey(Buffer.from(password), pbkdf2ImportOpts)
+        // Derive key from key material using PBKDF2
         const derivedKey = await crypto.subtle.deriveKey(
             {
                 name: "PBKDF2",
@@ -148,7 +168,7 @@ export default function KDF(props: Props) {
     const [hkdfInfo, setHkdfInfo] = useState('')
     const [hkdfSalt, setHkdfSalt] = useState('')
     const [hkdfGenSalt, setHkdfGenSalt] = useState(true)
-    const [pbkdf2Iters, setPbkdf2Iters] = useState(100_000)
+    const [pbkdf2Iters, setPbkdf2Iters] = useState(500_000)
     const { action } = useParams();
 
     switch (action) {
@@ -187,13 +207,22 @@ export default function KDF(props: Props) {
                 </Stack>
 
                 <Stack direction="row" spacing={2} width='100%'>
-                    <FormControl fullWidth>
-                        <TextField label="Info"
-                            variant="outlined"
-                            placeholder="Application-specific contextual information (Optional)"
-                            value={hkdfInfo}
-                            onChange={(e) => setHkdfInfo(e.target.value)} />
-                    </FormControl>
+
+                    {kdfAlgo === "HKDF" &&
+                        <FormControl fullWidth>
+                            <TextField label="Info"
+                                variant="outlined"
+                                placeholder="Application-specific contextual information (Optional)"
+                                value={hkdfInfo}
+                                onChange={(e) => setHkdfInfo(e.target.value)} />
+                        </FormControl>}
+                    {kdfAlgo === "PBKDF2" &&
+                        <FormControl fullWidth>
+                            <TextField label="PBKDF2 Iterations"
+                                variant="outlined"
+                                value={pbkdf2Iters}
+                                onChange={(e) => setPbkdf2Iters(Number(e.target.value) || 500_000)} />
+                        </FormControl>}
 
                     <FormControl fullWidth >
                         <InputLabel htmlFor="outlined-adornment-salt">Salt</InputLabel>
@@ -212,16 +241,6 @@ export default function KDF(props: Props) {
                             value={hkdfSalt}
                             onChange={(e) => setHkdfSalt(e.target.value)} />
                     </FormControl>
-                </Stack>
-
-                <Stack direction="row" spacing={2} width='100%'>
-                    {kdfAlgo === "PBKDF2" &&
-                        <FormControl fullWidth>
-                            <TextField label="PBKDF2 Iterations"
-                                variant="outlined"
-                                value={pbkdf2Iters}
-                                onChange={(e) => setPbkdf2Iters(Number(e.target.value) || 500_000)} />
-                        </FormControl>}
                 </Stack>
 
                 {
