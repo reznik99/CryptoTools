@@ -6,14 +6,9 @@ import { CheckBox, CheckBoxOutlineBlank, Info, Key } from '@mui/icons-material';
 import { Props } from 'types/SharedTypes';
 import { hkdfImportOpts, importKey } from 'lib/crypto';
 
-const hkdf = async (props: Props, hashAlgo: string, keyMaterial: Buffer, saltIn: Buffer, info: Buffer) => {
+const hkdf = async (props: Props, hashAlgo: string, keyMaterial: Buffer, salt: Buffer, info: Buffer) => {
     try {
         props.setState({ loading: true })
-        // Generate salt if not supplied
-        let salt = saltIn;
-        if (!salt.byteLength) {
-            salt = Buffer.from(window.crypto.getRandomValues(new Uint8Array(32)))
-        }
         // Import raw key material
         const baseKey = await importKey(keyMaterial, hkdfImportOpts)
         // Derive key from key material using HKDF
@@ -42,9 +37,29 @@ const hkdf = async (props: Props, hashAlgo: string, keyMaterial: Buffer, saltIn:
 
 export default function HKDF(props: Props) {
     const [hashAlgo, setHashAlgo] = useState('SHA-256')
-    const [hkdfInfo, setHkdfInfo] = useState('')
-    const [hkdfSalt, setHkdfSalt] = useState('')
-    const [hkdfGenSalt, setHkdfGenSalt] = useState(true)
+    const [salt, setSalt] = useState('')
+    const [genSalt, setGenSalt] = useState(true)
+    const [info, setInfo] = useState('')
+    const [secret, setSecret] = useState('')
+
+    const submit = () => {
+        // Secret is required
+        if (!secret) {
+            props.setState({ errorMsg: `Master secret is required!` })
+            return
+        }
+        // Info is optional
+        const t_info = info.length
+            ? Buffer.from(info)
+            : Buffer.alloc(0)
+        // Use existing or generate new salt
+        const t_salt = !genSalt
+            ? Buffer.from(salt, 'base64')
+            : Buffer.from(window.crypto.getRandomValues(new Uint8Array(32)))
+        const secretBuf = Buffer.from(secret, 'base64')
+        // Derive key
+        hkdf(props, hashAlgo, secretBuf, t_salt, t_info)
+    }
 
     return <Stack spacing={2}
         direction="column"
@@ -77,45 +92,43 @@ export default function HKDF(props: Props) {
                 <TextField label="Info"
                     variant="outlined"
                     placeholder="Application-specific contextual information (Optional)"
-                    value={hkdfInfo}
-                    onChange={(e) => setHkdfInfo(e.target.value)} />
+                    value={info}
+                    onChange={(e) => setInfo(e.target.value)} />
             </FormControl>
         </Stack>
 
-        <FormControl fullWidth >
-            <InputLabel htmlFor="outlined-adornment-salt">Salt</InputLabel>
-            <OutlinedInput
-                id="outlined-adornment-salt"
-                startAdornment={
-                    <InputAdornment position="start">
-                        <IconButton onClick={e => setHkdfGenSalt(!hkdfGenSalt)} edge="start">
-                            {hkdfGenSalt ? <CheckBox /> : <CheckBoxOutlineBlank />}
-                        </IconButton>
-                    </InputAdornment>
-                }
-                label="Salt"
-                placeholder={hkdfGenSalt ? "Auto-generated" : "Base64 random value with the same length as digest function output"}
-                disabled={hkdfGenSalt}
-                value={hkdfSalt}
-                onChange={(e) => setHkdfSalt(e.target.value)} />
-        </FormControl>
+        <Stack direction="row" spacing={2} width='100%'>
+            <FormControl fullWidth>
+                <TextField label="Master Secret"
+                    variant="outlined"
+                    placeholder="(base64) Initial master secret to derive keys from"
+                    value={secret}
+                    onChange={(e) => setSecret(e.target.value)} />
+            </FormControl>
+            <FormControl fullWidth >
+                <InputLabel htmlFor="outlined-adornment-salt">Salt</InputLabel>
+                <OutlinedInput
+                    id="outlined-adornment-salt"
+                    startAdornment={
+                        <InputAdornment position="start">
+                            <IconButton onClick={e => setGenSalt(!genSalt)} edge="start">
+                                {genSalt ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                            </IconButton>
+                        </InputAdornment>
+                    }
+                    label="Salt"
+                    placeholder={genSalt ? "Auto-generated" : "Base64 random value with the same length as digest function output"}
+                    disabled={genSalt}
+                    value={salt}
+                    onChange={(e) => setSalt(e.target.value)} />
+            </FormControl>
+        </Stack>
 
-        {
-            props.loading
-                ? <Button variant='contained' disabled>
-                    <CircularProgress size={18} sx={{ mx: 1 }} /> Generating
-                </Button>
-                : <Button variant='contained'
-                    startIcon={<Key />}
-                    onClick={() => hkdf(
-                        props,
-                        hashAlgo,
-                        Buffer.from(props.input, 'base64'),
-                        !hkdfGenSalt ? Buffer.from(hkdfSalt, 'base64') : Buffer.alloc(0),
-                        hkdfInfo.length ? Buffer.from(hkdfInfo) : Buffer.alloc(0),
-                    )}>
-                    Derive
-                </Button>
+        {props.loading
+            ? <Button variant='contained' disabled>
+                <CircularProgress size={18} sx={{ mx: 1 }} /> Generating
+            </Button>
+            : <Button variant='contained' startIcon={<Key />} onClick={submit}>Derive</Button>
         }
     </Stack >
 }

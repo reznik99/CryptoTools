@@ -6,14 +6,9 @@ import { CheckBox, CheckBoxOutlineBlank, Info, Key } from '@mui/icons-material';
 import { Props } from 'types/SharedTypes';
 import { pbkdf2ImportOpts, importKey } from 'lib/crypto';
 
-const pbkdf2 = async (props: Props, hashAlgo: string, password: string, saltIn: Buffer, iters: number) => {
+const pbkdf2 = async (props: Props, hashAlgo: string, password: string, salt: Buffer, iters: number) => {
     try {
         props.setState({ loading: true })
-        // Generate salt if not supplied
-        let salt = saltIn;
-        if (!salt.byteLength) {
-            salt = Buffer.from(window.crypto.getRandomValues(new Uint8Array(32)))
-        }
         // Import raw key material
         const baseKey = await importKey(Buffer.from(password), pbkdf2ImportOpts)
         // Derive key from key material using PBKDF2
@@ -49,6 +44,21 @@ export default function PBKDF2(props: Props) {
     const [salt, setSalt] = useState('')
     const [genSalt, setGenSalt] = useState(true)
     const [iters, setIters] = useState(500_000)
+    const [password, setPassword] = useState('')
+
+    const submit = () => {
+        // Secret is required
+        if (!password) {
+            props.setState({ errorMsg: `Password is required!` })
+            return
+        }
+        // Use existing or generate new salt
+        const t_salt = !genSalt
+            ? Buffer.from(salt, 'base64')
+            : Buffer.from(window.crypto.getRandomValues(new Uint8Array(32)))
+        // Derive key
+        pbkdf2(props, hashAlgo, password, t_salt, iters)
+    }
 
     return <Stack spacing={2}
         direction="column"
@@ -85,50 +95,40 @@ export default function PBKDF2(props: Props) {
             </FormControl>
         </Stack>
 
-        <FormControl fullWidth >
-            <InputLabel htmlFor="outlined-adornment-salt">Salt</InputLabel>
-            <OutlinedInput
-                id="outlined-adornment-salt"
-                startAdornment={
-                    <InputAdornment position="start">
-                        <IconButton onClick={e => setGenSalt(!genSalt)} edge="start">
-                            {genSalt ? <CheckBox /> : <CheckBoxOutlineBlank />}
-                        </IconButton>
-                    </InputAdornment>
-                }
-                label="Salt"
-                placeholder={genSalt ? "Auto-generated" : "Base64 random value with the same length as digest function output"}
-                disabled={genSalt}
-                value={salt}
-                onChange={(e) => setSalt(e.target.value)} />
-        </FormControl>
+        <Stack direction="row" spacing={2} width='100%'>
+            <FormControl fullWidth>
+                <TextField label="Password"
+                    variant="outlined"
+                    type='password'
+                    placeholder="Password or secret"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)} />
+            </FormControl>
+            <FormControl fullWidth >
+                <InputLabel htmlFor="outlined-adornment-salt">Salt</InputLabel>
+                <OutlinedInput
+                    id="outlined-adornment-salt"
+                    startAdornment={
+                        <InputAdornment position="start">
+                            <IconButton onClick={e => setGenSalt(!genSalt)} edge="start">
+                                {genSalt ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                            </IconButton>
+                        </InputAdornment>
+                    }
+                    label="Salt"
+                    placeholder={genSalt ? "Auto-generated" : "Base64 random value with the same length as digest function output"}
+                    disabled={genSalt}
+                    value={salt}
+                    onChange={(e) => setSalt(e.target.value)} />
+            </FormControl>
+        </Stack>
 
         {
             props.loading
                 ? <Button variant='contained' disabled>
                     <CircularProgress size={18} sx={{ mx: 1 }} /> Generating
                 </Button>
-                : <Button variant='contained'
-                    startIcon={<Key />}
-                    onClick={() => pbkdf2(
-                        props,
-                        hashAlgo,
-                        props.input,
-                        !genSalt ? Buffer.from(salt, 'base64') : Buffer.alloc(0),
-                        iters
-                    )}>
-                    Derive
-                </Button>
+                : <Button variant='contained' startIcon={<Key />} onClick={submit}>Derive</Button>
         }
     </Stack >
 }
-
-{/* <Typography>ECDH (Elliptic Curve Diffie-Hellman) is a key-agreement algorithm.<br /> It enables two people who each have
-an ECDH public/private key pair to generate a shared secret.<br />
-They can then use this shared secret as a symmetric key to secure their communication, or can use the secret as an
-input to derive such a key (for example, using the HKDF algorithm).
-</Typography>
-
-<Typography>X25519 is a key agreement algorithm like ECDH, but built on the Curve25519 elliptic curve.<br /> The Curve25519
-algorithms are widely used in cryptography, and are considered to be some of the most efficient/fast available.
-</Typography> */}
