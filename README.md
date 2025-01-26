@@ -20,6 +20,7 @@ It runs all cryptographic operations in the browser utilising [SubtleCrypto API]
 - [Material UI](https://mui.com/)
 - [PKI.js](https://github.com/PeculiarVentures/PKI.js)
 - [ASN1.js](https://github.com/PeculiarVentures/ASN1.js)
+- [Go WASM](https://go.dev/wiki/WebAssembly)
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -30,12 +31,17 @@ It runs all cryptographic operations in the browser utilising [SubtleCrypto API]
 - [x] __ECDSA__ Key Generation with NIST __P-256__ __P-384__ and __P-521__ curve support.
 - [x] __PKCS10/CSR__ Generation with custom __Subjects__ and __SANs__, with __ECDSA__, __RSA-PSS__ and __RSASSA-PKCS1-v1_5__ signatures.
 - [x] __x509 Certificate__ Generation/Signing with custom key/cert.
+### Key Derivation
+- [x] __HKDF__ Key Derivation.
+- [x] __PBKDF2__ Key Derivation.
+- [x] __ECDH__ Key agreement with __P-256__ __P-384__ and __P-521__ curve support.
+- [ ] __Ed25519__ Key agreement with __Curve25519__ curve support.
 ### Encrypt/Decrypt
 - [x] __AES-CBC__ Encrypt/Decrypt.
 - [x] __AES-GCM__ Encrypt/Decrypt.
 - [x] __RSA-OAEP__ Encrypt/Decrypt.
 - [ ] __AES-GCM__ with additional authenticated data __AEAD__.
-- [ ] __File__ encryption support.
+- [x] __File__ encryption support (output is base64, needs file download option).
 ### Sign/Verify
 - [x] __RSASSA-PKCS1-v1_5__ Sign/Validate.
 - [x] __RSA-PSS__ Sign/Validate.
