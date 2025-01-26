@@ -6,9 +6,14 @@ import { CheckBox, CheckBoxOutlineBlank, Info, Key } from '@mui/icons-material';
 
 import { Props } from 'types/SharedTypes';
 
-const HKDF = async (props: Props, hashAlgo: string, keyMaterial: Buffer, salt: Buffer, info: Buffer) => {
+const HKDF = async (props: Props, hashAlgo: string, keyMaterial: Buffer, saltIn: Buffer, info: Buffer) => {
     try {
         props.setState({ loading: true })
+        // Generate salt if not supplied
+        let salt = saltIn;
+        if (!salt.byteLength) {
+            salt = Buffer.from(window.crypto.getRandomValues(new Uint8Array(32)))
+        }
         // Import raw key material
         const baseKey = await crypto.subtle.importKey(
             'raw',
@@ -31,21 +36,68 @@ const HKDF = async (props: Props, hashAlgo: string, keyMaterial: Buffer, salt: B
             ["encrypt", "decrypt"]
         );
         const derivedKeyStr = await crypto.subtle.exportKey('raw', derivedKey)
-        props.setState({ output: Buffer.from(derivedKeyStr).toString('base64') })
+
+        props.setState({ output: `Derived Key: ${Buffer.from(derivedKeyStr).toString('base64')}\nSalt: ${salt.toString('base64')}` })
     } catch (err) {
-        console.error(`Failed to derive key (HKDF): ${err}`)
+        console.error(err)
         props.setState({ errorMsg: `Failed to derive key (HKDF): ${err}` })
     } finally {
         props.setState({ loading: false })
     }
 }
 
-const DeriveKey = async (props: Props, kdfAlgo: string, hashAlgo: string, keyMaterial: Buffer, salt: Buffer, info: Buffer) => {
+const PBKDF2 = async (props: Props, hashAlgo: string, password: string, saltIn: Buffer, iters: number) => {
+    try {
+        props.setState({ loading: true })
+        // Generate salt if not supplied
+        let salt = saltIn;
+        if (!salt.byteLength) {
+            salt = Buffer.from(window.crypto.getRandomValues(new Uint8Array(32)))
+        }
+        // Import raw key material
+        const baseKey = await crypto.subtle.importKey(
+            'raw',
+            Buffer.from(password),
+            { name: "PBKDF2" },
+            true,
+            ["deriveKey"]
+        );
+
+        const derivedKey = await crypto.subtle.deriveKey(
+            {
+                name: "PBKDF2",
+                hash: hashAlgo,
+                salt: salt,
+                iterations: iters
+            },
+            baseKey,
+            { name: "AES-GCM", length: 256 },
+            true,
+            ["encrypt", "decrypt"]
+        )
+        const derivedKeyStr = await crypto.subtle.exportKey("raw", derivedKey)
+
+        let output = `Derived Key: ${Buffer.from(derivedKeyStr).toString('base64')}\n`
+        output += `Salt: ${salt.toString('base64')}\n`
+        output += `Iterations: ${iters}`
+
+        props.setState({ output: output })
+    } catch (err) {
+        console.error(err)
+        props.setState({ errorMsg: `Failed to derive key (PBKDF2): ${err}` })
+    } finally {
+        props.setState({ loading: false })
+    }
+}
+
+const DeriveKey = async (props: Props, kdfAlgo: string, hashAlgo: string, keyMaterial: string, salt: Buffer, info: Buffer, iterations: number) => {
     switch (kdfAlgo) {
         case "HKDF":
-            await HKDF(props, hashAlgo, keyMaterial, salt, info)
+            await HKDF(props, hashAlgo, Buffer.from(keyMaterial, 'base64') as any, salt, info)
             return;
         case "PBKDF2":
+            await PBKDF2(props, hashAlgo, keyMaterial, salt, iterations)
+            return
         case "ECDH":
         case "X25519":
         default:
@@ -96,6 +148,7 @@ export default function KDF(props: Props) {
     const [hkdfInfo, setHkdfInfo] = useState('')
     const [hkdfSalt, setHkdfSalt] = useState('')
     const [hkdfGenSalt, setHkdfGenSalt] = useState(true)
+    const [pbkdf2Iters, setPbkdf2Iters] = useState(100_000)
     const { action } = useParams();
 
     switch (action) {
@@ -115,8 +168,8 @@ export default function KDF(props: Props) {
                             onChange={(e) => setKDFAlgo(e.target.value)}>
                             <MenuItem value="HKDF">HKDF</MenuItem>
                             <MenuItem value="PBKDF2">PBKDF2</MenuItem>
-                            <MenuItem value="ECDH">ECDH</MenuItem>
-                            <MenuItem value="X25519">X25519</MenuItem>
+                            <MenuItem value="ECDH" disabled>ECDH</MenuItem>
+                            <MenuItem value="X25519" disabled>X25519</MenuItem>
                         </Select>
                     </FormControl>
                     <FormControl fullWidth>
@@ -142,7 +195,6 @@ export default function KDF(props: Props) {
                             onChange={(e) => setHkdfInfo(e.target.value)} />
                     </FormControl>
 
-
                     <FormControl fullWidth >
                         <InputLabel htmlFor="outlined-adornment-salt">Salt</InputLabel>
                         <OutlinedInput
@@ -162,6 +214,16 @@ export default function KDF(props: Props) {
                     </FormControl>
                 </Stack>
 
+                <Stack direction="row" spacing={2} width='100%'>
+                    {kdfAlgo === "PBKDF2" &&
+                        <FormControl fullWidth>
+                            <TextField label="PBKDF2 Iterations"
+                                variant="outlined"
+                                value={pbkdf2Iters}
+                                onChange={(e) => setPbkdf2Iters(Number(e.target.value) || 500_000)} />
+                        </FormControl>}
+                </Stack>
+
                 {
                     props.loading
                         ? <Button variant='contained' disabled>
@@ -173,9 +235,10 @@ export default function KDF(props: Props) {
                                 props,
                                 kdfAlgo,
                                 hashAlgo,
-                                Buffer.from(props.input, 'base64'),
-                                hkdfSalt.length && !hkdfGenSalt ? Buffer.from(hkdfSalt, 'base64') : Buffer.from(crypto.getRandomValues(new Uint8Array(32))),
-                                hkdfInfo.length ? Buffer.from(hkdfInfo) : Buffer.alloc(0)
+                                props.input,
+                                !hkdfGenSalt ? Buffer.from(hkdfSalt, 'base64') : Buffer.alloc(0),
+                                hkdfInfo.length ? Buffer.from(hkdfInfo) : Buffer.alloc(0),
+                                pbkdf2Iters
                             )}>
                             Generate KDF
                         </Button>
