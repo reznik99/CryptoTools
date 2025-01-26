@@ -58,6 +58,8 @@ export default function ECDH(props: Props) {
             </Typography>
         </Alert>
 
+        {/* TODO: Requires specifying curve as chromium browsers don't figure out curve during importKey :/. I guess firefox is just superior */}
+
         <Stack direction="row" spacing={2} width='100%'>
             <Stack direction="column" spacing={2} width='100%'>
                 <FileUploadBtn onRead={(priv) => setPrivateKey(String(priv))}
