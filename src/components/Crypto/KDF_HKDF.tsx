@@ -12,7 +12,7 @@ const hkdf = async (props: Props, hashAlgo: string, keyMaterial: Buffer, salt: B
         // Import raw key material
         const baseKey = await importKey(keyMaterial, hkdfImportOpts)
         // Derive key from key material using HKDF
-        const derivedKey = await crypto.subtle.deriveKey(
+        const derivedKey = await crypto.subtle.deriveBits(
             {
                 name: "HKDF",
                 salt: salt,
@@ -20,13 +20,10 @@ const hkdf = async (props: Props, hashAlgo: string, keyMaterial: Buffer, salt: B
                 hash: hashAlgo,
             },
             baseKey,
-            { name: "AES-GCM", length: 256 },
-            true,
-            ["encrypt", "decrypt"]
+            256,
         );
-        const derivedKeyStr = await crypto.subtle.exportKey('raw', derivedKey)
 
-        props.setState({ output: `Derived Key: ${Buffer.from(derivedKeyStr).toString('base64')}\nSalt: ${salt.toString('base64')}` })
+        props.setState({ output: `Derived Key: ${Buffer.from(derivedKey).toString('base64')}\nSalt: ${salt.toString('base64')}` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: `Failed to derive key (HKDF): ${err}` })

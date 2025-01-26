@@ -12,7 +12,7 @@ const pbkdf2 = async (props: Props, hashAlgo: string, password: string, salt: Bu
         // Import raw key material
         const baseKey = await importKey(Buffer.from(password), pbkdf2ImportOpts)
         // Derive key from key material using PBKDF2
-        const derivedKey = await crypto.subtle.deriveKey(
+        const derivedKey = await crypto.subtle.deriveBits(
             {
                 name: "PBKDF2",
                 hash: hashAlgo,
@@ -20,13 +20,10 @@ const pbkdf2 = async (props: Props, hashAlgo: string, password: string, salt: Bu
                 iterations: iters
             },
             baseKey,
-            { name: "AES-GCM", length: 256 },
-            true,
-            ["encrypt", "decrypt"]
+            256
         )
-        const derivedKeyStr = await crypto.subtle.exportKey("raw", derivedKey)
 
-        let output = `Derived Key: ${Buffer.from(derivedKeyStr).toString('base64')}\n`
+        let output = `Derived Key: ${Buffer.from(derivedKey).toString('base64')}\n`
         output += `Salt: ${salt.toString('base64')}\n`
         output += `Iterations: ${iters}`
 
