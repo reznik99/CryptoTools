@@ -1,9 +1,57 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Alert, AlertTitle, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Stack, TextField, Typography } from '@mui/material';
+import { Buffer } from 'buffer';
+import { Alert, AlertTitle, Button, CircularProgress, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Stack, TextField, Typography } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank, Info, Key } from '@mui/icons-material';
 
 import { Props } from 'types/SharedTypes';
+
+const HKDF = async (props: Props, hashAlgo: string, keyMaterial: Buffer, salt: Buffer, info: Buffer) => {
+    try {
+        props.setState({ loading: true })
+        // Import raw key material
+        const baseKey = await crypto.subtle.importKey(
+            'raw',
+            keyMaterial,
+            { name: "HKDF" },
+            true,
+            ["deriveKey"]
+        );
+        // Derive key from key material using HKDF and salt
+        const derivedKey = await crypto.subtle.deriveKey(
+            {
+                name: "HKDF",
+                salt: salt,
+                info: info,
+                hash: hashAlgo,
+            },
+            baseKey,
+            { name: "AES-GCM", length: 256 },
+            true,
+            ["encrypt", "decrypt"]
+        );
+        const derivedKeyStr = await crypto.subtle.exportKey('raw', derivedKey)
+        props.setState({ output: Buffer.from(derivedKeyStr).toString('base64') })
+    } catch (err) {
+        console.error(`Failed to derive key (HKDF): ${err}`)
+        props.setState({ errorMsg: `Failed to derive key (HKDF): ${err}` })
+    } finally {
+        props.setState({ loading: false })
+    }
+}
+
+const DeriveKey = async (props: Props, kdfAlgo: string, hashAlgo: string, keyMaterial: Buffer, salt: Buffer, info: Buffer) => {
+    switch (kdfAlgo) {
+        case "HKDF":
+            await HKDF(props, hashAlgo, keyMaterial, salt, info)
+            return;
+        case "PBKDF2":
+        case "ECDH":
+        case "X25519":
+        default:
+            props.setState({ errorMsg: `${kdfAlgo}(${hashAlgo}) is unimplemented` })
+    }
+}
 
 function kdfAlgoDescription(kdfAlgo: string) {
     switch (kdfAlgo) {
@@ -55,7 +103,7 @@ export default function KDF(props: Props) {
             return <Stack spacing={2}
                 direction="column"
                 alignItems="center"
-                sx={{ minHeight: '50vh' }}>
+                sx={{ minHeight: '50vh', paddingTop: 10 }}>
                 <Typography variant='h4'> Generate KDF </Typography>
 
                 <Stack direction="row" spacing={2} width='100%'>
@@ -72,9 +120,9 @@ export default function KDF(props: Props) {
                         </Select>
                     </FormControl>
                     <FormControl fullWidth>
-                        <InputLabel id='kdf-algo-label'>Hash Algo</InputLabel>
-                        <Select labelId='kdf-algo-label'
-                            label='KDF Algo'
+                        <InputLabel id='hash-algo-label'>Hash Algo</InputLabel>
+                        <Select labelId='hash-algo-label'
+                            label='Hash Algo'
                             value={hashAlgo}
                             onChange={(e) => setHashAlgo(e.target.value)}>
                             <MenuItem value="SHA-1">SHA-1</MenuItem>
@@ -99,9 +147,9 @@ export default function KDF(props: Props) {
                         <InputLabel htmlFor="outlined-adornment-salt">Salt</InputLabel>
                         <OutlinedInput
                             id="outlined-adornment-salt"
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton onClick={e => setHkdfGenSalt(!hkdfGenSalt)} edge="end">
+                            startAdornment={
+                                <InputAdornment position="start">
+                                    <IconButton onClick={e => setHkdfGenSalt(!hkdfGenSalt)} edge="start">
                                         {hkdfGenSalt ? <CheckBox /> : <CheckBoxOutlineBlank />}
                                     </IconButton>
                                 </InputAdornment>
@@ -121,7 +169,14 @@ export default function KDF(props: Props) {
                         </Button>
                         : <Button variant='contained'
                             startIcon={<Key />}
-                            onClick={() => { }}> {/*generateECDSA(props, curve, setKeypair) */}
+                            onClick={() => DeriveKey(
+                                props,
+                                kdfAlgo,
+                                hashAlgo,
+                                Buffer.from(props.input, 'base64'),
+                                hkdfSalt.length && !hkdfGenSalt ? Buffer.from(hkdfSalt, 'base64') : Buffer.from(crypto.getRandomValues(new Uint8Array(32))),
+                                hkdfInfo.length ? Buffer.from(hkdfInfo) : Buffer.alloc(0)
+                            )}>
                             Generate KDF
                         </Button>
                 }
