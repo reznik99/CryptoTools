@@ -2,7 +2,7 @@ import React, { ChangeEvent, useCallback, useState } from 'react';
 import { Button, SxProps, Theme } from '@mui/material';
 import { Check } from '@mui/icons-material';
 import { Buffer } from 'buffer';
-import { isASCII } from 'lib/encoding';
+import { isASCII, truncate } from 'lib/encoding';
 
 type Props = {
     children: React.ReactNode;
@@ -14,12 +14,7 @@ type Props = {
     onRead: (data: string | ArrayBuffer | null | undefined) => void;
 }
 
-function truncate(str: string, n: number) {
-    return (str.length > n) ? str.slice(0, n - 1) + '...' : str;
-};
-
 export default function FileUploadBtn(props: Props) {
-
     const [filename, setFilename] = useState('')
 
     const handleFile = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
@@ -36,7 +31,6 @@ export default function FileUploadBtn(props: Props) {
         } else {
             props.onRead(Buffer.from(result).toString('base64'))
         }
-
     }, [props])
 
     return (

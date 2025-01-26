@@ -7,6 +7,7 @@ import { Buffer } from 'buffer';
 import { Props, CryptoSettings } from 'types/SharedTypes';
 import FileUploadBtn from 'components/FileUploadBtn';
 import FileDownloadBtn from 'components/FileDownloadBtn';
+import { truncate } from 'lib/encoding';
 
 const keyUsages: Array<KeyUsage> = ["encrypt", "decrypt"];
 const keyUsagesHMAC: Array<KeyUsage> = ["sign", "verify"];
@@ -237,7 +238,7 @@ export default function AES(props: Props) {
                         label="Plaintext / Ciphertext"
                         variant="outlined"
                         placeholder="ASCII (for encryption) | Base64 (for decryption)"
-                        value={message}
+                        value={truncate(message, 800, "<hidden>")}
                         onChange={(e) => setMessage(e.target.value)}
                         InputProps={{
                             sx: { paddingRight: 0 },
