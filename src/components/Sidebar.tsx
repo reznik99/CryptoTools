@@ -30,6 +30,10 @@ const actions = new Map<string, menuObject>(
                     ["ECDSA Keys", {
                         link: "/ECDSA"
                     }],
+                    ["KDF Generation", {
+                        link: "/KDF",
+                        isNew: true
+                    }],
                     ["CSRs", {
                         link: "/CSR",
                         isNew: true

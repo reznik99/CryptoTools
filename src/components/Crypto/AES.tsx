@@ -183,36 +183,36 @@ export default function AES(props: Props) {
     switch (action) {
         case '':
         case 'Gen':
-            return (
-                <Stack spacing={2}
-                    direction="column"
-                    justifyContent="center"
-                    alignItems="center"
-                    sx={{ minHeight: '50vh' }}>
-                    <Typography variant='h4'> Generate Key </Typography>
-                    <FormControl fullWidth sx={{ my: 2 }}>
-                        <InputLabel id='keysize-label'>Key Size</InputLabel>
-                        <Select labelId='keysize-label'
-                            label='Key Size'
-                            value={keyLength}
-                            onChange={(e) => setKeyLength(Number(e.target.value))} >
-                            <MenuItem value={128}>128-bits</MenuItem>
-                            <MenuItem value={192}>192-bits</MenuItem>
-                            <MenuItem value={256}>256-bits</MenuItem>
-                        </Select>
-                    </FormControl>
-                    {props.loading
-                        ? <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Generating...</Button>
-                        : <Button variant='contained' startIcon={<Key />}
-                            onClick={() => generateAES(props, keyLength)}>Generate AES Key</Button>
-                    }
+            return <Stack spacing={2}
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                sx={{ minHeight: '50vh' }}>
+                <Typography variant='h4'> Generate Key </Typography>
 
-                    <FileDownloadBtn hide={!props.output} data={props.output || ''} fileName='AES.key'>
-                        Download Key (Base64)
-                    </FileDownloadBtn>
+                <FormControl fullWidth>
+                    <InputLabel id='keysize-label'>Key Size</InputLabel>
+                    <Select labelId='keysize-label'
+                        label='Key Size'
+                        value={keyLength}
+                        onChange={(e) => setKeyLength(Number(e.target.value))} >
+                        <MenuItem value={128}>128-bits</MenuItem>
+                        <MenuItem value={192}>192-bits</MenuItem>
+                        <MenuItem value={256}>256-bits</MenuItem>
+                    </Select>
+                </FormControl>
 
-                </Stack>
-            )
+                {props.loading
+                    ? <Button variant='contained' disabled><CircularProgress size={18} sx={{ mx: 1 }} /> Generating...</Button>
+                    : <Button variant='contained' startIcon={<Key />}
+                        onClick={() => generateAES(props, keyLength)}>Generate AES Key</Button>
+                }
+
+                <FileDownloadBtn hide={!props.output} data={props.output || ''} fileName='AES.key'>
+                    Download Key (Base64)
+                </FileDownloadBtn>
+
+            </Stack>
         case 'Enc':
             return (
                 <Stack spacing={2}
