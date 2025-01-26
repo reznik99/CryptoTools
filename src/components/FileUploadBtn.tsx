@@ -1,7 +1,8 @@
 import React, { ChangeEvent, useCallback, useState } from 'react';
 import { Button, SxProps, Theme } from '@mui/material';
 import { Check } from '@mui/icons-material';
-
+import { Buffer } from 'buffer';
+import { isASCII } from 'lib/encoding';
 
 type Props = {
     children: React.ReactNode;
@@ -21,7 +22,7 @@ export default function FileUploadBtn(props: Props) {
 
     const [filename, setFilename] = useState('')
 
-    const handleFile = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const handleFile = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
 
@@ -29,16 +30,17 @@ export default function FileUploadBtn(props: Props) {
         const ext = file.name.substring(file.name.lastIndexOf('.'))
         setFilename(truncate(name, props.maxNameLength ?? 10) + ext)
 
-        // Read the file contents
-        const reader = new FileReader()
-        reader.readAsText(file)
-        reader.onloadend = (readerEvent: ProgressEvent<FileReader>) => {
-            props.onRead(readerEvent?.target?.result)
+        const result = await file.text()
+        if (isASCII(result)) {
+            props.onRead(Buffer.from(result).toString())
+        } else {
+            props.onRead(Buffer.from(result).toString('base64'))
         }
+
     }, [props])
 
     return (
-        <Button sx={props.sx} 
+        <Button sx={props.sx}
             variant='outlined'
             color={filename ? 'success' : 'primary'}
             component='label'

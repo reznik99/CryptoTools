@@ -26,3 +26,7 @@ export const encodePEM = (value: string, pemHeader: string) => {
     const valueFormatted = value.replace(/(.{64})/g, "$1\n")
     return `-----BEGIN ${pemHeader}-----\n${valueFormatted.trimEnd()}\n-----END ${pemHeader}-----`
 }
+
+export function isASCII(str: string) {
+    return /^[\x00-\x7F]*$/.test(str);
+}

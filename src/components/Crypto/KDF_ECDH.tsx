@@ -47,7 +47,7 @@ export default function ECDH(props: Props) {
     return <Stack spacing={2}
         direction="column"
         alignItems="center"
-        sx={{ minHeight: '50vh' }}>
+        sx={{ minHeight: '50vh', paddingTop: 5  }}>
         <Typography variant='h4'> Elliptic Curve Diffie-Hellman </Typography>
 
         <Alert color="info" icon={<Info />} sx={{ width: '100%' }}>
@@ -67,7 +67,7 @@ export default function ECDH(props: Props) {
                     Select Alice's Private Key
                 </FileUploadBtn>
                 <TextField fullWidth multiline
-                    rows={10}
+                    rows={8}
                     label='Private Key'
                     placeholder='PKCS8 Private key file in PEM format (Alice)'
                     slotProps={{ htmlInput: textfieldMonoStyle }}
@@ -82,7 +82,7 @@ export default function ECDH(props: Props) {
                     Select Bob's Public Key
                 </FileUploadBtn>
                 <TextField fullWidth multiline
-                    rows={10}
+                    rows={8}
                     label='Public Key'
                     placeholder='PKIX Public key file in PEM format (Bob)'
                     slotProps={{ htmlInput: textfieldMonoStyle }}
