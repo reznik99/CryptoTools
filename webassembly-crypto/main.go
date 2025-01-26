@@ -4,11 +4,13 @@ package main
 
 import (
 	"crypto"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
@@ -25,6 +27,7 @@ func main() {
 	// Expose the Go functions to JavaScript
 	js.Global().Set("ParseX509Certificate", js.FuncOf(ParseX509Certificate))
 	js.Global().Set("SignX509Certificate", js.FuncOf(SignX509Certificate))
+	js.Global().Set("Md5Digest", js.FuncOf(Md5Digest))
 
 	// Block the program from exiting
 	<-done
@@ -130,6 +133,19 @@ func SignX509Certificate(this js.Value, args []js.Value) interface{} {
 	})
 
 	return string(newCertPem)
+}
+
+func Md5Digest(this js.Value, args []js.Value) interface{} {
+	data := args[0].String()
+
+	rawData, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		log.Printf("Error decoding base64 data: %s", err)
+		return nil
+	}
+	digest := md5.Sum(rawData)
+
+	return base64.StdEncoding.EncodeToString(digest[:])
 }
 
 // Utilities

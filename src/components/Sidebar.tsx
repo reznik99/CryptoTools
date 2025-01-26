@@ -94,12 +94,15 @@ const actions = new Map<string, menuObject>(
             )
         }],
         ["Hashing", {
-            link: "/SHA",
+            link: "/Hash",
             icon: <Draw />,
             submenus: new Map(
                 [
                     ["SHA", {
-                        link: "",
+                        link: "SHA",
+                    }],
+                    ["MD5", {
+                        link: "MD5",
                         isNew: true
                     }],
                 ]

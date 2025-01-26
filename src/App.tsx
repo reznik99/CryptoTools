@@ -14,6 +14,7 @@ import HKDF from 'components/Crypto/KDF_HKDF';
 import PBKDF2 from 'components/Crypto/KDF_PBKDF2';
 import ECDH from 'components/Crypto/KDF_ECDH';
 import SHA from 'components/Crypto/SHA';
+import MD5 from 'components/Crypto/MD5';
 import Encoding from 'components/Crypto/Encoding';
 import InfoMessage from 'components/Feedback/InfoMessage';
 import ActionAlerts from 'components/Feedback/ActionAlerts';
@@ -96,8 +97,10 @@ class App extends React.Component<IProps, IState> {
                                         element={<PBKDF2 {...this.state} setState={this.updateState} />} />
                                     <Route path="/ECDH/:action"
                                         element={<ECDH {...this.state} setState={this.updateState} />} />
-                                    <Route path="/SHA"
+                                    <Route path="/SHA/Hash"
                                         element={<SHA {...this.state} setState={this.updateState} />} />
+                                    <Route path="/MD5/Hash"
+                                        element={<MD5 {...this.state} setState={this.updateState} />} />
                                     <Route path="/Encoding"
                                         element={<Encoding {...this.state} setState={this.updateState} />} />
                                 </Routes>
