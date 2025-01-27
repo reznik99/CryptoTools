@@ -13,7 +13,8 @@ export interface CryptoSettings {
 export interface ImportOpts {
     format: "raw" | "pkcs8" | "spki",
     algorithm: {
-        name: string
+        name: string,
+        namedCurve?: string
     },
     exportable: boolean,
     usages: Array<KeyUsage>

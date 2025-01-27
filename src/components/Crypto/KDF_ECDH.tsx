@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Buffer } from 'buffer';
-import { Alert, AlertTitle, Button, CircularProgress, Stack, TextField, Typography } from '@mui/material';
+import { Alert, AlertTitle, Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { CloudUpload, Info, Key } from '@mui/icons-material';
 
 import { Props } from 'types/SharedTypes';
@@ -9,29 +9,28 @@ import FileUploadBtn from 'components/FileUploadBtn';
 import { textfieldMonoStyle } from 'components/Output';
 import { decodePEM } from 'lib/encoding';
 
-const ecdh = async (props: Props, privateKey: string, publicKey: string) => {
+const ecdh = async (props: Props, privateKey: string, publicKey: string, curve: string, sharedSecretBitLength: number) => {
     try {
         props.setState({ loading: true })
         // Import Alice private key
-        const alicePrivate = await importKey(decodePEM("PRIVATE KEY", privateKey), ecdhPrivImportOpts)
+        const privOpts = { ...ecdhPrivImportOpts }
+        privOpts.algorithm.namedCurve = curve
+        const alicePrivate = await importKey(decodePEM("PRIVATE KEY", privateKey), privOpts)
         // Import Bob public key
-        const bobPublic = await importKey(decodePEM("PUBLIC KEY", publicKey), ecdhPubImportOpts)
+        const pubOpts = { ...ecdhPubImportOpts }
+        pubOpts.algorithm.namedCurve = curve
+        const bobPublic = await importKey(decodePEM("PUBLIC KEY", publicKey), pubOpts)
         // Derive shared secret with ECDH
-        const sharedSecret = await crypto.subtle.deriveKey(
+        const sharedSecret = await crypto.subtle.deriveBits(
             {
                 name: "ECDH",
+                namedCurve: curve,
                 public: bobPublic,
-            },
+            } as any,
             alicePrivate,
-            {
-                name: "AES-GCM",
-                length: 256,
-            },
-            true,
-            ["encrypt", "decrypt"],
+            sharedSecretBitLength
         );
-        const sharedSecretStr = await crypto.subtle.exportKey("raw", sharedSecret)
-        props.setState({ output: `Shared Secret: ${Buffer.from(sharedSecretStr).toString('base64')}` })
+        props.setState({ output: Buffer.from(sharedSecret).toString('base64') })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: `Failed to derive shared secret (ECDH): ${err}` })
@@ -41,13 +40,15 @@ const ecdh = async (props: Props, privateKey: string, publicKey: string) => {
 }
 
 export default function ECDH(props: Props) {
+    const [curve, setCurve] = useState('P-256')
     const [publicKey, setPublicKey] = useState('')
     const [privateKey, setPrivateKey] = useState('')
+    const [sharedSecretBitLength, setSharedSecretBitLength] = useState(256)
 
     return <Stack spacing={2}
         direction="column"
         alignItems="center"
-        sx={{ minHeight: '50vh', paddingTop: 5  }}>
+        sx={{ minHeight: '50vh', paddingTop: 5 }}>
         <Typography variant='h4'> Elliptic Curve Diffie-Hellman </Typography>
 
         <Alert color="info" icon={<Info />} sx={{ width: '100%' }}>
@@ -57,8 +58,6 @@ export default function ECDH(props: Props) {
                 input to derive such a key (for example, using the HKDF algorithm).
             </Typography>
         </Alert>
-
-        {/* TODO: Requires specifying curve as chromium browsers don't figure out curve during importKey :/. I guess firefox is just superior */}
 
         <Stack direction="row" spacing={2} width='100%'>
             <Stack direction="column" spacing={2} width='100%'>
@@ -92,6 +91,33 @@ export default function ECDH(props: Props) {
                     onChange={(e) => setPublicKey(e.target.value)} />
             </Stack>
         </Stack>
+
+        <Stack direction="row" spacing={2} width='100%'>
+            <FormControl fullWidth>
+                <InputLabel id='curve-label'>Curve</InputLabel>
+                <Select labelId='curve-label'
+                    label='Curve'
+                    value={curve}
+                    onChange={(e) => setCurve(e.target.value)}>
+                    <MenuItem value="P-256">P-256</MenuItem>
+                    <MenuItem value="P-384">P-384</MenuItem>
+                    <MenuItem value="P-521">P-521</MenuItem>
+                </Select>
+            </FormControl>
+            <FormControl fullWidth>
+                <InputLabel id='bit-length-label'>Shared Secret bit-length</InputLabel>
+                <Select labelId='bit-length-label'
+                    label='Shared Secret bit-length'
+                    value={sharedSecretBitLength}
+                    onChange={(e) => setSharedSecretBitLength(Number(e.target.value) || 256)}>
+                    <MenuItem value={128}>128-bit</MenuItem>
+                    <MenuItem value={256}>256-bit</MenuItem>
+                    <MenuItem value={384} disabled={parseInt(curve.split("-")[1]) < 384}>384-bit</MenuItem>
+                    <MenuItem value={521} disabled={parseInt(curve.split("-")[1]) < 521}>521-bit</MenuItem>
+                </Select>
+            </FormControl>
+        </Stack>
+
         {
             props.loading
                 ? <Button variant='contained' disabled>
@@ -99,7 +125,7 @@ export default function ECDH(props: Props) {
                 </Button>
                 : <Button variant='contained'
                     startIcon={<Key />}
-                    onClick={() => ecdh(props, privateKey, publicKey)}>
+                    onClick={() => ecdh(props, privateKey, publicKey, curve, sharedSecretBitLength)}>
                     Derive
                 </Button>
         }

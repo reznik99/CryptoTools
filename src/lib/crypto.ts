@@ -16,16 +16,16 @@ export const pbkdf2ImportOpts: ImportOpts = {
 
 export const ecdhPubImportOpts: ImportOpts = {
     format: "spki",
-    algorithm: { name: "ECDH" },
+    algorithm: { name: "ECDH", namedCurve: "P-256" },
     exportable: true,
     usages: []
 }
 
 export const ecdhPrivImportOpts: ImportOpts = {
     format: "pkcs8",
-    algorithm: { name: "ECDH" },
-    exportable: true,
-    usages: ["deriveKey"]
+    algorithm: { name: "ECDH", namedCurve: "P-256" },
+    exportable: false,
+    usages: ["deriveBits"]
 }
 
 export async function importKey(key: Buffer, opts: ImportOpts) {
