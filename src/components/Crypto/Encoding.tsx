@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Buffer } from 'buffer';
-import { Button, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
-import { ArrowForward } from '@mui/icons-material';
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { ArrowForward, SwapHoriz } from '@mui/icons-material';
 
 import { Props } from 'types/SharedTypes';
 
@@ -10,8 +10,13 @@ const encode = (data: string, inEncoding: BufferEncoding, outEncoding: BufferEnc
 }
 
 export default function Encoding(props: Props) {
-    const [inEncoding, setInEncoding] = useState('base64' as BufferEncoding)
+    const [inEncoding, setInEncoding] = useState('utf-8' as BufferEncoding)
     const [outEncoding, setOutEncoding] = useState('hex' as BufferEncoding)
+
+    const swapEncoding = () => {
+        setInEncoding(outEncoding)
+        setOutEncoding(inEncoding)
+    }
 
     return (
         <Stack spacing={2}
@@ -29,11 +34,17 @@ export default function Encoding(props: Props) {
                         value={inEncoding}
                         onChange={e => setInEncoding(e.target.value as any)}>
                         <MenuItem value='ascii'>ASCII</MenuItem>
+                        <MenuItem value='utf-8'>UTF-8</MenuItem>
                         <MenuItem value='base64'>Base64</MenuItem>
                         <MenuItem value='hex'>Hex</MenuItem>
                     </Select>
                 </FormControl>
-
+                <Box alignSelf="center">
+                    <IconButton onClick={swapEncoding}
+                        color='primary'>
+                        <SwapHoriz />
+                    </IconButton>
+                </Box>
                 <FormControl fullWidth>
                     <InputLabel id='to-label'>To</InputLabel>
                     <Select labelId='to-label'
@@ -41,6 +52,7 @@ export default function Encoding(props: Props) {
                         value={outEncoding}
                         onChange={e => setOutEncoding(e.target.value as any)}>
                         <MenuItem value='ascii'>ASCII</MenuItem>
+                        <MenuItem value='utf-8'>UTF-8</MenuItem>
                         <MenuItem value='base64'>Base64</MenuItem>
                         <MenuItem value='hex'>Hex</MenuItem>
                     </Select>
