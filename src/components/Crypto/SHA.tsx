@@ -9,7 +9,7 @@ const digest = async (props: Props, message: string, algorithm: string) => {
     try {
         props.setState({ loading: true })
 
-        const hash = await crypto.subtle.digest(algorithm, Buffer.from(message, 'ascii'));
+        const hash = await crypto.subtle.digest(algorithm, Buffer.from(message, 'utf-8'));
 
         props.setState({ output: Buffer.from(hash).toString('base64'), successMsg: `(${algorithm}) Hashed successfully` })
     } catch (err) {
@@ -48,7 +48,7 @@ export default function SHA(props: Props) {
             <FormControl fullWidth>
                 <TextField label="Message"
                     variant="outlined"
-                    placeholder="ASCII message to hash"
+                    placeholder="UTF-8 text message to hash"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)} />
             </FormControl>

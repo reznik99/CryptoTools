@@ -8,8 +8,8 @@ import { Draw } from '@mui/icons-material';
 const digest = async (props: Props, message: string) => {
     try {
         props.setState({ loading: true })
-        const hash = window.Md5Digest(Buffer.from(message, 'ascii').toString('base64'))
-        props.setState({ output: Buffer.from(hash).toString('base64'), successMsg: `(MD5) Hashed successfully` })
+        const hash = window.Md5Digest(Buffer.from(message, 'utf-8').toString('base64'))
+        props.setState({ output: hash, successMsg: `(MD5) Hashed successfully` })
     } catch (err) {
         console.error(err)
         props.setState({ errorMsg: `Failed to digest data: ${err}` })
@@ -31,7 +31,7 @@ export default function MD5(props: Props) {
             <FormControl fullWidth>
                 <TextField label="Message"
                     variant="outlined"
-                    placeholder="ASCII message to hash"
+                    placeholder="UTF-8 text message to hash"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)} />
             </FormControl>
