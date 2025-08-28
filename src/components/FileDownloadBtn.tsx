@@ -16,7 +16,8 @@ type Props = {
 export default function FileDownloadBtn(props: Props) {
 
     const handleDownload = useCallback(() => {
-        const url = window.URL.createObjectURL(new Blob([props.data]));
+        const data = typeof props.data === "string" ? props.data : new Uint8Array(props.data)
+        const url = window.URL.createObjectURL(new Blob([data]));
         const link = document.createElement("a");
         link.href = url;
         link.download = `crypto-tools-${props.fileName}`;

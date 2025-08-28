@@ -15,8 +15,8 @@ const hkdf = async (props: Props, hashAlgo: string, keyMaterial: Buffer, salt: B
         const derivedKey = await crypto.subtle.deriveBits(
             {
                 name: "HKDF",
-                salt: salt,
-                info: info,
+                salt: new Uint8Array(salt),
+                info: new Uint8Array(info),
                 hash: hashAlgo,
             },
             baseKey,

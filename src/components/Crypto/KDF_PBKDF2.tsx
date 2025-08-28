@@ -16,7 +16,7 @@ const pbkdf2 = async (props: Props, hashAlgo: string, password: string, salt: Bu
             {
                 name: "PBKDF2",
                 hash: hashAlgo,
-                salt: salt,
+                salt: new Uint8Array(salt),
                 iterations: iters
             },
             baseKey,

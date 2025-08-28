@@ -31,7 +31,7 @@ export const ecdhPrivImportOpts: ImportOpts = {
 export async function importKey(key: Buffer, opts: ImportOpts) {
     return crypto.subtle.importKey(
         opts.format,
-        key,
+        new Uint8Array(key),
         opts.algorithm,
         opts.exportable,
         opts.usages
